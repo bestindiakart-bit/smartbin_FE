@@ -182,9 +182,9 @@ const Customer_Master = () => {
 
   // --- NAVIGATION & TABLE CONFIG ---
   const handleEdit = (row) =>
-    navigate("create-customer", { state: { rowId: row.id, mode: "edit" } });
+    navigate("create-customer", { state: { rowId: row.id, mode: "edit", projectId: row.projectId } });
   const handleView = (row) =>
-    navigate("customer-view", { state: { rowId: row.id } });
+    navigate("customer-view", { state: { rowId: row.id, projectId: row.projectId } });
 
   const StatsData = [
     {

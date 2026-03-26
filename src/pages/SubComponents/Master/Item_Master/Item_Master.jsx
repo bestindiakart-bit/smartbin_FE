@@ -419,20 +419,20 @@ const Item_Master = () => {
                       Warehouse
                     </p>
                   </div>
+                  <div className="bg-[#fef2f2] py-3 rounded-xl text-center border border-red-50">
+                    <p className="text-slate-900 font-black text-lg">
+                      {item.warehouseROL || 0}
+                    </p>
+                    <p className="text-slate-400 text-[10px] uppercase font-bold mt-1">
+                      ROL
+                    </p>
+                  </div>
                   <div className="bg-[#f0fdf4] py-3 rounded-xl text-center border border-green-50">
                     <p className="text-slate-900 font-black text-lg">
                       {item.warehouseSafetyStock || 0}
                     </p>
                     <p className="text-slate-400 text-[10px] uppercase font-bold mt-1">
                       Safety
-                    </p>
-                  </div>
-                  <div className="bg-[#fef2f2] py-3 rounded-xl text-center border border-red-50">
-                    <p className="text-slate-900 font-black text-lg">
-                      {item.stockROL || 0}
-                    </p>
-                    <p className="text-slate-400 text-[10px] uppercase font-bold mt-1">
-                      ROL
                     </p>
                   </div>
                 </div>

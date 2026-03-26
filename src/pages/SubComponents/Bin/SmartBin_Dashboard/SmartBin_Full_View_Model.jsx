@@ -200,18 +200,18 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
     { header: "Master ID", key: "masterId" },
     { header: "BIN ID", key: "binId" },
     { header: "Item Name", key: "itemName" },
-    { header: "Bin Status", key: "binStatus", isStatus: true },
+    { header: "Bin Status", key: "binStatus", isStatus: true },  
+    { header: "Bin Max", key: "binMaxLimit" },             // binStatusTag for color
     { header: "Bin QTY", key: "binQty" },
-    { header: "Bin Safety", key: "binSafetyLimit" },
     { header: "Bin Reorder", key: "binReorderLevel" },
-    { header: "Bin Max", key: "binMaxLimit" },
+    { header: "Bin Safety", key: "binSafetyLimit" },
     { header: "Bin Updated", key: "binUpdatedOn" },
-    { header: "WH Status", key: "warehouseStatusTag", isPaid: true },
+    { header: "WH Status", key: "warehouseStatusTag", isPaid: true }, 
+    { header: "WH Max", key: "warehouseMaxLimit" },        // warehouseStatusTag for color
     { header: "WH C Qty", key: "warehouseCurrentStock" },
-    { header: "WH Safety", key: "warehouseSafetyLimit" },
-    { header: "WH Max", key: "warehouseMaxLimit" },
     { header: "WH Reorder", key: "warehouseReorderLevel" },
-    { header: "Status", key: "currentStatus", isStatus: true },
+    { header: "WH Safety", key: "warehouseSafetyLimit" },
+    { header: "Status", key: "currentStatus", isStatus: true },               // now uses masterStatus
   ];
 
   return (

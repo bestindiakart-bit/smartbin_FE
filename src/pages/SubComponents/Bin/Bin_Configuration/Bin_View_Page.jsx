@@ -42,10 +42,10 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
     { label: "Project Name", value: binData.projectId?.projectName || binData.projectName },
     { label: "Item Name", value: binData.itemMasterId?.itemName || binData.itemName },
     { label: "Warehouse", value: binData.warehouseId?.warehouseName || binData.warehouseId },
-    { label: "Max Quantity", value: binData.binAllowablelimit || binData.binMaxQuantity },
     { label: "Max Weight", value: binData.binAllowableWeight },
-    { label: "Safety Stock", value: binData.safetyStockQuantity },
+    { label: "Max Quantity", value: binData.binAllowablelimit || binData.binMaxQuantity },
     { label: "ROL", value: binData.rol },
+    { label: "Safety Stock", value: binData.safetyStockQuantity },
     { label: "Price", value: binData.itemPerPrice ? `₹${binData.itemPerPrice}` : "N/A" },
   ] : [];
 

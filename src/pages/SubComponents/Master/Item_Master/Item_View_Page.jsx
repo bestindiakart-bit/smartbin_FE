@@ -163,10 +163,10 @@ const Item_View_Page = () => {
             <Card variants={itemVariants} title="Pricing & Logistics">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-y-10 gap-x-6">
                 <InfoField label="Cost Per Unit" value={`₹${itemData.costPerUnit}`} />
-                <InfoField label="Final Price" value={`₹${itemData.price}`} />
+                <InfoField label="Average selling price" value={`₹${itemData.price}`} />
                 <InfoField label="Weight" value={`${itemData.weightPerUnit} kg`} />
                 <InfoField label="HSN Code" value={itemData.itemHSNCode} />
-                <InfoField label="Manufacturing Time" value={`${itemData.manufacturingTime} hrs`} />
+                <InfoField label="Manufacturing Days" value={`${itemData.manufacturingTime} days`} />
                 <InfoField label="Is Local?" value={itemData.isLocal ? "Yes" : "No"} />
               </div>
             </Card>
@@ -256,8 +256,9 @@ const Item_View_Page = () => {
         <Card variants={itemVariants} title="Warehouse & Stock">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             <InfoField label="Available Stock" value={`${itemData.warehouseStock} Units`} />
-            <InfoField label="Safety Stock" value={`${itemData.warehouseSafetyStock} Units`} />
+            
             <InfoField label="Stock ROL" value={`${itemData.warehouseROL || itemData.stockROL || 0} Units`} />
+            <InfoField label="Safety Stock" value={`${itemData.warehouseSafetyStock} Units`} />
             <div className="flex flex-col gap-1.5">
                 <span className="text-sm text-gray-400 font-bold uppercase">Status</span>
                 <span className={`text-xs font-bold px-3 py-1 rounded-full border w-fit ${itemData.status === 1 ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>

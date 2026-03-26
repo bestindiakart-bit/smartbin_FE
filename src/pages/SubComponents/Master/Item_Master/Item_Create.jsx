@@ -32,6 +32,7 @@ const Item_Create = () => {
   const[errorModel, setErrorModel] = useState(false);
   const [apiError, setApiError] = useState("");
   const[loading, setLoading] = useState(isEdit);
+  const [message,setMessage] = useState({});
 
   // State for the Category Dropdown list
   const[itemType, setItemType] = useState([]);
@@ -177,86 +178,115 @@ const Item_Create = () => {
 
   // ================= HANDLE SUBMISSION =================
   const handleFinalSubmit = async () => {
-    setConfirm(false);
+  setConfirm(false);
 
-    try {
-      const data = new FormData();
+  try {
+    const data = new FormData();
 
-      // Append form fields
-      Object.keys(formData).forEach((key) => {
-        if (key === "itemStatus") return;
-        if (key === "status") return;
+    // Append form fields
+    Object.keys(formData).forEach((key) => {
+      if (key === "itemStatus") return;
+      if (key === "status") return;
 
-        if (key === "isLocal") {
-          data.append("isLocal", formData.isLocal === "Yes");
-        } else if ([
-            "weightPerUnit",
-            "costPerUnit",
-            "manufacturingTime",
-            "itemSBQ",
-            "warehouseStock",
-            "warehouseSafetyStock",
-            "warehouseROL",
-          ].includes(key)
-        ) {
-          data.append(key, Number(formData[key]) || 0);
-        } else if (key === "price") {
-          const cleanPrice = Number(
-            String(formData.price).replace(/[^0-9.-]+/g, "")
-          );
-          data.append("price", cleanPrice || 0);
-        } else {
-          data.append(key, formData[key] ?? "");
-        }
-      });
-
-      // Append status ONLY ONCE
-      data.append("status", formData.itemStatus ? 1 : 0);
-
-      // Append Images
-      images.forEach((imgObj) => {
-        if (!imgObj.isExisting && imgObj.file) {
-          data.append("itemImages", imgObj.file);
-        }
-      });
-      const existingImagePaths = images
-        .filter((img) => img.isExisting)
-        .map((img) => img.originalPath);
-      data.append("existingImages", JSON.stringify(existingImagePaths));
-
-      // Append Drawings (itemDrawing)
-      drawings.forEach((drawObj) => {
-        if (!drawObj.isExisting && drawObj.file) {
-          data.append("itemDrawing", drawObj.file);
-        }
-      });
-      const existingDrawingPaths = drawings
-        .filter((draw) => draw.isExisting)
-        .map((draw) => draw.originalPath);
-      data.append("existingDrawings", JSON.stringify(existingDrawingPaths));
-
-      // API CALL
-      let response;
-      if (isEdit) {
-        response = await item_create_edit(editId, data);
+      if (key === "isLocal") {
+        data.append("isLocal", formData.isLocal === "Yes");
+      } else if ([
+          "weightPerUnit",
+          "costPerUnit",
+          "manufacturingTime",
+          "itemSBQ",
+          "warehouseStock",
+          "warehouseSafetyStock",
+          "warehouseROL",
+        ].includes(key)
+      ) {
+        data.append(key, Number(formData[key]) || 0);
+      } else if (key === "price") {
+        const cleanPrice = Number(
+          String(formData.price).replace(/[^0-9.-]+/g, "")
+        );
+        data.append("price", cleanPrice || 0);
       } else {
-        response = await Item_create(data);
+        data.append(key, formData[key] ?? "");
       }
+    });
 
-      if (response?.data?.success) {
-        setSuccessModel(true);
-        setTimeout(() => navigate("/item-master"), 2000);
-      } else {
-        setApiError(response?.data?.message || "Operation failed.");
-        setErrorModel(true);
+    // Append status ONLY ONCE
+    data.append("status", formData.itemStatus ? 1 : 0);
+
+    // Append Images
+    images.forEach((imgObj) => {
+      if (!imgObj.isExisting && imgObj.file) {
+        data.append("itemImages", imgObj.file);
       }
-    } catch (err) {
-      console.error("Submit Error:", err);
-      setApiError(err.response?.data?.message || "Internal Server Error.");
+    });
+    const existingImagePaths = images
+      .filter((img) => img.isExisting)
+      .map((img) => img.originalPath);
+    data.append("existingImages", JSON.stringify(existingImagePaths));
+
+    // Append Drawings (itemDrawing)
+    drawings.forEach((drawObj) => {
+      if (!drawObj.isExisting && drawObj.file) {
+        data.append("itemDrawing", drawObj.file);
+      }
+    });
+    const existingDrawingPaths = drawings
+      .filter((draw) => draw.isExisting)
+      .map((draw) => draw.originalPath);
+    data.append("existingDrawings", JSON.stringify(existingDrawingPaths));
+
+    // API CALL
+    let response;
+    if (isEdit) {
+      response = await item_create_edit(editId, data);
+    } else {
+      response = await Item_create(data);
+    }
+
+    // Check if response exists
+    if (response?.data?.success === true) {
+      // Success case - extract message from response
+      const successMessage = response?.data?.data?.message || 
+                            response?.data?.message || 
+                            (isEdit ? "Item updated successfully!" : "Item created successfully!");
+      
+      setMessage({ message: successMessage, type: "success" });
+      setSuccessModel(true);
+      
+      setTimeout(() => navigate("/item-master"), 2000);
+    } else {
+      // Error case - extract error message from response
+      // Your response structure: {"success":false,"data":{"message":"Item already exists"},"statusCode":409}
+      const errorMessage = response?.data?.data?.message || 
+                          response?.data?.message || 
+                          response?.message || 
+                          "Operation failed.";
+      
+      setMessage({ message: errorMessage, type: "error" });
+      setApiError(errorMessage);
       setErrorModel(true);
     }
-  };
-
+  } catch (err) {
+    console.error("Submit Error:", err);
+    
+    // Handle error from catch block
+    let errorMessage = "Internal Server Error.";
+    
+    // Check if error response has the same structure
+    if (err.response?.data?.data?.message) {
+      errorMessage = err.response.data.data.message;
+    } else if (err.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err.message) {
+      errorMessage = err.message;
+    }
+    
+    setMessage({ message: errorMessage, type: "error" });
+    setApiError(errorMessage);
+    setErrorModel(true);
+  }
+};
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -543,15 +573,16 @@ const Item_Create = () => {
         message={`Confirm ${isEdit ? "update" : "creation"}?`}
       />
       <Success_Popup
-        isOpen={successModel}
-        onClose={() => setSuccessModel(false)}
-        message={isEdit ? "Item updated successfully!" : "Item created successfully!"}
-      />
-      <ErrorMessage_Popup
-        isOpen={errorModel}
-        onClose={() => setErrorModel(false)}
-        message={apiError}
-      />
+  isOpen={successModel}
+  onClose={() => setSuccessModel(false)}
+  message={message?.message || (isEdit ? "Item updated successfully!" : "Item created successfully!")}
+/>
+
+<ErrorMessage_Popup
+  isOpen={errorModel}
+  onClose={() => setErrorModel(false)}
+  message={message?.message || apiError || "An error occurred"}
+/>
     </motion.div>
   );
 };

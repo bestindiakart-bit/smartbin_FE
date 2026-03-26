@@ -177,6 +177,11 @@ export const customer_get = (page = 1, limit = 10) => {
 export const customer_view = (id) => {
   return api.get(`/customer-master/${id}`)
 }
+
+export const customer_PUI = (customerId) => {
+  return api.get(`/customer-master/get/data?customerId=${customerId}`)
+}
+
 export const customer_create_edit = (id,data) => {
   return api.put(`/customer-master/${id}`,data)
 }
