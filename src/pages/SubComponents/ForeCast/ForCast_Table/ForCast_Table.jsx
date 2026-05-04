@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Download_Button from '../../../../component/button/Download_Button';
 import Success_Popup from '../../../../component/Popup_Models/Success_Popup';
 import ErrorMessage_Popup from '../../../../component/Popup_Models/ErrorMessage_Popup';
@@ -25,14 +25,15 @@ const ForCast_Table = () => {
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-    const { permissions } = useSelector((state) => state.permissions);
+  const { permissions } = useSelector((state) => state.permissions);
   const userPermissions = permissions[10] || {};
   
   // Define permission checks
- const canView = userPermissions?.view ||  false;
+  const canView = userPermissions?.view || false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
@@ -55,7 +56,21 @@ const ForCast_Table = () => {
     companyName: item.customerId?.companyName || "-",
     projectName: item.projectId?.projectName || "-",
     bomName: item.bomId?.bomName || "-",
+    projectId: item.projectId?._id || item.projectId,
   })) || [];
+
+  // Client-side filtering based on search query
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) return ForcastData;
+    const query = searchQuery.toLowerCase();
+    return ForcastData.filter(
+      (item) =>
+        item.forecastId?.toLowerCase().includes(query) ||
+        item.companyName?.toLowerCase().includes(query) ||
+        item.projectName?.toLowerCase().includes(query) ||
+        item.bomName?.toLowerCase().includes(query)
+    );
+  }, [searchQuery, ForcastData]);
 
   // Fetch forecasts on component mount
   useEffect(() => {
@@ -73,6 +88,8 @@ const ForCast_Table = () => {
       // Clear selected row for delete
       setSelectedRowForDelete(null);
       setConfirmDelete(false);
+      // Clear selected rows
+      setSelectedRows([]);
     }
   }, [forecastDeleteResult, dispatch]);
 
@@ -118,6 +135,10 @@ const ForCast_Table = () => {
     setSelectedRows(selectedIds);
   };
 
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.05 } }
@@ -151,23 +172,66 @@ const ForCast_Table = () => {
     navigate("/forecast-viewer/view", { state: { rowId: row.id } });
   };
 
+  // Handle bulk delete
+  const handleBulkDelete = () => {
+    if (!canDelete) {
+      setErrorMessage("You don't have permission to delete forecasts");
+      setErrorModel(true);
+      return;
+    }
+    if (selectedRows.length === 0) {
+      setErrorMessage("Please select forecasts to delete");
+      setErrorModel(true);
+      return;
+    }
+    setConfirmDelete(true);
+    // For bulk delete, we'll handle it differently
+    setSelectedRowForDelete({ id: selectedRows, isBulk: true });
+  };
+
+  const handleConfirmBulkDelete = async () => {
+    if (selectedRowForDelete?.isBulk) {
+      try {
+        // Delete each selected forecast
+        for (const id of selectedRowForDelete.id) {
+          await dispatch(ForcastDelete(id)).unwrap();
+        }
+        setDeleteSuccessMessage(`${selectedRowForDelete.id.length} forecast(s) deleted successfully!`);
+        setSuccessModel(true);
+        dispatch(ForcastGet());
+        setSelectedRows([]);
+        setSelectedRowForDelete(null);
+        setConfirmDelete(false);
+      } catch (err) {
+        setErrorMessage("Failed to delete some forecasts");
+        setErrorModel(true);
+        setSelectedRowForDelete(null);
+        setConfirmDelete(false);
+      }
+    }
+  };
+
   return (
     <motion.div 
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="min-h-screen bg-[#fcfdfe] p-4 md:p-8 font-sans text-slate-800"
+      className="min-h-screen bg-[#fcfdfe] font-sans text-slate-800"
     >
       <div className="">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Forecast Viewer</h1>
+            <h1 className="text-2xl font-bold text-slate-800">Forecast <span className='text-2xl font-bold text-[#0062a0]'>Viewer</span></h1>
+            <p className="text-[#0062a0] font-medium mt-1">
+              Manage and monitor forecasts
+            </p>
           </div>
-          <Button disabled={!canCreate}
+          <Button 
+            disabled={!canCreate}
             variant="primary"
             onClick={() => navigate('/forecast-viewer/forecast-editor')}
           >
-            Create
+            + Create Forecast
           </Button>
         </div>
 
@@ -179,28 +243,49 @@ const ForCast_Table = () => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 border-b border-slate-100 bg-white flex justify-between items-center">
+          <div className="p-4 border-b border-slate-100 bg-white flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="max-w-md w-full">
-              <SearchBar />
+              <SearchBar 
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search by Forecast ID, Customer, Project, or BOM..."
+              />
             </div>
-            {selectedRows.length > 0 && (
-              <span className="text-sm font-medium text-[#0062a0] animate-in fade-in slide-in-from-right-2">
-                {selectedRows.length} Items Selected
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {selectedRows.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex items-center gap-3"
+                >
+                  <span className="text-sm font-semibold text-[#0062a0] bg-blue-50 px-4 py-2 rounded-full">
+                    {selectedRows.length} Item(s) Selected
+                  </span>
+                  {canDelete && (
+                    <button
+                      onClick={handleBulkDelete}
+                      className="text-red-500 hover:text-red-700 text-sm font-bold transition-colors"
+                    >
+                      Delete Selected
+                    </button>
+                  )}
+                </motion.div>
+              )}
+            </div>
           </div>
           <div className="p-0">
             <ReUsable_Table
               columns={columns} 
-              data={ForcastData}
+              data={filteredData}
               showToggle={false}
               showActions={true}
               selectedRows={selectedRows}
               onSelectionChange={handleSelectionChange}
-              onEdit={ canEdit ? handleEdit : undefined }
+              onEdit={canEdit ? handleEdit : undefined}
               onDelete={canDelete ? handleDelete : undefined}
               onView={canView ? handleView : undefined}
-              ActionChildren="Action"
+              ActionChildren="Actions"
               onRowClick={(row) => canView && handleView(row)}
             />
           </div>
@@ -214,9 +299,13 @@ const ForCast_Table = () => {
           setConfirmDelete(false);
           setSelectedRowForDelete(null);
         }}
-        onConfirm={handleConfirmDelete}
-        message={`Are you sure you want to delete forecast ${selectedRowForDelete?.forecastId || ''}?`}
-        title="Delete Forecast"
+        onConfirm={selectedRowForDelete?.isBulk ? handleConfirmBulkDelete : handleConfirmDelete}
+        message={
+          selectedRowForDelete?.isBulk
+            ? `Are you sure you want to delete ${selectedRowForDelete.id.length} selected forecast(s)?`
+            : `Are you sure you want to delete forecast ${selectedRowForDelete?.forecastId || ''}?`
+        }
+        title="Confirm Delete"
         loading={deleteLoading}
       />
 
@@ -232,7 +321,7 @@ const ForCast_Table = () => {
         isOpen={errorModel}
         onClose={() => setErrorModel(false)}
         message={errorMessage}
-        title="Delete Failed"
+        title="Operation Failed"
         btnText="Close"
       />
     </motion.div>

@@ -295,7 +295,7 @@ const Bin_Configuration = () => {
   ];
 
   return (
-    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 bg-[#fcfdfe] min-h-screen">
+    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="bg-[#fcfdfe] min-h-screen">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">

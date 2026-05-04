@@ -114,7 +114,7 @@ const User_Permission_Master = () => {
   return (
     <motion.div 
       initial="hidden" animate="visible" variants={containerVariants}
-      className="min-h-screen bg-[#fcfdfe] p-6 md:p-8 font-sans"
+      className="min-h-screen bg-[#fcfdfe] font-sans"
     >
       <div className="max-w-full mx-auto">
         

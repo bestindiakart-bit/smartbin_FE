@@ -255,7 +255,7 @@ const Item_Master = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="min-h-screen bg-[#f8fafc] p-4 md:p-6 font-sans"
+      className="min-h-screen bg-[#f8fafc] font-sans"
     >
       {/* Header Section */}
       <motion.div

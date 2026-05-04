@@ -307,7 +307,7 @@ const Customer_Master = () => {
     <motion.div
       initial="hidden"
       animate="visible"
-      className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen"
+      className="bg-[#fcfdfe] min-h-screen"
     >
       <div className="">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">

@@ -33,12 +33,12 @@ const formatDateTime = (dateStr) => {
 const SmartBin_Dashboard = () => {
   const navigate = useNavigate();
 
-    const { permissions } = useSelector((state) => state.permissions);
+  const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[11] || {};
   
   // Define permission checks
- const canView = userPermissions?.view ||  false;
+  const canView = userPermissions?.view || false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
@@ -61,18 +61,6 @@ const SmartBin_Dashboard = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
-
-
-  // Debounce search input to avoid excessive API calls
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      setCurrentPage(1); // Reset to page 1 on new search
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   // Animation variants
   const containerVariants = {
@@ -97,12 +85,13 @@ const SmartBin_Dashboard = () => {
         // Bin dynamic fields (from liveData)
         binQty: liveData?.currentQuantity ?? item.binQty,
         binStatus: liveData?.statusTag || liveData?.currentStatus || item.binStatus,
-        binStatusMessage: liveData?.statusMessage || "",               // For tooltip / extra info
+        binStatusMessage: liveData?.statusMessage || "",
         binUpdatedOn: liveData?.lastUpdatedAt ? formatDateTime(liveData.lastUpdatedAt) : item.binUpdatedOn,
 
         // Warehouse dynamic fields (fallback to static)
         warehouseCurrentStock: liveData?.warehouseCurrentStock ?? item.warehouseCurrentStock,
         warehouseStatusMessage: item.warehouseStatusMessage || liveData?.warehouseStatusMessage || "",
+        warehouseStatusTag: liveData?.warehouseStatusTag || item.warehouseStatusTag,
 
         // Status column: use masterStatus from dynamic if available
         currentStatus: liveData?.masterStatus || (item.status === 1 ? "Active" : "Inactive"),
@@ -110,19 +99,39 @@ const SmartBin_Dashboard = () => {
     });
   }, [tableData, dynamicData]);
 
-  // Dynamic Stats Calculations based on Processed Data & Total Items
+  // Client-side filtering based on search query (similar to Customer_Master)
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) return processedData;
+    const query = searchQuery.toLowerCase();
+    return processedData.filter(
+      (item) =>
+        item.customerName?.toLowerCase().includes(query) ||
+        item.projectName?.toLowerCase().includes(query) ||
+        item.masterId?.toLowerCase().includes(query) ||
+        item.binId?.toLowerCase().includes(query) ||
+        item.itemName?.toLowerCase().includes(query) ||
+        item.binStatus?.toLowerCase().includes(query) ||
+        item.currentStatus?.toLowerCase().includes(query) ||
+        item.warehouseStatusTag?.toLowerCase().includes(query)
+    );
+  }, [searchQuery, processedData]);
+
+  // Dynamic Stats Calculations based on Filtered Data
   const statsData = useMemo(() => {
+    // Use filtered data for stats so they update with search
+    const dataForStats = filteredData;
+
     // 1. Unique Active Projects on screen
-    const uniqueProjectsCount = new Set(processedData.map((d) => d.projectName).filter(Boolean)).size;
+    const uniqueProjectsCount = new Set(dataForStats.map((d) => d.projectName).filter(Boolean)).size;
 
     // 2. Critical Stock Count (Checking for red or orange indicators)
-    const criticalCount = processedData.filter((d) => {
+    const criticalCount = dataForStats.filter((d) => {
       const status = d.binStatus?.toLowerCase() || "";
       return status === "red" || status === "orange" || status === "critical";
     }).length;
 
     // 3. System Health Percentage (Online/Active vs Total)
-    const onlineCount = processedData.filter((d) => {
+    const onlineCount = dataForStats.filter((d) => {
       return (
         d.currentStatus?.toLowerCase() === "active" ||
         d.binStatus?.toLowerCase() === "online" ||
@@ -131,7 +140,7 @@ const SmartBin_Dashboard = () => {
       );
     }).length;
 
-    const healthPct = processedData.length > 0 ? Math.round((onlineCount / processedData.length) * 100) : 0;
+    const healthPct = dataForStats.length > 0 ? Math.round((onlineCount / dataForStats.length) * 100) : 0;
 
     return [
       { title: "Total Bins", count: totalItems.toString(), footerText: "Across all sites", icon: <Users /> },
@@ -139,41 +148,47 @@ const SmartBin_Dashboard = () => {
       { title: "Critical Stock", count: criticalCount.toString().padStart(2, "0"), footerText: "Needs Attention", icon: <UserRoundX className="text-red-500" /> },
       { title: "System Health", count: `${healthPct}%`, footerText: "Online/Active", icon: <UserCheck className="text-green-500" /> },
     ];
-  }, [processedData, totalItems]);
+  }, [filteredData, totalItems]);
 
   // Columns Configuration
- const columns = [
+  const columns = [
     { header: "Customer", key: "customerName" },
     { header: "Project Name", key: "projectName" },
     { header: "Master ID", key: "masterId" },
     { header: "BIN ID", key: "binId" },
     { header: "Item Name", key: "itemName" },
     { header: "Bin Status", key: "binStatus", isStatus: true },  
-    { header: "Bin Max", key: "binMaxLimit" },             // binStatusTag for color
+    { header: "Bin Max", key: "binMaxLimit" },
     { header: "Bin QTY", key: "binQty" },
     { header: "Bin Reorder", key: "binReorderLevel" },
     { header: "Bin Safety", key: "binSafetyLimit" },
     { header: "Bin Updated", key: "binUpdatedOn" },
     { header: "WH Status", key: "warehouseStatusTag", isPaid: true }, 
-    { header: "WH Max", key: "warehouseMaxLimit" },        // warehouseStatusTag for color
+    { header: "WH Max", key: "warehouseMaxLimit" },
     { header: "WH C Qty", key: "warehouseCurrentStock" },
     { header: "WH Reorder", key: "warehouseReorderLevel" },
     { header: "WH Safety", key: "warehouseSafetyLimit" },
-    { header: "Status", key: "currentStatus", isStatus: true },               // now uses masterStatus
+    { header: "Status", key: "currentStatus", isStatus: true },
   ];
 
   const handleSelectionChange = (selectedIds) => setSelectedRows(selectedIds);
   const handleEdit = (row) => navigate("edit-bin", { state: { rowID: row.id } });
   const handleView = () => setIsOpenSmartModel(true);
+  
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+    setCurrentPage(1); // Reset to page 1 when searching
+  };
 
-  // Fetch Data on Mount or when Pagination/Search changes
+  // Fetch Data on Mount or when Pagination changes (without search filter for client-side filtering)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Don't pass search query to API - fetch all data for current page
         const [staticRes, dynamicRes] = await Promise.all([
-          smartbinDashboard_getall(currentPage, itemsPerPage, debouncedSearch),
-          binDashboard_dynamicGet(currentPage, itemsPerPage, debouncedSearch),
+          smartbinDashboard_getall(currentPage, itemsPerPage, ""),
+          binDashboard_dynamicGet(currentPage, itemsPerPage, ""),
         ]);
 
         const records = staticRes?.data?.data?.records || [];
@@ -189,15 +204,17 @@ const SmartBin_Dashboard = () => {
       }
     };
     fetchData();
-  }, [currentPage, itemsPerPage, debouncedSearch]);
+  }, [currentPage, itemsPerPage]);
 
   return (
-    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen">
+    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="bg-[#fcfdfe] min-h-screen">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Smart Bin <span className="text-[#0062a0]">Dashboard</span> </h1>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              Smart Bin <span className="text-[#0062a0]">Dashboard</span>
+            </h1>
             <p className="text-[#0062a0] font-medium mt-1">Real-time Inventory Monitoring</p>
           </div>
           <div className="flex items-center gap-3">
@@ -212,16 +229,25 @@ const SmartBin_Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {statsData.map((item, index) => (
             <motion.div key={index} variants={itemVariants}>
-              <StatsCard title={item.title} count={item.count} footerText={item.footerText} icon={item.icon} />
+              <StatsCard 
+                title={item.title} 
+                count={item.count} 
+                footerText={item.footerText} 
+                icon={item.icon} 
+              />
             </motion.div>
           ))}
         </div>
 
         {/* Table Container */}
         <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
+          <div className="p-4 border-b border-slate-200 bg-white flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="max-w-md w-full">
-              <SearchBar placeholder="Global Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              <SearchBar 
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search customers, projects, bin ID, item name..." 
+              />
             </div>
             <AnimatePresence>
               {selectedRows.length > 0 && (
@@ -240,7 +266,7 @@ const SmartBin_Dashboard = () => {
           <div className="p-1">
             <ReUsable_Table
               columns={columns}
-              data={processedData}
+              data={filteredData}
               loading={loading}
               selectedRows={selectedRows}
               onSelectionChange={handleSelectionChange}
@@ -256,14 +282,21 @@ const SmartBin_Dashboard = () => {
               showbinstatus={true}
               showToggle={false}
               ActionChildren="Actions"
-              
             />
           </div>
         </motion.div>
       </div>
 
-      <Success_Popup isOpen={succesModel} onClose={() => setSuccessModel(false)} message="File Downloaded Successfully!" />
-      <SmartBin_Full_View_Model isOpen={isOpenSmartModel} onClose={() => setIsOpenSmartModel(false)} />
+      <Success_Popup 
+        isOpen={succesModel} 
+        onClose={() => setSuccessModel(false)} 
+        message="File Downloaded Successfully!" 
+      />
+      
+      <SmartBin_Full_View_Model 
+        isOpen={isOpenSmartModel} 
+        onClose={() => setIsOpenSmartModel(false)} 
+      />
     </motion.div>
   );
 };

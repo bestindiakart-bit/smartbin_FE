@@ -216,7 +216,7 @@ const WareHouse_Orders = () => {
   };
 
   return (
-    <motion.div initial="hidden" animate="visible" className="p-6 bg-[#fcfdfe] min-h-screen">
+    <motion.div initial="hidden" animate="visible" className="bg-[#fcfdfe] min-h-screen">
       <div className="max-w-full mx-auto">
         
         {/* Header */}

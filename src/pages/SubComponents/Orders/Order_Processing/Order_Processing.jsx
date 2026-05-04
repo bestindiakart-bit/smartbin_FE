@@ -155,7 +155,7 @@ setTableData(processedOrders);
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="p-6 bg-[#fcfdfe] min-h-screen" // Changed to premium clean background
+      className="bg-[#fcfdfe] min-h-screen" // Changed to premium clean background
     >
       <div className="">
         

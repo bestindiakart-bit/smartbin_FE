@@ -230,7 +230,7 @@ const Project_Master = () => {
   ];
 
   return (
-    <motion.div initial="hidden" animate="visible" className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen">
+    <motion.div initial="hidden" animate="visible" className="bg-[#fcfdfe] min-h-screen">
       <div className="max-w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>

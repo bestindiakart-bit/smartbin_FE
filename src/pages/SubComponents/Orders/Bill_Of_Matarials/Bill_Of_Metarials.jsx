@@ -323,7 +323,7 @@ const Bill_Of_Metarials = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen"
+      className="bg-[#fcfdfe] min-h-screen"
     >
       <div className="max-w-full mx-auto">
         

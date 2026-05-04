@@ -232,7 +232,7 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-500 hover:text-[#0062a0] hover:bg-blue-50 transition-all font-bold group"
               >
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                <span className="text-md">Back to Dashboard</span>
+                <span className="text-md cursor-pointer">Back to Dashboard</span>
               </button>
               <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight uppercase flex-1 text-center hidden md:block">
                 Inventory Status <span className="text-[#0062a0]">Full View</span>
