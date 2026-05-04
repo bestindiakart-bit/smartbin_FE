@@ -22,18 +22,18 @@ const Button = forwardRef(
   ) => {
     const isDisabled = disabled || isLoading;
 
-    // 🎨 Base Styles
+    //  Base Styles - removed cursor-pointer from here since it will be conditionally applied
     const baseStyles =
-      "relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0062a0] overflow-hidden group select-none cursor-pointer";
+      "relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0062a0] overflow-hidden group select-none";
 
-    // 📏 Size Variants
+    //  Size Variants
     const sizes = {
       sm: "text-sm px-4 py-2",
       md: "text-[15px] px-6 py-2.5",
       lg: "text-base px-8 py-3",
     };
 
-    // 🎭 Variant Styles
+    //  Variant Styles
     const variants = {
       primary: clsx(
         "text-white",
@@ -52,7 +52,7 @@ const Button = forwardRef(
         "border-2 border-[#0062a0] text-[#0062a0] hover:bg-[#0062a0] hover:text-white",
     };
 
-    // ⚡ Animation Settings
+    //  Animation Settings
     const motionProps = {
       whileHover: !isDisabled
         ? { scale: 1.03 }
@@ -79,6 +79,7 @@ const Button = forwardRef(
           sizes[size],
           variants[variant],
           isDisabled && "opacity-60 cursor-not-allowed",
+          !isDisabled && "cursor-pointer", 
           className
         )}
         {...motionProps}

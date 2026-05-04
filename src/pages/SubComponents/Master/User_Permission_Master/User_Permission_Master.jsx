@@ -10,13 +10,30 @@ import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_
 import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_Popup";
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 import {
   user_Permission_delete,
   user_Permission_get
 } from "../../../../service/Master_Services/Master_Services";
+import { useDispatch, useSelector } from "react-redux";
 
 const User_Permission_Master = () => {
   const navigate = useNavigate();
+      const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[5] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // --- 1. INITIALIZE ALL STATES AT THE TOP ---
   const [perData, setPerData] = useState([]);
@@ -99,7 +116,7 @@ const User_Permission_Master = () => {
       initial="hidden" animate="visible" variants={containerVariants}
       className="min-h-screen bg-[#fcfdfe] p-6 md:p-8 font-sans"
     >
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-full mx-auto">
         
         {/* HEADER */}
         <motion.div variants={itemVariants} className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -134,12 +151,12 @@ const User_Permission_Master = () => {
                 onClick={() => !isLimitReached && navigate("user-create")} 
                 variant={isLimitReached ? "secondary" : "primary"}
                 className={isLimitReached ? "opacity-50 cursor-not-allowed grayscale" : "shadow-md"}
-                disabled={isLimitReached}
+                disabled={isLimitReached && !canCreate}  
               >
                 {isLimitReached ? "Role Limit Reached" : "+ Create Permission"}
               </Button>
             </motion.div>
-            <Download_Button onClick={() => setSuccessPopup({ open: true, message: "Report generated successfully!" })} />
+            <Download_Button disabled={!canView} onClick={() => setSuccessPopup({ open: true, message: "Report generated successfully!" })} />
           </div>
         </motion.div>
 
@@ -182,7 +199,7 @@ const User_Permission_Master = () => {
                   <h3 className="text-base font-bold text-slate-500 mb-8 uppercase tracking-widest text-center">
                     {item.userTypeName?.replace("_", " ")}
                   </h3>
-                  <Button onClick={() => navigate('user-view', { state: { rowID: item._id } })} variant="primary" className="w-full">
+                  <Button disabled={!canEdit} onClick={() => navigate('user-view', { state: { rowID: item._id } })} variant="primary" className="w-full">
                     Edit Role
                   </Button>
                 </motion.div>

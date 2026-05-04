@@ -29,34 +29,20 @@ api.interceptors.request.use(
 // 3. Add a Response Interceptor (Handles Global Errors)
 api.interceptors.response.use(
   (response) => {
-    // Return successful response
     return response;
   },
   (error) => {
-    // Case 1: Network Error / Server is Down (No response object)
     if (!error.response) {
       console.error("Network error or server unreachable");
       window.location.href = "/network-error";
       return Promise.reject(error);
     }
-
     const { status } = error.response;
-
-    // Case 2: Unauthorized (Token expired or invalid)
     if (status === 401) {
-      localStorage.clear(); // Clear all data (token, user info)
+      localStorage.clear(); 
       window.location.href = "/login";
     }
-
-    // Case 3: Internal Server Error
-    // else if (status === 500) {
-    //   window.location.href = "/500";
-    // }
-
-    // Case 4: Forbidden or Page Not Found (Optional)
     else if (status === 404) {
-      // You can choose to redirect to 404 here or handle it in the component
-      // window.location.href = "/404";
     }
 
     return Promise.reject(error);
@@ -185,7 +171,6 @@ export const customer_PUI = (customerId) => {
 export const customer_create_edit = (id,data) => {
   return api.put(`/customer-master/${id}`,data)
 }
-
 
 export const customer_delete = (id) => {
   return api.delete(`/customer-master/${id}`)

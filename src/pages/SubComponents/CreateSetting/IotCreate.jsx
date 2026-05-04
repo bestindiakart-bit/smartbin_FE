@@ -309,7 +309,7 @@ const IotCreate = () => {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             IoT Configuration Manager

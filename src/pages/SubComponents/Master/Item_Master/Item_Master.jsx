@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 // Components
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
@@ -26,9 +26,25 @@ import {
   item_export,
   item_master_get,
 } from "../../../../service/Master_Services/Master_Services";
+import { useDispatch, useSelector } from "react-redux";
 
 const Item_Master = () => {
   const navigate = useNavigate();
+        const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[3] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // Search Params for View Toggle (Grid vs Table)
   const[searchParams, setSearchParams] = useSearchParams();
@@ -259,14 +275,14 @@ const Item_Master = () => {
         </div>
 
         <div className="flex items-center gap-3 w-full lg:w-auto">
-          <Button onClick={() => setIsCreateModel(true)} variant="primary">
+          <Button disabled={!canCreate} onClick={() => setIsCreateModel(true)} variant="primary">
             Create Category
           </Button>
-          <Button onClick={() => navigate("item-create")} variant="primary">
+          <Button disabled={!canCreate} onClick={() => navigate("item-create")} variant="primary">
             Create Item
           </Button>
 
-          <Download_Button
+          <Download_Button disabled={!canView}
             onSelect={handleExport}
             tooltipText={exportLoading ? "Generating..." : "Export Data"}
           />
@@ -343,12 +359,12 @@ const Item_Master = () => {
             }}
             selectedRows={selectedRows}
             onSelectionChange={setSelectedRows}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onRowClick={handleView}
+            onView={canView ? handleView : undefined}
+            onEdit={canEdit ? handleEdit : undefined}
+            onDelete={canDelete ? handleDelete : undefined}
+            onRowClick={canView ? handleView : undefined}
             onStatusToggle={handleStatusToggle} // Passed toggle function down to table
-            showActions={true}
+            showActions={canEdit || canDelete || canView}
             showToggle={true}
           />
         </motion.div>
@@ -367,7 +383,7 @@ const Item_Master = () => {
                 key={item._id}
                 variants={itemVariants}
                 whileHover={{ y: -8 }}
-                onClick={() => handleView(item)}
+                onClick={canView ? () => handleView(item) : undefined}
                 className="cursor-pointer bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300"
               >
                 <div className="flex gap-4 mb-6">

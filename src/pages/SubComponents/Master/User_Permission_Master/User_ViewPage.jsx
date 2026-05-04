@@ -142,7 +142,7 @@ const User_ViewPage = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-7xl mx-auto"
+        className="max-w- mx-auto"
       >
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">

@@ -77,7 +77,7 @@ const StatusIndicator = ({ value, message }) => {
         <motion.div
           className={`w-4 h-4 rounded-full ${bgClass} cursor-pointer`}
           animate={{
-            boxShadow:[
+            boxShadow: [
               `0px 0px 0px 0px ${shadowColor}`,
               `0px 0px 0px 8px rgba(0,0,0,0)`,
             ],
@@ -107,7 +107,7 @@ const StatusIndicator = ({ value, message }) => {
 
 const ReUsable_Table = ({
   columns = [],
-  data =[],
+  data = [],
   loading = false,
   showToggle = false,
   showbinstatus = false,
@@ -116,7 +116,7 @@ const ReUsable_Table = ({
   showActions = true,
   showMoreView = false,
   onMoreView,
-  selectedRows =[],
+  selectedRows = [],
   onSelectionChange,
   currentPage = 1,
   itemsPerPage = 10,
@@ -132,7 +132,7 @@ const ReUsable_Table = ({
   tableHeight = "max-h-[600px]",
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null);
-  const[searchQueries, setSearchQueries] = useState({});
+  const [searchQueries, setSearchQueries] = useState({});
   const scrollRef = useRef(null);
 
   // --- COLUMN RESIZING STATE & LOGIC ---
@@ -175,7 +175,8 @@ const ReUsable_Table = ({
         ...prev,
         [resizingColRef.current]: newWidth,
       }));
-    },[]
+    },
+    []
   );
 
   const handleResizeEnd = useCallback(() => {
@@ -570,33 +571,39 @@ const ReUsable_Table = ({
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className="absolute right-14 top-2 z-30 bg-white rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] flex items-center p-2 gap-3 border border-slate-100"
                               >
-                                <button
-                                  onClick={() => {
-                                    onEdit?.(row);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="p-2 text-[#0062a0] bg-blue-50/50 rounded-lg hover:bg-blue-100 transition-colors"
-                                >
-                                  <Edit2 size={15} />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    onView?.(row);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="p-2 text-slate-600 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
-                                >
-                                  <Eye size={16} />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    onDelete?.(row);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                                >
-                                  <Trash2 size={15} />
-                                </button>
+                                {onEdit && (
+                                  <button
+                                    onClick={() => {
+                                      onEdit(row);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="p-2 text-[#0062a0] bg-blue-50/50 rounded-lg hover:bg-blue-100 transition-colors"
+                                  >
+                                    <Edit2 size={15} />
+                                  </button>
+                                )}
+                                {onView && (
+                                  <button
+                                    onClick={() => {
+                                      onView(row);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="p-2 text-slate-600 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                                  >
+                                    <Eye size={16} />
+                                  </button>
+                                )}
+                                {onDelete && (
+                                  <button
+                                    onClick={() => {
+                                      onDelete(row);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                )}
                               </motion.div>
                             </>
                           )}

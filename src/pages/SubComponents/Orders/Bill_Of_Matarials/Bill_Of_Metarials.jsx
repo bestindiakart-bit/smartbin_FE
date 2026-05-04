@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingCart, SquareKanban, UserRoundX, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
 // Project Components
 import Button from "../../../../component/button/Buttons";
@@ -14,9 +15,23 @@ import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
 
 // Import API services
 import { deleteAPI, getAPI } from "../../../../service/Orders_Services/Oreder_Services";
+import { useDispatch, useSelector } from "react-redux";
 
 const Bill_Of_Metarials = () => {
   const navigate = useNavigate();
+    const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[9] || {};
+  
+  // Define permission checks
+ const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
   
   // UI States
   const [succesModel, setSuccessModel] = useState(false);
@@ -310,7 +325,7 @@ const Bill_Of_Metarials = () => {
       variants={containerVariants}
       className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen"
     >
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-full mx-auto">
         
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
@@ -322,12 +337,12 @@ const Bill_Of_Metarials = () => {
           
           <div className="flex items-center gap-3">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button onClick={() => navigate('bill-create')} variant="primary">
+              <Button disabled={!canCreate} onClick={() => navigate('bill-create')} variant="primary">
                 + Create BOM
               </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Download_Button onClick={() => setSuccessModel(true)} />
+              <Download_Button disabled={!canView} onClick={() => setSuccessModel(true)} />
             </motion.div>
           </div>
         </motion.div>
@@ -404,11 +419,11 @@ const Bill_Of_Metarials = () => {
                 setItemsPerPage(limit);
                 setCurrentPage(1); // Reset to page 1 when limit changes
               }}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onView={handleView}
+              onEdit={canEdit ? handleEdit : null}
+              onDelete={canDelete ? handleDelete : null}
+              onView={canView ? handleView : null}
               onStatusToggle={handleToggleStatus}
-              onRowClick={(row) => handleView(row)}
+              onRowClick={(row) => canView ? handleView(row) : null}
               ActionChildren="Actions"
             />
           </div>

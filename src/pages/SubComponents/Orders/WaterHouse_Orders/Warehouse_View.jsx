@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 // API Service
 import { warehouse_get } from "../../../../service/Orders_Services/Oreder_Services";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPermissions } from '../../../../store/Permission_Store/Permission_Slice';
 
 /**
  * Reusable component for label-value pairs with formatting
@@ -26,6 +28,17 @@ const InfoField = ({ label, value, isNumber = false }) => {
 
 const Warehouse_View = ({ isOpen, onClose, id }) => {
   const navigate = useNavigate();
+
+    const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[7] || {};
+  
+  // Define permission checks
+  const canEdit = userPermissions?.edit || false;
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
   
   const [loading, setLoading] = useState(false);
   const [displayData, setDisplayData] = useState(null);
@@ -205,7 +218,7 @@ const Warehouse_View = ({ isOpen, onClose, id }) => {
 
             {/* Footer */}
             <div className="p-8 pt-4 flex justify-end bg-gray-50 border-t border-gray-100">
-              <button
+              <button disabled={!canEdit}
                 onClick={() => {
                     onClose();
                     navigate('warehouse-create', { state: { mode: 'edit', id: id } });

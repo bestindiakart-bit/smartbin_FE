@@ -3,6 +3,7 @@ import { CheckCircle2, Loader2, SquareKanban, Users, XCircle } from "lucide-reac
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Project_Master_View from "./Project_Master_View";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 // API Services
 import {
@@ -21,9 +22,25 @@ import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
 import StatsCard from "../../../../component/stats/StatsCard";
 import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+import { useDispatch, useSelector } from "react-redux";
 
 const Project_Master = () => {
   const navigate = useNavigate();
+      const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[3] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // UI States
   const [succesModel, setSuccessModel] = useState(false);
@@ -214,15 +231,15 @@ const Project_Master = () => {
 
   return (
     <motion.div initial="hidden" animate="visible" className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen">
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Project <span className="text-[#0062a0]">Master</span></h1>
             <p className="text-[#0062a0] font-medium mt-1">Directory Management</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => navigate('project-create')} variant="primary">+ Create Project</Button>
-            <Download_Button onSelect={handleExport} tooltipText={exportLoading ? "Generating..." : "Export Data"} />
+            <Button disabled ={!canCreate} onClick={() => navigate('project-create')} variant="primary">+ Create Project</Button>
+            <Download_Button disabled={!canView} onSelect={handleExport} tooltipText={exportLoading ? "Generating..." : "Export Data"} />
           </div>
         </div>
 
@@ -262,7 +279,7 @@ const Project_Master = () => {
                 data={filteredData}
                 loading={loading}
                 showToggle={true}
-                showActions={true}
+                showActions={canEdit || canDelete || canView}
                 selectedRows={selectedRows}
                 onSelectionChange={setSelectedRows}
 
@@ -276,11 +293,11 @@ const Project_Master = () => {
                   setCurrentPage(1);
                 }}
 
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
+                onEdit={canEdit ? handleEdit : undefined}
+                onDelete={canDelete ? handleDelete : undefined}
+                onView={canView ? handleView : undefined}
                 onStatusToggle={handleToggleStatus}
-                onRowClick={handleView}
+                onRowClick={canView ? handleView : undefined}
                 ActionChildren="Action"
               />
             )}

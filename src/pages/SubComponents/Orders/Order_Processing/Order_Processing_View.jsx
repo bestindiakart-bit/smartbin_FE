@@ -36,7 +36,7 @@ const Order_Processing_View = () => {
       variants={containerVariants}
       className="min-h-screen bg-white p-4 md:p-8 font-sans text-slate-800"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         
         {/* --- HEADER SECTION --- */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">

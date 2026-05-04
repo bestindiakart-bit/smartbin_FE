@@ -84,7 +84,7 @@ const Order_Processing_Create = () => {
       variants={containerVariants}
       className="min-h-screen bg-slate-50/20 p-4 md:p-8"
     >
-      <div className="max-w-[1400px] mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
+      <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
         
         {/* --- HEADER SECTION --- */}
         <motion.div variants={itemVariants} className="flex items-center justify-between mb-10">

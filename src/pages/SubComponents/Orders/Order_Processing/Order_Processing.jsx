@@ -3,6 +3,7 @@ import { ShoppingCart, SquareKanban, UserRoundX, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { order_processing_allGet } from "../../../../service/Orders_Services/Oreder_Services";
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
 // Project Components
 import Button from "../../../../component/button/Buttons";
@@ -12,6 +13,7 @@ import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
 import StatsCard from "../../../../component/stats/StatsCard";
 import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+import { useDispatch, useSelector } from "react-redux";
 
 const Order_Processing = () => {
   const navigate = useNavigate();
@@ -21,6 +23,22 @@ const Order_Processing = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [tabledata, setTableData] = useState([]);
   console.log(tabledata, "tabledata")
+
+           const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[7] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+   const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // --- SMOOTHNESS VARIANTS (Matched with Editor style) ---
   const containerVariants = {
@@ -139,18 +157,18 @@ setTableData(processedOrders);
       variants={containerVariants}
       className="p-6 bg-[#fcfdfe] min-h-screen" // Changed to premium clean background
     >
-      <div className="max-w-[1600px] mx-auto">
+      <div className="">
         
         {/* 1. Page Header Section */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Order Processing</h1>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Order <span className="text-[#0062a0]">Processing</span> </h1>
             <p className="text-[#0062a0] font-medium mt-1">Order Management System</p>
           </div>
           
           <div className="flex items-center gap-3">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button 
+              <Button disabled={!canCreate}
                 onClick={() => navigate('order-prcessing-create')}
                 variant="primary"
               >
@@ -158,7 +176,7 @@ setTableData(processedOrders);
               </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Download_Button onClick={() => setSuccessModel(true)} />
+              <Download_Button disabled={!canView} onClick={() => setSuccessModel(true)} />
             </motion.div>
           </div>
         </motion.div>
@@ -216,11 +234,11 @@ setTableData(processedOrders);
               showActions={true}
               selectedRows={selectedRows}
               onSelectionChange={handleSelectionChange}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onView={handleView}
+              onEdit={canEdit? handleEdit: undefined}
+              onDelete={canDelete? handleDelete: undefined}
+              onView={canView? handleView: undefined}
               onStatusToggle={handleToggleStatus}
-              onRowClick={(row) => navigate('order-Processing-view', { state: { rowId: row.id } })}
+              onRowClick={canView? (row) => navigate('order-Processing-view', { state: { rowId: row.id } }): undefined}
             />
           </div>
         </motion.div>

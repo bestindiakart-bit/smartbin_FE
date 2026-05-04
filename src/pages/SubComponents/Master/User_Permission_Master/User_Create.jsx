@@ -95,7 +95,7 @@ const User_Create = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="max-w-7xl mx-auto"
+        className="max-w-full mx-auto"
       >
         {/* --- HEADER SECTION --- */}
         <header className="flex items-center gap-4 mb-8">

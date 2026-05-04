@@ -176,7 +176,7 @@ const Bill_View_page = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-white p-4 md:p-10">
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-full mx-auto">
           <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-md">
             <h3 className="font-bold text-lg mb-2">Error Loading Data</h3>
             <p>{error}</p>
@@ -199,7 +199,7 @@ const Bill_View_page = () => {
       variants={containerVariants}
       className="min-h-screen bg-white p-4 md:p-10 font-sans text-slate-800"
     >
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-full mx-auto">
         
         {/* --- HEADER SECTION --- */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">

@@ -12,6 +12,8 @@ import SearchBar from "../../../../component/SearchBar/SearchBar";
 import StatsCard from "../../../../component/stats/StatsCard";
 import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
 import SmartBin_Full_View_Model from "./SmartBin_Full_View_Model";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 // Helper function for formatting ISO dates
 const formatDateTime = (dateStr) => {
@@ -30,6 +32,21 @@ const formatDateTime = (dateStr) => {
 
 const SmartBin_Dashboard = () => {
   const navigate = useNavigate();
+
+    const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[11] || {};
+  
+  // Define permission checks
+ const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
+
   const [succesModel, setSuccessModel] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isOpenSmartModel, setIsOpenSmartModel] = useState(false);
@@ -180,14 +197,14 @@ const SmartBin_Dashboard = () => {
         {/* Header */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight uppercase">Smart Bin Dashboard</h1>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Smart Bin <span className="text-[#0062a0]">Dashboard</span> </h1>
             <p className="text-[#0062a0] font-medium mt-1">Real-time Inventory Monitoring</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => setIsOpenSmartModel(true)} variant="secondary">
+            <Button disabled={!canView} onClick={() => setIsOpenSmartModel(true)} variant="secondary">
               Full View
             </Button>
-            <Download_Button onClick={() => setSuccessModel(true)} />
+            <Download_Button disabled={!canView} onClick={() => setSuccessModel(true)} />
           </div>
         </motion.div>
 
@@ -227,8 +244,8 @@ const SmartBin_Dashboard = () => {
               loading={loading}
               selectedRows={selectedRows}
               onSelectionChange={handleSelectionChange}
-              onEdit={handleEdit}
-              onView={handleView}
+              onEdit={canEdit ? handleEdit : null}
+              onView={canView ? handleView : null}
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
               totalItems={totalItems}

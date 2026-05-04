@@ -20,9 +20,24 @@ import {
   bin_dashboard_get,
 } from "../../../../service/Bin_Services/Bin_Services";
 import Bin_View_Page from "./Bin_View_Page";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 const Bin_Configuration = () => {
   const navigate = useNavigate();
+    const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[8] || {};
+  
+  // Define permission checks
+ const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // UI STATES
   const [succesModel, setSuccessModel] = useState(false);
@@ -281,16 +296,16 @@ const Bin_Configuration = () => {
 
   return (
     <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 bg-[#fcfdfe] min-h-screen">
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-full mx-auto">
         {/* Header */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Bin Configuration</h1>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Bin <span className="text-2xl font-bold text-[#0062a0]">Configuration</span> </h1>
             <p className="text-[#0062a0] font-medium mt-1">Management Console</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => navigate('bin-create')} variant="primary">+ Create Bin</Button>
-            <Download_Button onClick={() => setSuccessModel(true)} tooltipText="Export Data" />
+            <Button disabled={!canCreate} onClick={() => navigate('bin-create')} variant="primary">+ Create Bin</Button>
+            <Download_Button disabled={!canView} onClick={() => setSuccessModel(true)} tooltipText="Export Data" />
           </div>
         </motion.div>
 
@@ -347,7 +362,7 @@ const Bin_Configuration = () => {
                 data={filteredData}
                 loading={loading}
                 showToggle={true}
-                showActions={true}
+                showActions={canEdit || canDelete || canView}
                 selectedRows={selectedRows}
                 onSelectionChange={handleSelectionChange}
                 currentPage={currentPage}
@@ -358,11 +373,11 @@ const Bin_Configuration = () => {
                   setItemsPerPage(l);
                   setCurrentPage(1);
                 }}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
+                onEdit={canEdit ? handleEdit : null}
+                onDelete={canDelete ? handleDelete : null}
+                onView={canView ? handleView : null}
                 onStatusToggle={handleToggleStatus} 
-                onRowClick={(row) => handleView(row)}
+                onRowClick={(row) => canView ? handleView(row) : null}
                 ActionChildren="Action"
               />
             )}

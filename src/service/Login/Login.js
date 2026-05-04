@@ -2,7 +2,7 @@ import axios from "axios";
 
 const Base_Url = import.meta.env.VITE_API_URL;
 
-// 1️⃣ Create axios instance
+// 1️ Create axios instance
 const api = axios.create({
   baseURL: Base_Url,
   headers: {
@@ -11,7 +11,7 @@ const api = axios.create({
   },
 });
 
-// 2️⃣ Request Interceptor (Attach Token)
+// 2️ Request Interceptor (Attach Token)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -25,7 +25,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 3️⃣ Response Interceptor (API Errors Only — No Redirect)
+// 3️ Response Interceptor (API Errors Only — No Redirect)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -54,7 +54,7 @@ api.interceptors.response.use(
 
 
 // --------------------
-// 🔹 API EXPORTS
+//  API EXPORTS
 // --------------------
 
 export const loginAPI = (payload) => {

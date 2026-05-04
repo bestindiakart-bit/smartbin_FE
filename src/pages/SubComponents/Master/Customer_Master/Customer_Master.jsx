@@ -22,17 +22,35 @@ import Button from "../../../../component/button/Buttons";
 import Download_Button from "../../../../component/button/Download_Button";
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
+import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
 import StatsCard from "../../../../component/stats/StatsCard";
 import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 const Customer_Master = () => {
   const navigate = useNavigate();
+  const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[1] || {};
+  
+  // Define permission checks
+ const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // UI States
   const [succesModel, setSuccessModel] = useState(false);
   const [confirmModel, setConfirmModel] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [errorModel, setErrorModel] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
@@ -53,7 +71,6 @@ const Customer_Master = () => {
   const fetchCustomerData = useCallback(async () => {
     try {
       setLoading(true);
-
       const res = await customer_get(currentPage, itemsPerPage);
 
       if (res?.data?.success) {
@@ -72,6 +89,8 @@ const Customer_Master = () => {
       }
     } catch (err) {
       console.error("Error fetching customers:", err);
+      setErrorMessage("Failed to fetch customers");
+      setErrorModel(true);
     } finally {
       setLoading(false);
     }
@@ -92,6 +111,12 @@ const Customer_Master = () => {
 
   // --- 2. EXPORT LOGIC ---
   const handleExport = async (format) => {
+    if (!canView) {
+      setErrorMessage("You don't have permission to export customer data");
+      setErrorModel(true);
+      return;
+    }
+
     try {
       setExportLoading(true);
       const response = await customer_export(format.toLowerCase());
@@ -110,6 +135,8 @@ const Customer_Master = () => {
       setSuccessModel(true);
     } catch (err) {
       console.error("Export failed:", err);
+      setErrorMessage("Export failed. Please try again.");
+      setErrorModel(true);
     } finally {
       setExportLoading(false);
     }
@@ -124,7 +151,7 @@ const Customer_Master = () => {
         item.companyName?.toLowerCase().includes(query) ||
         item.customerName?.toLowerCase().includes(query) ||
         item.adminEmail?.toLowerCase().includes(query) ||
-        item.gstNumber?.toLowerCase().includes(query),
+        item.gstNumber?.toLowerCase().includes(query)
     );
   }, [searchQuery, data]);
 
@@ -156,11 +183,37 @@ const Customer_Master = () => {
 
   // --- 5. DELETE LOGIC ---
   const handleDelete = (row) => {
+    if (!canDelete) {
+      setErrorMessage("You don't have permission to delete customers");
+      setErrorModel(true);
+      return;
+    }
     setDeleteTarget(row);
     setConfirmModel(true);
   };
 
+  const handleBulkDelete = () => {
+    if (!canDelete) {
+      setErrorMessage("You don't have permission to delete customers");
+      setErrorModel(true);
+      return;
+    }
+    if (selectedRows.length === 0) {
+      setErrorMessage("Please select customers to delete");
+      setErrorModel(true);
+      return;
+    }
+    setConfirmModel(true);
+  };
+
   const executeDelete = async () => {
+    if (!canDelete) {
+      setErrorMessage("You don't have permission to delete customers");
+      setErrorModel(true);
+      setConfirmModel(false);
+      return;
+    }
+
     try {
       setActionLoading(true);
       if (deleteTarget) {
@@ -175,16 +228,44 @@ const Customer_Master = () => {
       await fetchCustomerData();
     } catch (err) {
       console.error("Deletion failed:", err);
+      setErrorMessage("Failed to delete customers");
+      setErrorModel(true);
     } finally {
       setActionLoading(false);
     }
   };
 
-  // --- NAVIGATION & TABLE CONFIG ---
-  const handleEdit = (row) =>
-    navigate("create-customer", { state: { rowId: row.id, mode: "edit", projectId: row.projectId } });
-  const handleView = (row) =>
-    navigate("customer-view", { state: { rowId: row.id, projectId: row.projectId } });
+  // --- 6. NAVIGATION & TABLE CONFIG ---
+  const handleEdit = (row) => {
+    if (!canEdit) {
+      setErrorMessage("You don't have permission to edit customers");
+      setErrorModel(true);
+      return;
+    }
+    navigate("create-customer", {
+      state: { rowId: row.id, mode: "edit", projectId: row.projectId },
+    });
+  };
+
+  const handleView = (row) => {
+    if (!canView) {
+      setErrorMessage("You don't have permission to view customer details");
+      setErrorModel(true);
+      return;
+    }
+    navigate("customer-view", {
+      state: { rowId: row.id, projectId: row.projectId },
+    });
+  };
+
+  const handleCreate = () => {
+    if (!canCreate) {
+      setErrorMessage("You don't have permission to create customers");
+      setErrorModel(true);
+      return;
+    }
+    navigate("create-customer");
+  };
 
   const StatsData = [
     {
@@ -228,7 +309,7 @@ const Customer_Master = () => {
       animate="visible"
       className="p-6 md:p-8 bg-[#fcfdfe] min-h-screen"
     >
-      <div className="max-w-[1600px] mx-auto">
+      <div className="">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
@@ -240,14 +321,17 @@ const Customer_Master = () => {
           </div>
           <div className="flex items-center gap-3">
             <Button
-              onClick={() => navigate("create-customer")}
+              onClick={handleCreate}
               variant="primary"
+              disabled={!canCreate}
+              title={!canCreate ? "You don't have permission to create" : ""}
             >
               + Create Customer
             </Button>
             <Download_Button
               onSelect={handleExport}
               tooltipText={exportLoading ? "Generating..." : "Export Data"}
+              disabled={!canView}
             />
           </div>
         </div>
@@ -285,12 +369,14 @@ const Customer_Master = () => {
                   <span className="text-sm font-semibold text-[#0062a0] bg-blue-50 px-4 py-2 rounded-full">
                     {selectedRows.length} Selected
                   </span>
-                  <button
-                    onClick={() => setConfirmModel(true)}
-                    className="text-red-500 hover:text-red-700 text-sm font-bold transition-colors"
-                  >
-                    Delete
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={handleBulkDelete}
+                      className="text-red-500 hover:text-red-700 text-sm font-bold transition-colors"
+                    >
+                      Delete Selected
+                    </button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -308,24 +394,23 @@ const Customer_Master = () => {
                 data={filteredData}
                 loading={loading}
                 showToggle={true}
-                showActions={true}
+                showActions={canEdit || canDelete || canView}
                 selectedRows={selectedRows}
                 onSelectionChange={setSelectedRows}
-                // --- Dynamic Pagination Props ---
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 totalItems={totalItems}
                 onPageChange={(p) => setCurrentPage(p)}
                 onLimitChange={(l) => {
                   setItemsPerPage(l);
-                  setCurrentPage(1); // Reset to page 1 when limit changes
+                  setCurrentPage(1);
                 }}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
-                onStatusToggle={handleToggleStatus}
-                onRowClick={(row) => handleView(row)}
-                ActionChildren="Action"
+                onEdit={canEdit ? handleEdit : null}
+                onDelete={canDelete ? handleDelete : null}
+                onView={canView ? handleView : null}
+                onStatusToggle={ handleToggleStatus}
+                onRowClick={canView ? (row) => handleView(row) : null}
+                ActionChildren="Actions"
               />
             )}
           </div>
@@ -337,6 +422,7 @@ const Customer_Master = () => {
         onClose={() => setSuccessModel(false)}
         message="File Downloaded Successfully!"
       />
+      
       <Confirmation_Popup
         isOpen={confirmModel}
         onClose={() => {
@@ -345,13 +431,28 @@ const Customer_Master = () => {
         }}
         onConfirm={executeDelete}
         message={
-          actionLoading ? "Processing..." : "Are you sure you want to delete?"
+          actionLoading
+            ? "Processing..."
+            : deleteTarget
+            ? `Are you sure you want to delete ${deleteTarget.companyName || deleteTarget.customerName}?`
+            : `Are you sure you want to delete ${selectedRows.length} selected customer(s)?`
         }
+        title="Confirm Delete"
+        loading={actionLoading}
       />
+      
       <Success_Popup
         isOpen={deleteSuccess}
         onClose={() => setDeleteSuccess(false)}
         message="Deleted Successfully!"
+      />
+
+      <ErrorMessage_Popup
+        isOpen={errorModel}
+        onClose={() => setErrorModel(false)}
+        message={errorMessage}
+        title="Error"
+        btnText="Close"
       />
     </motion.div>
   );

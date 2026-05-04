@@ -3,13 +3,27 @@ import { ArrowLeft, ChevronDown, ChevronUp, Eye, EyeOff, FolderKanban, Loader2, 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../../../../component/button/Buttons";
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
 // IMPORT YOUR SERVICE HERE
 import { customer_PUI } from "../../../../service/Master_Services/Master_Services";
+import { useDispatch, useSelector } from "react-redux";
 
 const View_Page = () => {
   const location = useLocation();
   const navigate = useNavigate();
+        const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[1] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canEdit = userPermissions?.edit || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // Extract rowId passed from the parent Table
   const { rowId } = location?.state || {};
@@ -917,7 +931,7 @@ const View_Page = () => {
       variants={containerVariants}
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8 font-sans text-slate-900"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         {/* Header Section */}
         <motion.header
           variants={itemVariants}
@@ -948,7 +962,7 @@ const View_Page = () => {
             >
               {rowData?.status === 1 ? "Active" : "Inactive"}
             </div>
-            <Button
+            <Button disabled={!canEdit}
               onClick={() =>
                 navigate("../create-customer", {
                   state: { rowId: rowId, mode: "edit" },

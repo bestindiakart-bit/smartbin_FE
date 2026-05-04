@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ShieldCheck, UserCheck, UserCircle, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
 // API Services
 import {
@@ -19,9 +20,25 @@ import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
 import StatsCard from "../../../../component/stats/StatsCard";
 import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+import { useDispatch, useSelector } from "react-redux";
 
 const User_Master = () => {
   const navigate = useNavigate();
+    const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[2] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // UI States
   const [succesModel, setSuccessModel] = useState(false);
@@ -191,8 +208,10 @@ const User_Master = () => {
             <p className="text-[#0062a0] font-medium mt-1">Directory Management</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => navigate("user-create")} variant="primary">+ Create User</Button>
-            <Download_Button onSelect={handleExport} tooltipText={exportLoading ? "Generating..." : "Export Data"} />
+            <Button onClick={() => navigate("user-create")} variant="primary" disabled={!canCreate}>
+              + Create User
+            </Button>
+            <Download_Button onSelect={handleExport} disabled={!canView} tooltipText={exportLoading ? "Generating..." : "Export Data"} />
           </div>
         </div>
 
@@ -226,7 +245,7 @@ const User_Master = () => {
               data={filteredData} // Passing filtered data (Array)
               loading={loading}
               showToggle={true}
-              showActions={true}
+              showActions={canEdit || canDelete || canView}
               selectedRows={selectedRows}
               onSelectionChange={setSelectedRows}
               
@@ -236,9 +255,9 @@ const User_Master = () => {
               onPageChange={(p) => setCurrentPage(p)}
               onLimitChange={(l) => { setItemsPerPage(l); setCurrentPage(1); }}
 
-              onEdit={handleEdit}
-              onDelete={(row) => { setDeleteTarget(row); setConfirmModel(true); }}
-              onView={handleView}
+              onEdit={canEdit ? handleEdit : null}
+              onDelete={canDelete ? (row) => { setDeleteTarget(row); setConfirmModel(true); } : null}
+              onView={canView ? handleView : null}
               onStatusToggle={handleToggleStatus}
               onRowClick={handleView}
               ActionChildren="Action"

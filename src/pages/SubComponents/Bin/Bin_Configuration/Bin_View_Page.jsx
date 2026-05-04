@@ -4,11 +4,23 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../../component/button/Buttons";
 import { bin_dashboard_getById } from "../../../../service/Bin_Services/Bin_Services";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
   const navigate = useNavigate();
   const [binData, setBinData] = useState(null);
   const [loading, setLoading] = useState(false);
+    const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[8] || {};
+  
+  // Define permission checks
+  const canEdit = userPermissions?.edit || false;
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // Fetch data when modal opens and rowId is provided
   useEffect(() => {
@@ -117,7 +129,7 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
                   >
                     Close
                   </button>
-                  <Button onClick={handleEditNavigate} variant="primary">
+                  <Button disabled={!canEdit} onClick={handleEditNavigate} variant="primary">
                     Edit
                   </Button>
                 </div>

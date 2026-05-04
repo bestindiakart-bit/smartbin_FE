@@ -10,14 +10,21 @@ import {
   ShoppingCart,
   TrendingUp
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import LogoSmartBin from "../../assets/LogoSmartBin.svg";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPermissions } from "../../store/Permission_Store/Permission_Slice";
 
 const Side_Bar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, isLoading }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({ Masters: true });
+  const {permissions} = useSelector((state)=>state.permissions);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // Safely extract token to prevent crashes if it's missing or malformed
   const token = localStorage.getItem("accessToken");
@@ -31,47 +38,73 @@ const Side_Bar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, 
     console.error("Error decoding token");
   }
 
-  const menuData =[
-    { name: "Dashboard", path: "/", icon: <LayoutDashboard size={22} /> },
-    {
-      name: "Masters",
-      icon: <Database size={22} />,
-      subModules: [
-        ...(owner === true ?[{ name: "Customer Master", path: "/customer-master" }] :[]),
-        { name: "User Master", path: "/user-master" },
-        ...(owner === true ?[{ name: "User Permission Master", path: "/user-permission-master" }] :[]),
-        { name: "Project Master", path: "/project-master" },
-        ...(owner === true ? [{ name: "Item Master", path: "/item-master" }] :[]),
-      ],
-    },
-    {
-      name: "Orders",
-      icon: <ShoppingCart size={22} />,
-      subModules:[
-        { name: "Warehouse Orders", path: "/warehouse-orders" },
-        { name: "Order Processing", path: "/order-processing" },
-        { name: "Bill of Materials", path: "/bill-of-materials" },
-      ],
-    },
-    {
-      name: "Bin",
-      icon: <Archive size={22} />,
-      subModules:[
-        { name: "Smart Bin Dashboard", path: "/bin-dashboard" },
-        { name: "Bin Configuration", path: "/bin-config" },
-      ],
-    },
-    {
-      name: "Forecast",
-      icon: <TrendingUp size={22} />,
-      subModules:[
-        { name: "Forecast Editor", path: "/forecast-editor" },
-        { name: "Forecast Viewer", path: "/forecast-viewer" },
-      ],
-    },
-    { name: "Overall Report", path: "/overall-report", icon: <FileText size={22} /> },
-    { name: "Setting", path: "/create-setting", icon: <Settings size={22} /> }
-  ];
+  const permissionMap = permissions?.reduce((acc, item) => {
+  acc[item.module] = item;
+  return acc;
+}, {});
+
+  const menuData = [
+  { name: "Dashboard", path: "/", icon: <LayoutDashboard size={22} />, module: "dashboard" },
+
+  {
+    name: "Masters",
+    icon: <Database size={22} />,
+    subModules: [
+      { name: "Customer Master", path: "/customer-master", module: "customer_master" },
+      { name: "User Master", path: "/user-master", module: "user_master" },
+      { name: "User Permission Master", path: "/user-permission-master", module: "user_type_permission_master" },
+      { name: "Project Master", path: "/project-master", module: "project_master" },
+      { name: "Item Master", path: "/item-master", module: "item_master" },
+    ],
+  },
+
+  {
+    name: "Orders",
+    icon: <ShoppingCart size={22} />,
+    subModules: [
+      { name: "Warehouse Orders", path: "/warehouse-orders", module: "warehouse_order_details" },
+      { name: "Order Processing", path: "/order-processing", module: "warehouse_creation" },
+      { name: "Bill of Materials", path: "/bill-of-materials", module: "bill_of_materials" },
+    ],
+  },
+
+  {
+    name: "Bin",
+    icon: <Archive size={22} />,
+    subModules: [
+      { name: "Smart Bin Dashboard", path: "/bin-dashboard", module: "smart_bin_dashboard" },
+      { name: "Bin Configuration", path: "/bin-config", module: "bin_configuration" },
+    ],
+  },
+
+  {
+    name: "Forecast",
+    icon: <TrendingUp size={22} />,
+    subModules: [
+      { name: "Forecast Viewer", path: "/forecast-viewer", module: "forecast_viewer" },
+    ],
+  },
+
+  { name: "Overall Report", path: "/overall-report", icon: <FileText size={22} />, module: "overall_report" },
+  { name: "Setting", path: "/create-setting", icon: <Settings size={22} /> }
+];
+
+const filteredMenu = menuData
+  .map((item) => {
+    if (!item.subModules) {
+      if (!item.module) return item;
+
+      if (!permissionMap?.[item.module]?.view) return null;
+      return item;
+    }
+    const filteredSubs = item.subModules.filter(
+      (sub) => permissionMap?.[sub.module]?.view
+    );
+    if (filteredSubs.length === 0) return null;
+
+    return { ...item, subModules: filteredSubs };
+  })
+  .filter(Boolean);
 
   const toggleSubMenu = (name) => {
     if (isCollapsed) return;
@@ -119,7 +152,7 @@ const Side_Bar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, 
           ))
         ) : (
           // Actual Menu Items
-          menuData.map((item) => {
+          filteredMenu.map((item) => {
             const hasSub = !!item.subModules;
             const isSubOpen = openMenus[item.name];
             const isParentActive = hasSub && item.subModules.some(s => location.pathname === s.path);

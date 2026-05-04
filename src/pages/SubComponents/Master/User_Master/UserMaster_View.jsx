@@ -3,13 +3,27 @@ import { ArrowLeft, Check, Eye, EyeOff, Loader2, Minus, ShieldCheck } from 'luci
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from '../../../../component/button/Buttons';
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
 // API Service
 import { user_master_getID } from "../../../../service/Master_Services/Master_Services";
+import { useDispatch, useSelector } from 'react-redux';
 
 const UserMaster_View = () => {
   const location = useLocation();
   const navigate = useNavigate();
+          const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[2] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canEdit = userPermissions?.edit || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
   
   // Extract rowId passed from the parent Master table
   const { rowId } = location?.state || {};
@@ -129,7 +143,7 @@ const UserMaster_View = () => {
       initial="hidden" animate="visible" variants={containerVariants}
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8 font-sans text-slate-900"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         
         {/* Header Section */}
         <motion.header variants={itemVariants} className="flex items-center justify-between mb-8">
@@ -154,7 +168,7 @@ const UserMaster_View = () => {
              <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest ${userData?.status === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                 {userData?.status === 1 ? 'Active' : 'Inactive'}
              </div>
-             <Button
+             <Button disabled={!canEdit}
                 onClick={() => navigate('../user-create', { state: { rowId: rowId, mode: 'edit' } })}
                 variant="primary"
               >

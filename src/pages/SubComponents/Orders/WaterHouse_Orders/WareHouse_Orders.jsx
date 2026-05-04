@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Loader2, UserCheck, UserRoundX, Users, Warehouse } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
 // API Services
 import {
@@ -19,9 +20,25 @@ import SearchBar from "../../../../component/SearchBar/SearchBar";
 import StatsCard from "../../../../component/stats/StatsCard";
 import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
 import Warehouse_View from "./Warehouse_View";
+import { useDispatch, useSelector } from "react-redux";
 
 const WareHouse_Orders = () => {
   const navigate = useNavigate();
+          const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[6] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+   const canView = userPermissions?.view ||  false;
+  const canEdit = userPermissions?.edit || false;
+  const canDelete = userPermissions?.delete || false;
+  const canCreate = userPermissions?.create || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
   // UI States
   const [successModel, setSuccessModel] = useState(false);
@@ -200,7 +217,7 @@ const WareHouse_Orders = () => {
 
   return (
     <motion.div initial="hidden" animate="visible" className="p-6 bg-[#fcfdfe] min-h-screen">
-      <div className="max-w-[1600px] mx-auto">
+      <div className="max-w-full mx-auto">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -209,8 +226,8 @@ const WareHouse_Orders = () => {
             <p className="text-[#0062a0] font-medium mt-1">Inventory & Warehouse Management</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => navigate('warehouse-create')} variant="primary">+ Create Warehouse</Button>
-            <Download_Button onClick={() => setSuccessModel(true)} />
+            <Button disabled={!canCreate} onClick={() => navigate('warehouse-create')} variant="primary">+ Create Warehouse</Button>
+            <Download_Button disabled={!canView} onClick={() => setSuccessModel(true)} />
           </div>
         </div>
 
@@ -264,11 +281,11 @@ const WareHouse_Orders = () => {
                 }}
 
                 // Action Handlers
-                onEdit={handleEdit}
-                onDelete={handleDeleteTrigger}
-                onView={handleView}
+                onEdit={canEdit ? handleEdit : undefined}
+                onDelete={canDelete ? handleDeleteTrigger : undefined}
+                onView={canView ? handleView : undefined}
                 onStatusToggle={handleToggleStatus}
-                onRowClick={handleView}
+                onRowClick={canView ? handleView : undefined}
                 tableHeight="h-[550px]"
               />
             )}

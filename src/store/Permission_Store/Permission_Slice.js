@@ -7,9 +7,7 @@ export const fetchPermissions = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await loginMeAPI();
-       console.log("Permissions Data",response.data.permissions)
-      // Axios stores the actual data in response.data
-      return response.data.permissions; 
+      return response?.data?.data?.permissions; 
      
 
     } catch (error) {

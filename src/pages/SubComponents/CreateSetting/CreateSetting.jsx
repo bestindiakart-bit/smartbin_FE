@@ -156,7 +156,7 @@ const CreateSetting = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fdff] p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
 
         {/* Header Action */}
         <div className='flex items-center justify-end mb-6'>

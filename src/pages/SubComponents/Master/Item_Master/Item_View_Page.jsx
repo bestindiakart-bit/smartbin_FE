@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../../../../component/button/Buttons";
 import { item_master_getID } from "../../../../service/Master_Services/Master_Services";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 const InfoField = ({ label, value, centered = false }) => (
   <div className={`flex flex-col gap-1.5 group ${centered ? "items-center md:items-start" : ""}`}>
@@ -34,6 +36,18 @@ const Item_View_Page = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = location.state || {};
+          const { permissions } = useSelector((state) => state.permissions);
+  const dispatch = useDispatch();
+  const userPermissions = permissions[4] || {};
+  console.log("Permissions in User Master:", userPermissions);
+  
+  // Define permission checks
+  const canEdit = userPermissions?.edit || false;
+  
+  
+  useEffect(() => {
+    dispatch(fetchPermissions());
+  }, [dispatch]);
   
   const [itemData, setItemData] = useState(null);
   const[loading, setLoading] = useState(true);
@@ -118,7 +132,7 @@ const Item_View_Page = () => {
       className="min-h-screen bg-[#fcfdfe] p-6 md:p-10 relative"
     >
       {/* HEADER */}
-      <div className="max-w-[1400px] mx-auto flex items-center justify-between mb-10">
+      <div className="max-w-full mx-auto flex items-center justify-between mb-10">
         <div className="flex items-center gap-5">
           <button 
             onClick={() => navigate(-1)}
@@ -128,7 +142,7 @@ const Item_View_Page = () => {
           </button>
           <h1 className="text-2xl font-black text-slate-800">Item Details</h1>
         </div>
-        <Button
+        <Button disabled={!canEdit}
             onClick={() => navigate('../item-create', { state: { mode: 'edit', id: itemData._id } })}
             variant="primary"
             className="flex items-center gap-2"
@@ -137,7 +151,7 @@ const Item_View_Page = () => {
         </Button>
       </div>
 
-      <div className="max-w-[1400px] mx-auto space-y-8">
+      <div className="max-w-full mx-auto space-y-8">
         
         {/* SUMMARY CARD */}
         <Card variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -327,7 +341,7 @@ const Item_View_Page = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-6xl h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-full h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()} 
             >
               <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50 z-10">
