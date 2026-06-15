@@ -47,7 +47,7 @@ api.interceptors.response.use(
       message: data?.message || "Something went wrong",
       status: status,
       data: data,
-    });
+    }); 
   }
 );
 

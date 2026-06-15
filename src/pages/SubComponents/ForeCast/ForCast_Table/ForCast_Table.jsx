@@ -16,6 +16,7 @@ import {
   clearForecastDeleteResult 
 } from '../../../../store/Api_slice/Forecast_Slice';
 import { useDispatch, useSelector } from 'react-redux';
+import ForCast_FullViewModel from './ForCast_FullViewModel';
 
 const ForCast_Table = () => {
   const [successModel, setSuccessModel] = useState(false);
@@ -28,6 +29,7 @@ const ForCast_Table = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isOpenSmartModel, setIsOpenSmartModel] = useState(false);
 
   const { permissions } = useSelector((state) => state.permissions);
   const userPermissions = permissions[10] || {};
@@ -226,6 +228,13 @@ const ForCast_Table = () => {
               Manage and monitor forecasts
             </p>
           </div>
+          <Button
+            disabled={!canView}
+            variant="secondary"
+            onClick={() => setIsOpenSmartModel(true)}
+          >
+            Full View
+          </Button>
           <Button 
             disabled={!canCreate}
             variant="primary"
@@ -324,6 +333,34 @@ const ForCast_Table = () => {
         title="Operation Failed"
         btnText="Close"
       />
+
+      {/* Full View Modal - Moved outside FilterDropdown */}
+      <ForCast_FullViewModel 
+        isOpen={isOpenSmartModel} 
+        onClose={() => setIsOpenSmartModel(false)} 
+      />
+
+      {/* <ForCast_FullViewModel 
+  isOpen={isOpenSmartModel} 
+  onClose={() => setIsOpenSmartModel(false)}
+  showRequiredColumn={true}  // Set to false to hide Required column
+  enableCustomerGrouping={true}  // Set to false to show flat table without grouping
+  customLabels={{
+    title: "Forecast",
+    subtitle: "Viewer",
+    requiredColumn: "Required (Monthly Breakdown)",
+    m1: "M1",
+    m2: "M2",
+    m3: "M3",
+    m4: "M4",
+    m5: "M5",
+    m6: "M6"
+  }}
+  onRowClick={(row) => {
+    console.log("Row clicked:", row);
+    // Handle row click
+  }}
+/> */}
     </motion.div>
   );
 };

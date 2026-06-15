@@ -23,12 +23,11 @@ export const Login_Routes = [
                         index:true,
                         Component:Otp,
                     },
-                    {
+                ]
+            },
+            {
                 path:"first-time-login",
                 Component:FirstTime_Login,
-            },
-
-                ]
             },
             
             {

@@ -1,56 +1,3 @@
-// import { AnimatePresence, motion } from "framer-motion";
-// import { Bell, Menu } from "lucide-react";
-// import LogoSmartBin from "../../assets/LogoSmartBin.svg";
-
-// const TopHeader = ({ toggleMobileSidebar, isCollapsed }) => {
-//   return (
-//     <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100 shadow-sm z-30">
-//       <div className="flex items-center gap-6">
-//         {/* Mobile Hamburger Menu */}
-//         <button 
-//           onClick={toggleMobileSidebar} 
-//           className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-//         >
-//           <Menu size={24} />
-//         </button>
-
-//         {/* Logo shows here ONLY when Sidebar is collapsed */}
-//         <AnimatePresence>
-//           {isCollapsed && (
-//             <motion.div
-//               initial={{ opacity: 0, x: -20 }}
-//               animate={{ opacity: 1, x: 0 }}
-//               exit={{ opacity: 0, x: -20 }}
-//               className="hidden lg:flex items-center"
-//             >
-//               <img src={LogoSmartBin} alt="SmartBin" className="w-32" />
-//             </motion.div>
-//           )}
-//         </AnimatePresence>
-//       </div>
-      
-//       <div className="flex items-center gap-5">
-//         <div className="relative p-2.5 bg-blue-50 text-[#0062a0] rounded-full cursor-pointer hover:bg-blue-100 transition-colors">
-//           <Bell size={22} />
-//           <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-//         </div>
-        
-//         <div className="flex items-center gap-3 pl-3 border-l border-gray-100 cursor-pointer">
-//           <div className="text-right hidden sm:block">
-//             <p className="text-sm font-bold text-gray-800 leading-tight">Smart Bin</p>
-//             <p className="text-xs text-gray-400">Administrator</p>
-//           </div>
-//           <div className="w-11 h-11 rounded-full border-2 border-blue-50 p-0.5 overflow-hidden">
-//              <img src="https://ui-avatars.com/api/?name=Smart+Bin&background=0062a0&color=fff" alt="User" className="w-full h-full rounded-full" />
-//           </div>
-//         </div>
-//       </div>
-//     </header>
-//   );
-// };
-
-// export default TopHeader;
-
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
@@ -63,10 +10,12 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import LogoSmartBin from "../../assets/LogoSmartBin.svg";
+import { useNavigate } from "react-router-dom";
 
 const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
   const [activeDropdown, setActiveDropdown] = useState(null); // 'notification' | 'profile' | null
   const dropdownContainerRef = useRef(null);
+  const navigate = useNavigate();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -267,7 +216,8 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                     </div>
                     
                     {/* Logout */}
-                    <div className="p-2 border-t border-gray-50">
+                    <div onClick={() => {navigate("/login"), localStorage.removeItem("accessToken")}}
+                    className="p-2 border-t border-gray-50">
                       <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors font-semibold text-left w-full">
                         <LogOut size={18} /> Sign Out
                       </button>
