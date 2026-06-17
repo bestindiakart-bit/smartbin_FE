@@ -22,11 +22,9 @@ const Button = forwardRef(
   ) => {
     const isDisabled = disabled || isLoading;
 
-    //  Base Styles - removed cursor-pointer from here since it will be conditionally applied
     const baseStyles =
       "relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0062a0] overflow-hidden group select-none";
 
-    //  Size Variants
     const sizes = {
       sm: "text-sm px-4 py-2",
       md: "text-[15px] px-6 py-2.5",
