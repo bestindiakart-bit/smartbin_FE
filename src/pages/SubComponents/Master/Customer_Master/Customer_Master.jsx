@@ -34,13 +34,13 @@ const Customer_Master = () => {
   const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[1] || {};
-  
+
   // Define permission checks
  const canView = userPermissions?.view ||  false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
-  
+
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
@@ -81,6 +81,7 @@ const Customer_Master = () => {
           ...item,
           id: item._id,
           status: item.status === 1,
+          ishavesmartbin: Boolean(item.ishavesmartbin),
         }));
 
         setData(formattedData);
@@ -151,7 +152,7 @@ const Customer_Master = () => {
         item.companyName?.toLowerCase().includes(query) ||
         item.customerName?.toLowerCase().includes(query) ||
         item.adminEmail?.toLowerCase().includes(query) ||
-        item.gstNumber?.toLowerCase().includes(query)
+        item.gstNumber?.toLowerCase().includes(query),
     );
   }, [searchQuery, data]);
 
@@ -294,12 +295,41 @@ const Customer_Master = () => {
     },
   ];
 
+  const formatSmartbinStatus = (value) => {
+    return value === true || value === 1 ? "active" : "inactive";
+  };
+
+  const SmartbinBadge = ({ value }) => {
+    const isActive = value === true || value === 1;
+    return (
+      <span
+        className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+          isActive
+            ? "bg-green-100 text-green-700"
+            : "bg-gray-100 text-gray-700"
+        }`}
+      >
+        {formatSmartbinStatus(value).toUpperCase()}
+      </span>
+    );
+  };
+
   const columns = [
     { header: "Company Name", key: "companyName" },
     { header: "Customer Name", key: "customerName", isCustomer: true },
     { header: "Email", key: "adminEmail" },
     { header: "GST Number", key: "gstNumber" },
     { header: "Transit Days", key: "transitDays" },
+    {
+      header: "Has Smartbin",
+      key: "ishavesmartbin",
+      render: (value) => 
+        {
+        return (
+          <SmartbinBadge value={value} />
+        )
+      }
+    },
     { header: "Active", key: "status", isToggle: true },
   ];
 
@@ -408,7 +438,7 @@ const Customer_Master = () => {
                 onEdit={canEdit ? handleEdit : null}
                 onDelete={canDelete ? handleDelete : null}
                 onView={canView ? handleView : null}
-                onStatusToggle={ handleToggleStatus}
+                onStatusToggle={handleToggleStatus}
                 onRowClick={canView ? (row) => handleView(row) : null}
                 ActionChildren="Actions"
               />
@@ -422,7 +452,7 @@ const Customer_Master = () => {
         onClose={() => setSuccessModel(false)}
         message="File Downloaded Successfully!"
       />
-      
+
       <Confirmation_Popup
         isOpen={confirmModel}
         onClose={() => {
@@ -434,13 +464,13 @@ const Customer_Master = () => {
           actionLoading
             ? "Processing..."
             : deleteTarget
-            ? `Are you sure you want to delete ${deleteTarget.companyName || deleteTarget.customerName}?`
-            : `Are you sure you want to delete ${selectedRows.length} selected customer(s)?`
+              ? `Are you sure you want to delete ${deleteTarget.companyName || deleteTarget.customerName}?`
+              : `Are you sure you want to delete ${selectedRows.length} selected customer(s)?`
         }
         title="Confirm Delete"
         loading={actionLoading}
       />
-      
+
       <Success_Popup
         isOpen={deleteSuccess}
         onClose={() => setDeleteSuccess(false)}

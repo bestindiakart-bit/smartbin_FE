@@ -40,6 +40,8 @@ const User_Create = () => {
     { module: "smart_bin_dashboard", create: false, view: false, edit: false, delete: false },
     { module: "overall_report", create: false, view: false, edit: false, delete: false },
     { module: "warehouse_creation", create:false, view: false, edit: false, delete: false},
+    { module: "consumption_viewer", create: false, view: false, edit: false, delete: false, },
+    { module: "forecast_accuracy_report", create: false, view: false, edit: false, delete: false, },
   ]);
 
   // --- TRIGGER CONFIRMATION ---

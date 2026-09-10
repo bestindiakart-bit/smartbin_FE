@@ -334,7 +334,7 @@ const IotCreate = () => {
         {data.map((master, parentIndex) => (
           <div
             key={parentIndex}
-            className="mb-8 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+            className="mb-8 bg-white border border-gray-200 rounded-xl shadow-sm pt-5"
           >
             <div className="bg-slate-800 p-4 flex justify-between items-center text-white">
               <h3 className="text-lg font-medium uppercase tracking-wider">

@@ -117,9 +117,13 @@ export const user_type_post = (data) =>{
   return api.post('/user-type/',data)
 }
 
-export const customer_id = () => {
-  return api.get('/customer-master/get/all');
-}
+export const customer_id = (isConsumption = false) => {
+  return api.get('/customer-master/get/all', {
+    params: isConsumption
+      ? { consumptionPage: true }
+      : {},
+  });
+};
 
 export const get_customer_byUser = (customerId) => {
   return api.get(`/user/by-customer/${customerId}`);

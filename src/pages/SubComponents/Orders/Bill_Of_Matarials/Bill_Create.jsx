@@ -440,7 +440,7 @@ const Bill_Create = () => {
             />
           </motion.div>
           
-          <motion.div variants={itemVariants}>
+          {/* <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="Item Name"
               name="itemId"
@@ -450,7 +450,7 @@ const Bill_Create = () => {
               onChange={handleChange}
               disabled={!formData.projectId}
             />
-          </motion.div>
+          </motion.div> */}
         </div>
 
         {/* --- ITEM LIST TABLE --- */}

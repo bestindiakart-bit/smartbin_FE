@@ -5,6 +5,25 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "../../../../component/button/Buttons";
 import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
 
+const formatSmartbinStatus = (value) => {
+    return value === true || value === 1 ? "active" : "inactive";
+  };
+
+  const SmartbinBadge = ({ value }) => {
+    const isActive = value === true || value === 1;
+    return (
+      <span
+        className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+          isActive
+            ? "bg-green-100 text-green-700"
+            : "bg-gray-100 text-gray-700"
+        }`}
+      >
+        {formatSmartbinStatus(value).toUpperCase()}
+      </span>
+    );
+  };
+
 // IMPORT YOUR SERVICE HERE
 import { customer_PUI } from "../../../../service/Master_Services/Master_Services";
 import { useDispatch, useSelector } from "react-redux";
@@ -826,6 +845,10 @@ const View_Page = () => {
                 <InfoField
                   label="Customer Type"
                   value={rowData?.customerType}
+                />
+                <InfoField
+                  label="Has SmartBin"
+                  value={rowData?.ishavesmartbin && <SmartbinBadge value={rowData?.ishavesmartbin} />}
                 />
 
                 <InfoField

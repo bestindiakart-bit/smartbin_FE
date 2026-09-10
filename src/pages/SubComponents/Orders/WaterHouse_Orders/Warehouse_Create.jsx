@@ -51,8 +51,8 @@ const Warehouse_Create = () => {
     reorderRequired: '',
     currentStock: '',
     supplierName: '',
-    lastTransactionQuantity: '',
-    lastTransactionDate: '',
+    // lastTransactionQuantity: '',
+    // lastTransactionDate: '',
     warehouseStatus: 1 
   };
 
@@ -152,9 +152,9 @@ const Warehouse_Create = () => {
                 : sec.itemMasterId;
 
               // Format date properly for the <input type="date">
-              const formattedDate = sec.lastTransactionDate 
-                ? new Date(sec.lastTransactionDate).toISOString().split('T')[0] 
-                : '';
+              // const formattedDate = sec.lastTransactionDate 
+              //   ? new Date(sec.lastTransactionDate).toISOString().split('T')[0] 
+              //   : '';
 
               return {
                 itemMasterId: extractedItemId || '',
@@ -164,8 +164,8 @@ const Warehouse_Create = () => {
                 reorderRequired: sec.warehouseReorderLevel !== undefined ? sec.warehouseReorderLevel : '',
                 currentStock: sec.currentStock !== undefined ? sec.currentStock : '',
                 supplierName: sec.supplerName || sec.supplierName || '', 
-                lastTransactionQuantity: sec.lastTransationQuantity || sec.lastTransactionQuantity || '', 
-                lastTransactionDate: formattedDate,
+                // lastTransactionQuantity: sec.lastTransationQuantity || sec.lastTransactionQuantity || '', 
+                // lastTransactionDate: formattedDate,
                 warehouseStatus: data.status !== undefined ? data.status : 1 
               };
             }));
@@ -255,8 +255,8 @@ const Warehouse_Create = () => {
           warehouseSafeStock: sec.safetyStock === '' ? 0 : Number(sec.safetyStock),
           currentStock: sec.currentStock === '' ? 0 : Number(sec.currentStock),
           supplerName: sec.supplierName, 
-          lastTransationQuantity: sec.lastTransactionQuantity === '' ? 0 : Number(sec.lastTransactionQuantity), 
-          lastTransactionDate: sec.lastTransactionDate
+          // lastTransationQuantity: sec.lastTransactionQuantity === '' ? 0 : Number(sec.lastTransactionQuantity), 
+          // lastTransactionDate: sec.lastTransactionDate
         }))
       };
 
@@ -425,20 +425,20 @@ const Warehouse_Create = () => {
                 value={section.supplierName} 
                 onChange={(e) => handleSectionChange(index, e)} 
               />
-              <ReUsableInput_Fields 
+              {/* <ReUsableInput_Fields 
                 label="Last Transaction Quantity" 
                 name="lastTransactionQuantity" 
                 type="number" 
                 value={section.lastTransactionQuantity} 
                 onChange={(e) => handleSectionChange(index, e)} 
-              />
-              <ReUsableInput_Fields 
+              /> */}
+              {/* <ReUsableInput_Fields 
                 label="Last Transaction Date" 
                 name="lastTransactionDate" 
                 type="date" 
                 value={section.lastTransactionDate} 
                 onChange={(e) => handleSectionChange(index, e)} 
-              />
+              /> */}
               
               <ReUsableInput_Fields 
                 label="Warehouse Status" 

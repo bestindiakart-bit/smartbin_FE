@@ -82,6 +82,8 @@ const Side_Bar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, 
     icon: <TrendingUp size={22} />,
     subModules: [
       { name: "Forecast Viewer", path: "/forecast-viewer", module: "forecast_viewer" },
+      { name: "Consumption Viewer", path: "/consumption-viewer", module: "consumption_viewer" },
+      { name: "Forecast Accuracy Report", path: "/forecast-accuracy-report", module: "forecast_accuracy_report" },
     ],
   },
 

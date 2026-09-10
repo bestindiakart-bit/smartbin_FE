@@ -223,10 +223,10 @@ const Bin_Configuration = () => {
   };
 
   // ---------- DELETE HANDLERS ----------
-  const handleDelete = (row) => {
-    setDeleteTarget(row);
-    setConfirmModel(true);
-  };
+  // const handleDelete = (row) => {
+  //   setDeleteTarget(row);
+  //   setConfirmModel(true);
+  // };
 
   const executeDelete = async () => {
     setActionLoading(true);
@@ -289,8 +289,30 @@ const Bin_Configuration = () => {
   const columns = [
     { header: 'BIN ID', key: 'binId' },
     { header: 'Customer', key: 'customerName', isCustomer: true },
+    {
+      header: 'Company',
+      key: 'companyName',
+      render: (value, row) => {
+        return (
+          <div>
+            <p className="text-slate-700">{row?.customerId?.companyName}</p>
+          </div>
+        )
+      },
+      isCustomer: true
+    },
     { header: 'Project Name', key: 'projectName' },
-    { header: 'Item Name', key: 'itemName' },
+    { 
+      header: 'Item', 
+      key: 'itemName',
+      render: (value, row) => {
+        return (
+          <div>
+            <p className="text-slate-700">{row?.itemMasterId?.itemName}-({row?.itemMasterId?.partNumber})</p>
+          </div>
+        )
+      },
+    },
     { header: 'Active', key: 'isActive', isToggle: true },
   ];
 
@@ -374,7 +396,7 @@ const Bin_Configuration = () => {
                   setCurrentPage(1);
                 }}
                 onEdit={canEdit ? handleEdit : null}
-                onDelete={canDelete ? handleDelete : null}
+                // onDelete={canDelete ? handleDelete : null}
                 onView={canView ? handleView : null}
                 onStatusToggle={handleToggleStatus} 
                 onRowClick={(row) => canView ? handleView(row) : null}

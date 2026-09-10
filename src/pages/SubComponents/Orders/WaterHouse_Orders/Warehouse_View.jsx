@@ -166,8 +166,8 @@ const Warehouse_View = ({ isOpen, onClose, id }) => {
                               <th className="px-4 py-3 font-semibold text-gray-600">Safety Stock</th>
                               <th className="px-4 py-3 font-semibold text-gray-600">Reorder Level</th>
                               <th className="px-4 py-3 font-semibold text-gray-600">Supplier Name</th>
-                              <th className="px-4 py-3 font-semibold text-gray-600">Last Trans. Qty</th>
-                              <th className="px-4 py-3 font-semibold text-gray-600">Last Trans. Date</th>
+                              {/* <th className="px-4 py-3 font-semibold text-gray-600">Last Trans. Qty</th>
+                              <th className="px-4 py-3 font-semibold text-gray-600">Last Trans. Date</th> */}
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100 bg-white">
@@ -190,12 +190,12 @@ const Warehouse_View = ({ isOpen, onClose, id }) => {
                                   <td className="px-4 py-3 text-slate-700 font-medium">{item.warehouseSafeStock?.toLocaleString() || "0"}</td>
                                   <td className="px-4 py-3 text-slate-700 font-medium">{item.warehouseReorderLevel?.toLocaleString() || "0"}</td>
                                   <td className="px-4 py-3 text-slate-700">{item.supplerName || item.supplierName || "N/A"}</td>
-                                  <td className="px-4 py-3 text-slate-700 font-medium">
+                                  {/* <td className="px-4 py-3 text-slate-700 font-medium">
                                     {item.lastTransationQuantity?.toLocaleString() || item.lastTransactionQuantity?.toLocaleString() || "0"}
                                   </td>
                                   <td className="px-4 py-3 text-slate-700">
                                     {item.lastTransactionDate ? new Date(item.lastTransactionDate).toLocaleDateString('en-GB') : "N/A"}
-                                  </td>
+                                  </td> */}
                                 </tr>
                               );
                             })}

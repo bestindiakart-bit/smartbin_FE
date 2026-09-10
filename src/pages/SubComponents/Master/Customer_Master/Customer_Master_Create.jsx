@@ -37,6 +37,12 @@ import {
   customer_view,
 } from "../../../../service/Master_Services/Master_Services";
 
+// --- CONSTANTS ---
+const SMARTBIN_OPTIONS = [
+  { label: "active", value: true },
+  { label: "inactive", value: false },
+];
+
 // --- Fix for Leaflet Icons in React ---
 const mapIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -60,7 +66,7 @@ const MapClickHandler = ({ position, setPosition }) => {
 };
 
 // ==========================================
-// NEW COMPONENT: Customer Details Section
+// COMPONENT: Customer Details Section
 // ==========================================
 const CustomerDetails = ({
   formData,
@@ -304,6 +310,7 @@ const Customer_Master_Create = () => {
     companyName: "",
     customerName: "",
     customerType: "",
+    ishavesmartbin: false,
     transitDays: "",
     gstNumber: "",
     adminEmail: "",
@@ -337,6 +344,7 @@ const Customer_Master_Create = () => {
               customerName: data.customerName || "",
               // -> Updated here to map object ID or string directly
               customerType: data.customerType?._id || data.customerType || "",
+              ishavesmartbin: Boolean(data.ishavesmartbin) || false,
               transitDays: data.transitDays || "",
               gstNumber: data.gstNumber || "",
               adminEmail: data.adminEmail || "",
@@ -386,24 +394,24 @@ const Customer_Master_Create = () => {
           }
         } // In the edit mode data fetch (around line 200)
 catch (err) {
-  console.error("Error fetching customer details:", err);
-  
-  let errMsg = "Error fetching customer details";
-  
-  if (err.response?.data) {
-    if (err.response.data.data?.message) {
-      errMsg = err.response.data.data.message;
-    } else if (err.response.data.message) {
-      errMsg = err.response.data.message;
-    } else if (err.response.data.msg) {
-      errMsg = err.response.data.msg;
-    }
-  } else if (err.message) {
-    errMsg = err.message;
-  }
-  
-  setErrorPopup({ open: true, message: errMsg });
-} finally {
+          console.error("Error fetching customer details:", err);
+
+          let errMsg = "Error fetching customer details";
+
+          if (err.response?.data) {
+            if (err.response.data.data?.message) {
+              errMsg = err.response.data.data.message;
+            } else if (err.response.data.message) {
+              errMsg = err.response.data.message;
+            } else if (err.response.data.msg) {
+              errMsg = err.response.data.msg;
+            }
+          } else if (err.message) {
+            errMsg = err.message;
+          }
+
+          setErrorPopup({ open: true, message: errMsg });
+        } finally {
           setFetchingData(false);
         }
       }
@@ -413,35 +421,35 @@ catch (err) {
   }, [isEditMode, rowId]);
 
 // In fetchTypes function (around line 250)
-const fetchTypes = async () => {
-  try {
-    const res = await customer_get_Type();
-    const rawData = res?.data?.data || [];
-    const formattedData = rawData.map((item) => ({
-      label: item.customerTypeName,
-      value: item._id,
-    }));
-    setCustomType(formattedData);
-  } catch (err) {
-    console.error("Error fetching customer types:", err);
-    
-    let errMsg = "Failed to fetch customer types";
-    
-    if (err.response?.data) {
-      if (err.response.data.data?.message) {
-        errMsg = err.response.data.data.message;
-      } else if (err.response.data.message) {
-        errMsg = err.response.data.message;
-      } else if (err.response.data.msg) {
-        errMsg = err.response.data.msg;
+  const fetchTypes = async () => {
+    try {
+      const res = await customer_get_Type();
+      const rawData = res?.data?.data || [];
+      const formattedData = rawData.map((item) => ({
+        label: item.customerTypeName,
+        value: item._id,
+      }));
+      setCustomType(formattedData);
+    } catch (err) {
+      console.error("Error fetching customer types:", err);
+
+      let errMsg = "Failed to fetch customer types";
+
+      if (err.response?.data) {
+        if (err.response.data.data?.message) {
+          errMsg = err.response.data.data.message;
+        } else if (err.response.data.message) {
+          errMsg = err.response.data.message;
+        } else if (err.response.data.msg) {
+          errMsg = err.response.data.msg;
+        }
+      } else if (err.message) {
+        errMsg = err.message;
       }
-    } else if (err.message) {
-      errMsg = err.message;
+
+      setErrorPopup({ open: true, message: errMsg });
     }
-    
-    setErrorPopup({ open: true, message: errMsg });
-  }
-};
+  };
 
   useEffect(() => {
     let timer;
@@ -462,7 +470,15 @@ const fetchTypes = async () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === "ishavesmartbin") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === "true" || value === true,
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // Dedicated handler for PhoneInput package
@@ -549,43 +565,43 @@ const fetchTypes = async () => {
   };
 
   // In handleAddCustomerType function
-const handleAddCustomerType = async () => {
-  if (!newTypeName.trim()) return;
-  try {
-    setIsAddingType(true);
-    const res = await customer_post_Type({ customerTypeName: newTypeName });
-    
+  const handleAddCustomerType = async () => {
+    if (!newTypeName.trim()) return;
+    try {
+      setIsAddingType(true);
+      const res = await customer_post_Type({ customerTypeName: newTypeName });
+
     // Get message from API response
     const successMessage = res?.data?.message || 
-                          res?.data?.msg || 
-                          "Customer type added successfully!";
-    
-    setSuccessPopup({ open: true, message: successMessage });
-    setNewTypeName("");
-    setIsTypeModalOpen(false);
-    await fetchTypes();
-  } catch (err) {
-    console.error("Error adding customer type:", err);
-    
-    let errMsg = "Error adding customer type";
-    
-    if (err.response?.data) {
-      if (err.response.data.data?.message) {
-        errMsg = err.response.data.data.message;
-      } else if (err.response.data.message) {
-        errMsg = err.response.data.message;
-      } else if (err.response.data.msg) {
-        errMsg = err.response.data.msg;
+        res?.data?.msg ||
+        "Customer type added successfully!";
+
+      setSuccessPopup({ open: true, message: successMessage });
+      setNewTypeName("");
+      setIsTypeModalOpen(false);
+      await fetchTypes();
+    } catch (err) {
+      console.error("Error adding customer type:", err);
+
+      let errMsg = "Error adding customer type";
+
+      if (err.response?.data) {
+        if (err.response.data.data?.message) {
+          errMsg = err.response.data.data.message;
+        } else if (err.response.data.message) {
+          errMsg = err.response.data.message;
+        } else if (err.response.data.msg) {
+          errMsg = err.response.data.msg;
+        }
+      } else if (err.message) {
+        errMsg = err.message;
       }
-    } else if (err.message) {
-      errMsg = err.message;
+
+      setErrorPopup({ open: true, message: errMsg });
+    } finally {
+      setIsAddingType(false);
     }
-    
-    setErrorPopup({ open: true, message: errMsg });
-  } finally {
-    setIsAddingType(false);
-  }
-};
+  };
 
   // Validation rules before Submitting
   const triggerSubmitConfirm = () => {
@@ -634,110 +650,111 @@ const handleAddCustomerType = async () => {
 
   // --- 4. FINAL SUBMISSION ---
   // --- 4. FINAL SUBMISSION ---
-const handleFinalSubmit = async () => {
-  setConfirmPopup({ ...confirmPopup, open: false });
-  try {
-    setLoading(true);
+  const handleFinalSubmit = async () => {
+    setConfirmPopup({ ...confirmPopup, open: false });
+    try {
+      setLoading(true);
 
-    const coords = formData.localityMap
-      .split(",")
-      .map((num) => parseFloat(num.trim()))
-      .filter((num) => !isNaN(num));
+      const coords = formData.localityMap
+        .split(",")
+        .map((num) => parseFloat(num.trim()))
+        .filter((num) => !isNaN(num));
 
-    const mobileNumberArray = [];
-    if (formData.primaryNumber && formData.primaryNumber.trim() !== "") {
-      mobileNumberArray.push(formData.primaryNumber);
-    }
-    if (formData.secondaryNumber && formData.secondaryNumber.trim() !== "") {
-      mobileNumberArray.push(formData.secondaryNumber);
-    }
+      const mobileNumberArray = [];
+      if (formData.primaryNumber && formData.primaryNumber.trim() !== "") {
+        mobileNumberArray.push(formData.primaryNumber);
+      }
+      if (formData.secondaryNumber && formData.secondaryNumber.trim() !== "") {
+        mobileNumberArray.push(formData.secondaryNumber);
+      }
 
-    const finalPayload = {
-      companyName: formData.companyName,
-      customerName: formData.customerName,
-      transitDays: parseInt(formData.transitDays, 10) || 0,
-      gstNumber: formData.gstNumber,
-      adminEmail: formData.adminEmail,
-      adminPassword: formData.adminPassword,
-      position: formData.position,
-      department: formData.department,
-      mobileNumber: mobileNumberArray,
-      shippingAddress1: formData.shippingAddress1,
-      shippingAddress2: formData.shippingAddress2,
-      billingAddress: formData.billingAddress,
-      customerType: formData.customerType,
-      geoLocation: {
-        type: "Point",
+      const finalPayload = {
+        companyName: formData.companyName,
+        customerName: formData.customerName,
+        transitDays: parseInt(formData.transitDays, 10) || 0,
+        gstNumber: formData.gstNumber,
+        adminEmail: formData.adminEmail,
+        adminPassword: formData.adminPassword,
+        position: formData.position,
+        department: formData.department,
+        mobileNumber: mobileNumberArray,
+        shippingAddress1: formData.shippingAddress1,
+        shippingAddress2: formData.shippingAddress2,
+        billingAddress: formData.billingAddress,
+        customerType: formData.customerType,
+        ishavesmartbin: formData.ishavesmartbin,
+        geoLocation: {
+          type: "Point",
         coordinates: coords.length === 2 ? coords : [80.2707, 13.0827], // Default coordinates if empty
-      },
-      permissions: permissions,
-    };
+        },
+        permissions: permissions,
+      };
 
-    let res;
-    if (isEditMode) {
-      res = await customer_create_edit(rowId, finalPayload);
-    } else {
-      res = await customer_create(finalPayload);
-    }
+      let res;
+      if (isEditMode) {
+        res = await customer_create_edit(rowId, finalPayload);
+      } else {
+        res = await customer_create(finalPayload);
+      }
 
     // Get message from API response
     const successMessage = res?.data?.message || 
-                           res?.data?.msg || 
+        res?.data?.msg ||
                            (isEditMode ? "Customer updated successfully!" : "Customer created successfully!");
 
-    setSuccessPopup({
-      open: true,
-      message: successMessage,
-    });
+      setSuccessPopup({
+        open: true,
+        message: successMessage,
+      });
     
-  } catch (error) {
-    console.error("Submission error:", error);
-    
+    } catch (error) {
+      console.error("Submission error:", error);
+
     // Extract error message from the 409 response structure
-    let errMsg = "An unexpected error occurred";
-    
-    if (error.response) {
+      let errMsg = "An unexpected error occurred";
+
+      if (error.response) {
       // The request was made and the server responded with a status code
-      console.log("Error response data:", error.response.data);
-      console.log("Error response status:", error.response.status);
-      
+        console.log("Error response data:", error.response.data);
+        console.log("Error response status:", error.response.status);
+
       // Handle the specific error structure: { success: false, data: { message: "..." }, statusCode: 409 }
-      if (error.response.data) {
+        if (error.response.data) {
         // Check if data has the structure with success and data.message
-        if (error.response.data.data && error.response.data.data.message) {
-          errMsg = error.response.data.data.message;
+          if (error.response.data.data && error.response.data.data.message) {
+            errMsg = error.response.data.data.message;
         } 
         // Check if data directly has message property
         else if (error.response.data.message) {
-          errMsg = error.response.data.message;
+            errMsg = error.response.data.message;
         }
         // Check if data has msg property
         else if (error.response.data.msg) {
-          errMsg = error.response.data.msg;
+            errMsg = error.response.data.msg;
         }
         // If it's a string, use it directly
         else if (typeof error.response.data === 'string') {
-          errMsg = error.response.data;
+            errMsg = error.response.data;
+          }
         }
-      }
-    } else if (error.request) {
+      } else if (error.request) {
       // The request was made but no response was received
-      errMsg = "No response from server. Please check your connection.";
-    } else {
+        errMsg = "No response from server. Please check your connection.";
+      } else {
       // Something happened in setting up the request
-      errMsg = error.message || "Failed to process request";
-    }
-    
+        errMsg = error.message || "Failed to process request";
+      }
+
     // Add status code information if available and relevant
-    if (error.response?.status === 409) {
-      errMsg = errMsg || "Duplicate entry: Company name already exists";
+      if (error.response?.status === 409) {
+        errMsg = errMsg || "Duplicate entry: Company name already exists";
+      }
+
+      setErrorPopup({ open: true, message: errMsg });
+    } finally {
+      setLoading(false);
     }
-    
-    setErrorPopup({ open: true, message: errMsg });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   if (fetchingData) {
     return (
@@ -807,6 +824,15 @@ const handleFinalSubmit = async () => {
                 onChange={handleChange}
               />
             </div>
+
+            <ReUsableInput_Fields
+              label="Has SmartBin"
+              name="ishavesmartbin"
+              type="select"
+              options={SMARTBIN_OPTIONS}
+              value={formData.ishavesmartbin}
+              onChange={handleChange}
+            />
 
             <ReUsableInput_Fields
               label="Transit Days"
