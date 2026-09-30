@@ -1,12 +1,12 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
+import React from "react";
+import { Outlet } from "react-router-dom";
 
 const Forcast_Main = () => {
   return (
     <div>
-        <Outlet/>
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default Forcast_Main
+export default Forcast_Main;

@@ -22,16 +22,15 @@
 //                 ...Orders_Route,
 //                 ...Bin_Route,
 //                 ...ForeCast_Route,
-                
+
 //                 {
 //                     path:"overall-report",
 //                     Component:OverAll_Report,
 //                 }
 //         ]
 //     },
-   
-// ])
 
+// ])
 
 import { createBrowserRouter, redirect } from "react-router-dom";
 import App from "../../App";
@@ -54,63 +53,63 @@ const PageNetwork = () => ErrorPage({ type: "network" });
 // 2. Define the Guard Loader
 const protectedLoader = () => {
   const token = localStorage.getItem("accessToken");
-  
+
   if (!token) {
     // No token found? Block access and force them to the login page.
-    return redirect("/login"); 
+    return redirect("/login");
   }
-  
+
   // Token found? Allow them to proceed to the requested route.
   return null;
 };
 
 export const router = createBrowserRouter([
-    // Public Login Routes
-    ...Login_Routes,
-    
-    // Dedicated Error Routes using 'Component' instead of 'element'
-    {
-        path: "/404",
-        Component: Page404,
-    },
+  // Public Login Routes
+  ...Login_Routes,
 
-    {
-        path: "/500",
-        Component: Page500,
-    },
+  // Dedicated Error Routes using 'Component' instead of 'element'
+  {
+    path: "/404",
+    Component: Page404,
+  },
 
-    {
-        path: "/network-error",
-        Component: PageNetwork,
-    },
-    
-    {
-        path: "/",
-        Component: App,
-        loader: protectedLoader, 
-        children: [
-            {
-                index: true,
-                loader: () => redirect("/dashboard"),
-            },
-            {
-                path: "dashboard",
-                Component: Dashboard,
-            },
-            ...Master_Route,
-            ...Orders_Route,
-            ...Bin_Route,
-            ...ForeCast_Route,
-            {
-                path: "overall-report",
-                Component: OverAll_Report,
-            }
-        ]
-    },
+  {
+    path: "/500",
+    Component: Page500,
+  },
 
-    // Catch-all
-    {
-        path: "*",
-        loader: () => redirect("/404"),
-    }
+  {
+    path: "/network-error",
+    Component: PageNetwork,
+  },
+
+  {
+    path: "/",
+    Component: App,
+    loader: protectedLoader,
+    children: [
+      {
+        index: true,
+        loader: () => redirect("/dashboard"),
+      },
+      {
+        path: "dashboard",
+        Component: Dashboard,
+      },
+      ...Master_Route,
+      ...Orders_Route,
+      ...Bin_Route,
+      ...ForeCast_Route,
+      {
+        path: "overall-report",
+        Component: OverAll_Report,
+      },
+    ],
+  },
+
+  // Catch-all
+  {
+    path: "*",
+    loader: () => redirect("/404"),
+  },
 ]);

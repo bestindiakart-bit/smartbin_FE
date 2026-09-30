@@ -1,11 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 
 const WareHouse_Main = () => {
   return (
     <div>
-      <Outlet/>
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default WareHouse_Main
+export default WareHouse_Main;

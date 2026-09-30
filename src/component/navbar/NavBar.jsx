@@ -1,4 +1,4 @@
-import LogoSmartBin from "../../assets/LogoSmartBin.svg"
+import LogoSmartBin from "../../assets/LogoSmartBin.svg";
 
 const NavBar = () => {
   return (
@@ -7,7 +7,7 @@ const NavBar = () => {
         <img src={LogoSmartBin} className="logo react" alt="React logo" />
       </a>
     </div>
-  )
-}
+  );
+};
 
-export default NavBar
+export default NavBar;

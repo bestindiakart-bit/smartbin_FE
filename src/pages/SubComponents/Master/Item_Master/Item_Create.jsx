@@ -29,13 +29,13 @@ const Item_Create = () => {
 
   const [confirm, setConfirm] = useState(false);
   const [successModel, setSuccessModel] = useState(false);
-  const[errorModel, setErrorModel] = useState(false);
+  const [errorModel, setErrorModel] = useState(false);
   const [apiError, setApiError] = useState("");
-  const[loading, setLoading] = useState(isEdit);
-  const [message,setMessage] = useState({});
+  const [loading, setLoading] = useState(isEdit);
+  const [message, setMessage] = useState({});
 
   // State for the Category Dropdown list
-  const[itemType, setItemType] = useState([]);
+  const [itemType, setItemType] = useState([]);
 
   const [formData, setFormData] = useState({
     itemName: "",
@@ -68,7 +68,7 @@ const Item_Create = () => {
         const categoryRes = await item_category_gets();
 
         // Correct path based on your API response
-        const categories = categoryRes?.data?.data?.records ||[];
+        const categories = categoryRes?.data?.data?.records || [];
 
         // Format for dropdown (recommended structure)
         const formattedCategories = categories.map((cat) => ({
@@ -132,7 +132,7 @@ const Item_Create = () => {
     };
 
     loadInitialData();
-  },[isEdit, editId]);
+  }, [isEdit, editId]);
 
   // ================= FILE HANDLING =================
   const handleFileChange = (e) => {
@@ -178,115 +178,120 @@ const Item_Create = () => {
 
   // ================= HANDLE SUBMISSION =================
   const handleFinalSubmit = async () => {
-  setConfirm(false);
+    setConfirm(false);
 
-  try {
-    const data = new FormData();
+    try {
+      const data = new FormData();
 
-    // Append form fields
-    Object.keys(formData).forEach((key) => {
-      if (key === "itemStatus") return;
-      if (key === "status") return;
+      // Append form fields
+      Object.keys(formData).forEach((key) => {
+        if (key === "itemStatus") return;
+        if (key === "status") return;
 
-      if (key === "isLocal") {
-        data.append("isLocal", formData.isLocal === "Yes");
-      } else if ([
-          "weightPerUnit",
-          "costPerUnit",
-          "manufacturingTime",
-          "itemSBQ",
-          "warehouseStock",
-          "warehouseSafetyStock",
-          "warehouseROL",
-        ].includes(key)
-      ) {
-        data.append(key, Number(formData[key]) || 0);
-      } else if (key === "price") {
-        const cleanPrice = Number(
-          String(formData.price).replace(/[^0-9.-]+/g, "")
-        );
-        data.append("price", cleanPrice || 0);
+        if (key === "isLocal") {
+          data.append("isLocal", formData.isLocal === "Yes");
+        } else if (
+          [
+            "weightPerUnit",
+            "costPerUnit",
+            "manufacturingTime",
+            "itemSBQ",
+            "warehouseStock",
+            "warehouseSafetyStock",
+            "warehouseROL",
+          ].includes(key)
+        ) {
+          data.append(key, Number(formData[key]) || 0);
+        } else if (key === "price") {
+          const cleanPrice = Number(
+            String(formData.price).replace(/[^0-9.-]+/g, ""),
+          );
+          data.append("price", cleanPrice || 0);
+        } else {
+          data.append(key, formData[key] ?? "");
+        }
+      });
+
+      // Append status ONLY ONCE
+      data.append("status", formData.itemStatus ? 1 : 0);
+
+      // Append Images
+      images.forEach((imgObj) => {
+        if (!imgObj.isExisting && imgObj.file) {
+          data.append("itemImages", imgObj.file);
+        }
+      });
+      const existingImagePaths = images
+        .filter((img) => img.isExisting)
+        .map((img) => img.originalPath);
+      data.append("existingImages", JSON.stringify(existingImagePaths));
+
+      // Append Drawings (itemDrawing)
+      drawings.forEach((drawObj) => {
+        if (!drawObj.isExisting && drawObj.file) {
+          data.append("itemDrawing", drawObj.file);
+        }
+      });
+      const existingDrawingPaths = drawings
+        .filter((draw) => draw.isExisting)
+        .map((draw) => draw.originalPath);
+      data.append("existingDrawings", JSON.stringify(existingDrawingPaths));
+
+      // API CALL
+      let response;
+      if (isEdit) {
+        response = await item_create_edit(editId, data);
       } else {
-        data.append(key, formData[key] ?? "");
+        response = await Item_create(data);
       }
-    });
 
-    // Append status ONLY ONCE
-    data.append("status", formData.itemStatus ? 1 : 0);
+      // Check if response exists
+      if (response?.data?.success === true) {
+        // Success case - extract message from response
+        const successMessage =
+          response?.data?.data?.message ||
+          response?.data?.message ||
+          (isEdit
+            ? "Item updated successfully!"
+            : "Item created successfully!");
 
-    // Append Images
-    images.forEach((imgObj) => {
-      if (!imgObj.isExisting && imgObj.file) {
-        data.append("itemImages", imgObj.file);
+        setMessage({ message: successMessage, type: "success" });
+        setSuccessModel(true);
+
+        setTimeout(() => navigate("/item-master"), 2000);
+      } else {
+        // Error case - extract error message from response
+        // Your response structure: {"success":false,"data":{"message":"Item already exists"},"statusCode":409}
+        const errorMessage =
+          response?.data?.data?.message ||
+          response?.data?.message ||
+          response?.message ||
+          "Operation failed.";
+
+        setMessage({ message: errorMessage, type: "error" });
+        setApiError(errorMessage);
+        setErrorModel(true);
       }
-    });
-    const existingImagePaths = images
-      .filter((img) => img.isExisting)
-      .map((img) => img.originalPath);
-    data.append("existingImages", JSON.stringify(existingImagePaths));
+    } catch (err) {
+      console.error("Submit Error:", err);
 
-    // Append Drawings (itemDrawing)
-    drawings.forEach((drawObj) => {
-      if (!drawObj.isExisting && drawObj.file) {
-        data.append("itemDrawing", drawObj.file);
+      // Handle error from catch block
+      let errorMessage = "Internal Server Error.";
+
+      // Check if error response has the same structure
+      if (err.response?.data?.data?.message) {
+        errorMessage = err.response.data.data.message;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
       }
-    });
-    const existingDrawingPaths = drawings
-      .filter((draw) => draw.isExisting)
-      .map((draw) => draw.originalPath);
-    data.append("existingDrawings", JSON.stringify(existingDrawingPaths));
 
-    // API CALL
-    let response;
-    if (isEdit) {
-      response = await item_create_edit(editId, data);
-    } else {
-      response = await Item_create(data);
-    }
-
-    // Check if response exists
-    if (response?.data?.success === true) {
-      // Success case - extract message from response
-      const successMessage = response?.data?.data?.message || 
-                            response?.data?.message || 
-                            (isEdit ? "Item updated successfully!" : "Item created successfully!");
-      
-      setMessage({ message: successMessage, type: "success" });
-      setSuccessModel(true);
-      
-      setTimeout(() => navigate("/item-master"), 2000);
-    } else {
-      // Error case - extract error message from response
-      // Your response structure: {"success":false,"data":{"message":"Item already exists"},"statusCode":409}
-      const errorMessage = response?.data?.data?.message || 
-                          response?.data?.message || 
-                          response?.message || 
-                          "Operation failed.";
-      
       setMessage({ message: errorMessage, type: "error" });
       setApiError(errorMessage);
       setErrorModel(true);
     }
-  } catch (err) {
-    console.error("Submit Error:", err);
-    
-    // Handle error from catch block
-    let errorMessage = "Internal Server Error.";
-    
-    // Check if error response has the same structure
-    if (err.response?.data?.data?.message) {
-      errorMessage = err.response.data.data.message;
-    } else if (err.response?.data?.message) {
-      errorMessage = err.response.data.message;
-    } else if (err.message) {
-      errorMessage = err.message;
-    }
-    
-    setMessage({ message: errorMessage, type: "error" });
-    setApiError(errorMessage);
-    setErrorModel(true);
-  }
-};
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -446,9 +451,8 @@ const Item_Create = () => {
           <h3 className="text-2xl font-bold text-slate-800 mb-6 px-2">
             Media & Drawings
           </h3>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-2">
-            
             {/* LEFT: PRODUCT IMAGES */}
             <div>
               <div
@@ -463,7 +467,10 @@ const Item_Create = () => {
                   accept="image/*"
                   onChange={handleFileChange}
                 />
-                <Upload className="text-[#0062a0] mb-3 group-hover:scale-110 transition-transform" size={28} />
+                <Upload
+                  className="text-[#0062a0] mb-3 group-hover:scale-110 transition-transform"
+                  size={28}
+                />
                 <h4 className="text-lg font-bold text-slate-800 mb-1">
                   Product Images
                 </h4>
@@ -521,7 +528,10 @@ const Item_Create = () => {
                   accept="application/pdf, image/*"
                   onChange={handleDrawingChange}
                 />
-                <FileText className="text-[#0062a0] mb-3 group-hover:scale-110 transition-transform" size={28} />
+                <FileText
+                  className="text-[#0062a0] mb-3 group-hover:scale-110 transition-transform"
+                  size={28}
+                />
                 <h4 className="text-lg font-bold text-slate-800 mb-1">
                   import File
                 </h4>
@@ -533,14 +543,26 @@ const Item_Create = () => {
               {/* DRAWING PREVIEWS */}
               <div className="flex flex-col gap-2 mt-4">
                 {drawings.map((doc, i) => (
-                  <div key={i} className="relative flex items-center gap-3 bg-white border border-slate-200 py-2.5 px-4 rounded-xl group shadow-sm hover:shadow transition-all">
-                    <FileText className="text-[#0062a0] flex-shrink-0" size={18} />
-                    <span className="text-sm font-medium text-slate-700 truncate flex-1" title={doc.name}>
+                  <div
+                    key={i}
+                    className="relative flex items-center gap-3 bg-white border border-slate-200 py-2.5 px-4 rounded-xl group shadow-sm hover:shadow transition-all"
+                  >
+                    <FileText
+                      className="text-[#0062a0] flex-shrink-0"
+                      size={18}
+                    />
+                    <span
+                      className="text-sm font-medium text-slate-700 truncate flex-1"
+                      title={doc.name}
+                    >
                       {doc.name}
                     </span>
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); removeDrawing(i); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeDrawing(i);
+                      }}
                       className="flex-shrink-0 bg-red-50 hover:bg-red-100 border border-red-100 rounded-full p-1.5 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                       title="Remove File"
                     >
@@ -550,16 +572,23 @@ const Item_Create = () => {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
 
         {/* FOOTER BUTTONS */}
         <div className="flex items-center gap-5 justify-end mt-16 pt-6 border-t border-slate-100">
-          <Button onClick={() => setConfirm(true)} variant="primary" className="px-10 py-3 shadow-md hover:shadow-lg">
+          <Button
+            onClick={() => setConfirm(true)}
+            variant="primary"
+            className="px-10 py-3 shadow-md hover:shadow-lg"
+          >
             {isEdit ? "Update Item" : "Create Item"}
           </Button>
-          <Button onClick={() => navigate(-1)} variant="secondary" className="px-8 py-3">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="secondary"
+            className="px-8 py-3"
+          >
             Cancel
           </Button>
         </div>
@@ -573,16 +602,19 @@ const Item_Create = () => {
         message={`Confirm ${isEdit ? "update" : "creation"}?`}
       />
       <Success_Popup
-  isOpen={successModel}
-  onClose={() => setSuccessModel(false)}
-  message={message?.message || (isEdit ? "Item updated successfully!" : "Item created successfully!")}
-/>
+        isOpen={successModel}
+        onClose={() => setSuccessModel(false)}
+        message={
+          message?.message ||
+          (isEdit ? "Item updated successfully!" : "Item created successfully!")
+        }
+      />
 
-<ErrorMessage_Popup
-  isOpen={errorModel}
-  onClose={() => setErrorModel(false)}
-  message={message?.message || apiError || "An error occurred"}
-/>
+      <ErrorMessage_Popup
+        isOpen={errorModel}
+        onClose={() => setErrorModel(false)}
+        message={message?.message || apiError || "An error occurred"}
+      />
     </motion.div>
   );
 };

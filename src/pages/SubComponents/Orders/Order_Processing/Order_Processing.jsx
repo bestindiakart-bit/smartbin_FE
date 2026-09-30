@@ -3,7 +3,7 @@ import { ShoppingCart, SquareKanban, UserRoundX, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { order_processing_allGet } from "../../../../service/Orders_Services/Oreder_Services";
-import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 // Project Components
 import Button from "../../../../component/button/Buttons";
@@ -22,20 +22,19 @@ const Order_Processing = () => {
   const [DeleteSuccess, setDeleteSuccess] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [tabledata, setTableData] = useState([]);
-  console.log(tabledata, "tabledata")
+  console.log(tabledata, "tabledata");
 
-           const { permissions } = useSelector((state) => state.permissions);
+  const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[7] || {};
   console.log("Permissions in User Master:", userPermissions);
-  
+
   // Define permission checks
-   const canView = userPermissions?.view ||  false;
+  const canView = userPermissions?.view || false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
-  
-  
+
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
@@ -45,17 +44,17 @@ const Order_Processing = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.06, delayChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.06, delayChildren: 0.1 },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { type: 'spring', stiffness: 100, damping: 15 } 
-    }
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 100, damping: 15 },
+    },
   };
 
   useEffect(() => {
@@ -68,115 +67,145 @@ const Order_Processing = () => {
     }
   }, [DeleteSuccess]);
 
-
   const handleSelectionChange = (selectedIds) => {
     setSelectedRows(selectedIds);
   };
 
   const handleToggleStatus = (selectedRow) => {
-    setData(prev => prev.map(row => 
-      row.id === selectedRow.id ? { ...row, isActive: !row.isActive } : row
-    ));
+    setData((prev) =>
+      prev.map((row) =>
+        row.id === selectedRow.id ? { ...row, isActive: !row.isActive } : row,
+      ),
+    );
   };
 
-  const handleEdit = (row) => navigate('order-prcessing-create', { state: { rowID: row.id } });
+  const handleEdit = (row) =>
+    navigate("order-prcessing-create", { state: { rowID: row.id } });
   const handleDelete = () => setConfirmModel(true);
-  const handleView = (row) => navigate('order-Processing-view', { state: { rowId: row.id } });
+  const handleView = (row) =>
+    navigate("order-Processing-view", { state: { rowId: row.id } });
 
   useEffect(() => {
     if (succesModel) {
       const timer = setTimeout(() => setSuccessModel(false), 2000);
-      return () => clearTimeout(timer); 
+      return () => clearTimeout(timer);
     }
   }, [succesModel]);
 
   const StatsData = [
-    { title: "Total Order Processing", count: "500", footerText: "OverAll", icon: <Users /> },
-    { title: "Total Bin", count: "600", footerText: "OverAll", icon: <ShoppingCart /> },
-    { title: "Total Project", count: "400", footerText: "OverAll", icon: <SquareKanban /> },
-    { title: "Reorder Stock", count: "500", footerText: "OverAll", icon: <UserRoundX /> },
-  ];
-  
-  const columns = [
-    { header: 'Order Number', key: 'orderId' },
-    { header: 'Customer', key: 'customerName', isCustomer: true },
-    // { header: 'Total Amount', key: 'amount' },
-    { header: 'Status', key: 'status', isStatus: true },
-    { header: 'Payment Status', key: 'payment', isPaid: true },
-    { header: 'Bin Status', key: 'qtyValue', isQtyIndicator: true },
+    {
+      title: "Total Order Processing",
+      count: "500",
+      footerText: "OverAll",
+      icon: <Users />,
+    },
+    {
+      title: "Total Bin",
+      count: "600",
+      footerText: "OverAll",
+      icon: <ShoppingCart />,
+    },
+    {
+      title: "Total Project",
+      count: "400",
+      footerText: "OverAll",
+      icon: <SquareKanban />,
+    },
+    {
+      title: "Reorder Stock",
+      count: "500",
+      footerText: "OverAll",
+      icon: <UserRoundX />,
+    },
   ];
 
-  useEffect(()=>{
+  const columns = [
+    { header: "Order Number", key: "orderId" },
+    { header: "Customer", key: "customerName", isCustomer: true },
+    // { header: 'Total Amount', key: 'amount' },
+    { header: "Status", key: "status", isStatus: true },
+    { header: "Payment Status", key: "payment", isPaid: true },
+    { header: "Bin Status", key: "qtyValue", isQtyIndicator: true },
+  ];
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await order_processing_allGet();
         const orders = res?.data?.data?.orders || [];
 
-const processedOrders = orders.map((order, index) => {
-  const totalAmount = order?.items?.reduce(
-    (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
-    0
-  );
+        const processedOrders = orders.map((order, index) => {
+          const totalAmount = order?.items?.reduce(
+            (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+            0,
+          );
 
-  return {
-    id: order._id,
-    orderId: order.orderId,
-    customerName: order?.customerId?.companyName || "-",
-    amount: `₹ ${totalAmount.toLocaleString()}`,
+          return {
+            id: order._id,
+            orderId: order.orderId,
+            customerName: order?.customerId?.companyName || "-",
+            amount: `₹ ${totalAmount.toLocaleString()}`,
 
-    status:
-      order.orderStatus === 1
-        ? "Confirmed"
-        : order.orderStatus === 2
-        ? "Processing"
-        : order.orderStatus === 3
-        ? "Shipped"
-        : "Pending",
+            status:
+              order.orderStatus === 1
+                ? "Confirmed"
+                : order.orderStatus === 2
+                  ? "Processing"
+                  : order.orderStatus === 3
+                    ? "Shipped"
+                    : "Pending",
 
-    payment:
-      order.paymentStatus === 1
-        ? "Paid"
-        : "Unpaid",
+            payment: order.paymentStatus === 1 ? "Paid" : "Unpaid",
 
-    qtyValue: order?.items?.length || 0,
-  };
-});
+            qtyValue: order?.items?.length || 0,
+          };
+        });
 
-setTableData(processedOrders);
-      }catch(err){
-        console.log(err)
+        setTableData(processedOrders);
+      } catch (err) {
+        console.log(err);
       }
-    }
+    };
     fetchData();
-  },[])
+  }, []);
 
   return (
-    <motion.div 
+    <motion.div
       initial="hidden"
       animate="visible"
       variants={containerVariants}
       className="bg-[#fcfdfe] min-h-screen" // Changed to premium clean background
     >
       <div className="">
-        
         {/* 1. Page Header Section */}
-        <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"
+        >
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Order <span className="text-[#0062a0]">Processing</span> </h1>
-            <p className="text-[#0062a0] font-medium mt-1">Order Management System</p>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              Order <span className="text-[#0062a0]">Processing</span>{" "}
+            </h1>
+            <p className="text-[#0062a0] font-medium mt-1">
+              Order Management System
+            </p>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button disabled={!canCreate}
-                onClick={() => navigate('order-prcessing-create')}
+              <Button
+                disabled={!canCreate}
+                onClick={() => navigate("order-prcessing-create")}
                 variant="primary"
               >
                 + Order Processing
               </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Download_Button disabled={!canView} onClick={() => setSuccessModel(true)} />
+              <Download_Button
+                disabled={!canView}
+                onClick={() => setSuccessModel(true)}
+              />
             </motion.div>
           </div>
         </motion.div>
@@ -196,7 +225,7 @@ setTableData(processedOrders);
         </div>
 
         {/* 3. Search and Table Container */}
-        <motion.div 
+        <motion.div
           variants={itemVariants}
           className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden"
         >
@@ -205,10 +234,10 @@ setTableData(processedOrders);
             <div className="max-w-md w-full">
               <SearchBar />
             </div>
-            
+
             <AnimatePresence>
               {selectedRows.length > 0 && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
@@ -225,20 +254,27 @@ setTableData(processedOrders);
           {/* Table Wrapper */}
           <div className="p-2">
             <ReUsable_Table
-              columns={columns} 
+              columns={columns}
               data={tabledata}
-              showStatusBadge={true} 
-              showPaidBadge={true}   
+              showStatusBadge={true}
+              showPaidBadge={true}
               showToggle={false}
-              showQtyStatus={false}   
+              showQtyStatus={false}
               showActions={true}
               selectedRows={selectedRows}
               onSelectionChange={handleSelectionChange}
-              onEdit={canEdit? handleEdit: undefined}
-              onDelete={canDelete? handleDelete: undefined}
-              onView={canView? handleView: undefined}
+              onEdit={canEdit ? handleEdit : undefined}
+              onDelete={canDelete ? handleDelete : undefined}
+              onView={canView ? handleView : undefined}
               onStatusToggle={handleToggleStatus}
-              onRowClick={canView? (row) => navigate('order-Processing-view', { state: { rowId: row.id } }): undefined}
+              onRowClick={
+                canView
+                  ? (row) =>
+                      navigate("order-Processing-view", {
+                        state: { rowId: row.id },
+                      })
+                  : undefined
+              }
             />
           </div>
         </motion.div>

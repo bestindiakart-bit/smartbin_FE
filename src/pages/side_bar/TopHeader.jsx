@@ -6,7 +6,7 @@ import {
   LogOut,
   Menu,
   Settings,
-  User
+  User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import LogoSmartBin from "../../assets/LogoSmartBin.svg";
@@ -21,7 +21,7 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        dropdownContainerRef.current && 
+        dropdownContainerRef.current &&
         !dropdownContainerRef.current.contains(event.target)
       ) {
         setActiveDropdown(null);
@@ -30,7 +30,7 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  },[]);
+  }, []);
 
   const toggleDropdown = (dropdownName) => {
     setActiveDropdown((prev) => (prev === dropdownName ? null : dropdownName));
@@ -38,36 +38,36 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
 
   // Modern spring animation for dropdowns
   const dropdownVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 15, 
-      scale: 0.95, 
-      transformOrigin: "top right" 
+    hidden: {
+      opacity: 0,
+      y: 15,
+      scale: 0.95,
+      transformOrigin: "top right",
     },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1, 
-      transition: { 
-        type: "spring", 
-        stiffness: 400, 
-        damping: 30 
-      }
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 30,
+      },
     },
-    exit: { 
-      opacity: 0, 
-      y: 10, 
-      scale: 0.95, 
-      transition: { duration: 0.2 } 
-    }
+    exit: {
+      opacity: 0,
+      y: 10,
+      scale: 0.95,
+      transition: { duration: 0.2 },
+    },
   };
 
   return (
     <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100 shadow-sm z-30">
       <div className="flex items-center gap-6">
         {/* Mobile Hamburger Menu */}
-        <button 
-          onClick={toggleMobileSidebar} 
+        <button
+          onClick={toggleMobileSidebar}
           className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <Menu size={24} />
@@ -91,7 +91,7 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
           )}
         </AnimatePresence>
       </div>
-      
+
       {/* Right Side Icons & Profile */}
       <div className="flex items-center gap-5" ref={dropdownContainerRef}>
         {isLoading ? (
@@ -110,12 +110,12 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
           <>
             {/* --- NOTIFICATION DROPDOWN --- */}
             <div className="relative">
-              <div 
-                onClick={() => toggleDropdown('notification')}
+              <div
+                onClick={() => toggleDropdown("notification")}
                 className={`relative p-2.5 rounded-full cursor-pointer transition-colors ${
-                  activeDropdown === 'notification' 
-                    ? 'bg-blue-100 text-[#004e80]' 
-                    : 'bg-blue-50 text-[#0062a0] hover:bg-blue-100'
+                  activeDropdown === "notification"
+                    ? "bg-blue-100 text-[#004e80]"
+                    : "bg-blue-50 text-[#0062a0] hover:bg-blue-100"
                 }`}
               >
                 <Bell size={22} />
@@ -124,7 +124,7 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
               </div>
 
               <AnimatePresence>
-                {activeDropdown === 'notification' && (
+                {activeDropdown === "notification" && (
                   <motion.div
                     variants={dropdownVariants}
                     initial="hidden"
@@ -133,10 +133,14 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                     className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 overflow-hidden z-50"
                   >
                     <div className="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                      <span className="font-bold text-gray-800">Notifications</span>
-                      <span className="text-xs text-blue-600 cursor-pointer hover:underline font-semibold">Mark all as read</span>
+                      <span className="font-bold text-gray-800">
+                        Notifications
+                      </span>
+                      <span className="text-xs text-blue-600 cursor-pointer hover:underline font-semibold">
+                        Mark all as read
+                      </span>
                     </div>
-                    
+
                     <div className="max-h-[320px] overflow-y-auto no-scrollbar">
                       {/* Notification Item 1 */}
                       <div className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer flex gap-4">
@@ -144,9 +148,16 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                           <CheckCircle size={18} />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-gray-800">Order #1234 Processed</p>
-                          <p className="text-sm text-gray-500 mt-0.5 leading-snug">Warehouse order has been successfully processed and updated.</p>
-                          <p className="text-[11px] font-medium text-gray-400 mt-1.5">Just now</p>
+                          <p className="text-sm font-bold text-gray-800">
+                            Order #1234 Processed
+                          </p>
+                          <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+                            Warehouse order has been successfully processed and
+                            updated.
+                          </p>
+                          <p className="text-[11px] font-medium text-gray-400 mt-1.5">
+                            Just now
+                          </p>
                         </div>
                       </div>
 
@@ -156,13 +167,19 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                           <Info size={18} />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-gray-800">System Update Completed</p>
-                          <p className="text-sm text-gray-500 mt-0.5 leading-snug">Smart Bin forecast module has been updated to v2.4.</p>
-                          <p className="text-[11px] font-medium text-gray-400 mt-1.5">2 hours ago</p>
+                          <p className="text-sm font-bold text-gray-800">
+                            System Update Completed
+                          </p>
+                          <p className="text-sm text-gray-500 mt-0.5 leading-snug">
+                            Smart Bin forecast module has been updated to v2.4.
+                          </p>
+                          <p className="text-[11px] font-medium text-gray-400 mt-1.5">
+                            2 hours ago
+                          </p>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="p-3 text-center border-t border-gray-50 bg-gray-50/30">
                       <button className="text-sm text-blue-600 font-bold hover:text-blue-800 transition-colors">
                         View All Activity
@@ -172,26 +189,36 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                 )}
               </AnimatePresence>
             </div>
-            
+
             {/* --- PROFILE DROPDOWN --- */}
             <div className="relative border-l border-gray-100 pl-3">
-              <div 
-                onClick={() => toggleDropdown('profile')}
+              <div
+                onClick={() => toggleDropdown("profile")}
                 className={`flex items-center gap-3 cursor-pointer p-1.5 rounded-xl transition-all ${
-                  activeDropdown === 'profile' ? 'bg-gray-100' : 'hover:bg-gray-50'
+                  activeDropdown === "profile"
+                    ? "bg-gray-100"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-gray-800 leading-tight">Smart Bin</p>
-                  <p className="text-xs text-gray-400 font-medium">Administrator</p>
+                  <p className="text-sm font-bold text-gray-800 leading-tight">
+                    Smart Bin
+                  </p>
+                  <p className="text-xs text-gray-400 font-medium">
+                    Administrator
+                  </p>
                 </div>
                 <div className="w-11 h-11 rounded-full border-2 border-blue-50 p-0.5 overflow-hidden bg-white shadow-sm">
-                  <img src="https://ui-avatars.com/api/?name=Smart+Bin&background=0062a0&color=fff" alt="User" className="w-full h-full rounded-full object-cover" />
+                  <img
+                    src="https://ui-avatars.com/api/?name=Smart+Bin&background=0062a0&color=fff"
+                    alt="User"
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 </div>
               </div>
 
               <AnimatePresence>
-                {activeDropdown === 'profile' && (
+                {activeDropdown === "profile" && (
                   <motion.div
                     variants={dropdownVariants}
                     initial="hidden"
@@ -201,10 +228,14 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                   >
                     {/* Header profile details */}
                     <div className="p-5 border-b border-gray-50 bg-gray-50/50">
-                      <p className="text-base font-bold text-gray-800">Smart Bin Admin</p>
-                      <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">admin@smartbin.com</p>
+                      <p className="text-base font-bold text-gray-800">
+                        Smart Bin Admin
+                      </p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">
+                        admin@smartbin.com
+                      </p>
                     </div>
-                    
+
                     {/* Menu links */}
                     <div className="p-2 flex flex-col gap-1">
                       <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors font-semibold text-left w-full">
@@ -214,10 +245,15 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                         <Settings size={18} /> Account Settings
                       </button>
                     </div>
-                    
+
                     {/* Logout */}
-                    <div onClick={() => {navigate("/login"), localStorage.removeItem("accessToken")}}
-                    className="p-2 border-t border-gray-50">
+                    <div
+                      onClick={() => {
+                        (navigate("/login"),
+                          localStorage.removeItem("accessToken"));
+                      }}
+                      className="p-2 border-t border-gray-50"
+                    >
                       <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors font-semibold text-left w-full">
                         <LogOut size={18} /> Sign Out
                       </button>
@@ -226,7 +262,6 @@ const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
                 )}
               </AnimatePresence>
             </div>
-            
           </>
         )}
       </div>

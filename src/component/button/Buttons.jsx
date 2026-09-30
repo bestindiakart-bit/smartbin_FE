@@ -18,7 +18,7 @@ const Button = forwardRef(
       type = "button",
       ...props
     },
-    ref
+    ref,
   ) => {
     const isDisabled = disabled || isLoading;
 
@@ -37,13 +37,13 @@ const Button = forwardRef(
         "text-white",
         isActive
           ? "bg-[#0062a0] shadow-lg shadow-blue-900/20"
-          : "bg-[#0062a0] hover:bg-[#005285] shadow-md"
+          : "bg-[#0062a0] hover:bg-[#005285] shadow-md",
       ),
 
       secondary: clsx(
         isActive
           ? "bg-blue-100 text-[#0062a0]"
-          : "bg-transparent text-[#0062a0] hover:bg-blue-100/50"
+          : "bg-transparent text-[#0062a0] hover:bg-blue-100/50",
       ),
 
       outline:
@@ -52,12 +52,8 @@ const Button = forwardRef(
 
     //  Animation Settings
     const motionProps = {
-      whileHover: !isDisabled
-        ? { scale: 1.03 }
-        : undefined,
-      whileTap: !isDisabled
-        ? { scale: 0.97 }
-        : undefined,
+      whileHover: !isDisabled ? { scale: 1.03 } : undefined,
+      whileTap: !isDisabled ? { scale: 0.97 } : undefined,
       transition: {
         type: "spring",
         stiffness: 400,
@@ -77,8 +73,8 @@ const Button = forwardRef(
           sizes[size],
           variants[variant],
           isDisabled && "opacity-60 cursor-not-allowed",
-          !isDisabled && "cursor-pointer", 
-          className
+          !isDisabled && "cursor-pointer",
+          className,
         )}
         {...motionProps}
         {...props}
@@ -86,9 +82,7 @@ const Button = forwardRef(
         {/* Content */}
         <span className="relative z-10 flex items-center gap-2">
           {isLoading ? (
-            <motion.span
-              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            />
+            <motion.span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
               {leftIcon && <span>{leftIcon}</span>}
@@ -107,7 +101,7 @@ const Button = forwardRef(
         )}
       </motion.button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

@@ -11,13 +11,13 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
   const navigate = useNavigate();
   const [binData, setBinData] = useState(null);
   const [loading, setLoading] = useState(false);
-    const { permissions } = useSelector((state) => state.permissions);
+  const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[8] || {};
-  
+
   // Define permission checks
   const canEdit = userPermissions?.edit || false;
-  
+
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
@@ -44,22 +44,44 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
   }, [isOpen, rowId]);
 
   // Helper functions
-  const getStatusText = (status) => (status === 1 || status === true ? "Active" : "Inactive");
-  const getStatusColor = (status) => (status === 1 || status === true ? "text-emerald-500" : "text-red-500");
+  const getStatusText = (status) =>
+    status === 1 || status === true ? "Active" : "Inactive";
+  const getStatusColor = (status) =>
+    status === 1 || status === true ? "text-emerald-500" : "text-red-500";
 
   // Build info fields – adjust keys to match your backend response
-  const infoFields = binData ? [
-    { label: "Bin ID", value: binData.binId },
-    { label: "Customer Name", value: binData.customerId?.customerName || binData.customerName },
-    { label: "Project Name", value: binData.projectId?.projectName || binData.projectName },
-    { label: "Item Name", value: binData.itemMasterId?.itemName || binData.itemName },
-    { label: "Warehouse", value: binData.warehouseId?.warehouseName || binData.warehouseId },
-    { label: "Max Weight", value: binData.binAllowableWeight },
-    { label: "Max Quantity", value: binData.binAllowablelimit || binData.binMaxQuantity },
-    { label: "ROL", value: binData.rol },
-    { label: "Safety Stock", value: binData.safetyStockQuantity },
-    { label: "Price", value: binData.itemPerPrice ? `₹${binData.itemPerPrice}` : "N/A" },
-  ] : [];
+  const infoFields = binData
+    ? [
+        { label: "Bin ID", value: binData.binId },
+        {
+          label: "Customer Name",
+          value: binData.customerId?.customerName || binData.customerName,
+        },
+        {
+          label: "Project Name",
+          value: binData.projectId?.projectName || binData.projectName,
+        },
+        {
+          label: "Item Name",
+          value: binData.itemMasterId?.itemName || binData.itemName,
+        },
+        {
+          label: "Warehouse",
+          value: binData.warehouseId?.warehouseName || binData.warehouseId,
+        },
+        { label: "Max Weight", value: binData.binAllowableWeight },
+        {
+          label: "Max Quantity",
+          value: binData.binAllowablelimit || binData.binMaxQuantity,
+        },
+        { label: "ROL", value: binData.rol },
+        { label: "Safety Stock", value: binData.safetyStockQuantity },
+        {
+          label: "Price",
+          value: binData.itemPerPrice ? `₹${binData.itemPerPrice}` : "N/A",
+        },
+      ]
+    : [];
 
   // FIXED: use 'rowId' (lowercase d) instead of 'rowID'
   const handleEditNavigate = () => {
@@ -87,8 +109,13 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
           >
             {loading ? (
               <div className="h-[400px] flex flex-col items-center justify-center">
-                <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-                <p className="text-slate-500 animate-pulse">Loading Bin Details...</p>
+                <Loader2
+                  className="animate-spin text-blue-600 mb-4"
+                  size={40}
+                />
+                <p className="text-slate-500 animate-pulse">
+                  Loading Bin Details...
+                </p>
               </div>
             ) : binData ? (
               <div className="p-8">
@@ -98,11 +125,16 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
                     <h2 className="text-2xl font-bold text-slate-800">
                       Configuration Details
                     </h2>
-                    <p className={`font-semibold ${getStatusColor(binData.status || binData.itemStatus)}`}>
+                    <p
+                      className={`font-semibold ${getStatusColor(binData.status || binData.itemStatus)}`}
+                    >
                       ● {getStatusText(binData.status || binData.itemStatus)}
                     </p>
                   </div>
-                  <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                  <button
+                    onClick={onClose}
+                    className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                  >
                     <X size={24} className="text-slate-500" />
                   </button>
                 </div>
@@ -129,7 +161,11 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
                   >
                     Close
                   </button>
-                  <Button disabled={!canEdit} onClick={handleEditNavigate} variant="primary">
+                  <Button
+                    disabled={!canEdit}
+                    onClick={handleEditNavigate}
+                    variant="primary"
+                  >
                     Edit
                   </Button>
                 </div>
@@ -137,7 +173,12 @@ const Bin_View_Page = ({ isOpen, onClose, rowId }) => {
             ) : (
               <div className="h-[300px] flex flex-col items-center justify-center">
                 <p className="text-slate-500">No data found for this ID.</p>
-                <button onClick={onClose} className="mt-4 text-blue-600 underline">Close</button>
+                <button
+                  onClick={onClose}
+                  className="mt-4 text-blue-600 underline"
+                >
+                  Close
+                </button>
               </div>
             )}
           </motion.div>

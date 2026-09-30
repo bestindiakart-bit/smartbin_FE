@@ -369,62 +369,43 @@ const Dashboard = () => {
 
       const token = localStorage.getItem("accessToken");
 
-      const response = await axios.get(
-        `${Base_Url}/dashboard/overview`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
+      const response = await axios.get(`${Base_Url}/dashboard/overview`, {
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
 
-            ...(token
-              ? {
-                  Authorization: `Bearer ${token}`,
-                }
-              : {}),
-          },
-        }
-      );
+          ...(token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : {}),
+        },
+      });
 
-      console.log(
-        "Dashboard Overview API Response:",
-        response.data
-      );
+      console.log("Dashboard Overview API Response:", response.data);
 
       if (response?.data?.success) {
         setDashboardData({
-          totalProject:
-            response?.data?.data?.totalProject ?? 0,
+          totalProject: response?.data?.data?.totalProject ?? 0,
 
-          totalCustomer:
-            response?.data?.data?.totalCustomer ?? 0,
+          totalCustomer: response?.data?.data?.totalCustomer ?? 0,
 
-          totalUser:
-            response?.data?.data?.totalUser ?? 0,
+          totalUser: response?.data?.data?.totalUser ?? 0,
 
-          totalBom:
-            response?.data?.data?.totalBom ?? 0,
+          totalBom: response?.data?.data?.totalBom ?? 0,
 
-          totalBin:
-            response?.data?.data?.totalBin ?? 0,
+          totalBin: response?.data?.data?.totalBin ?? 0,
 
-          totalWarehouse:
-            response?.data?.data?.totalWarehouse ?? 0,
+          totalWarehouse: response?.data?.data?.totalWarehouse ?? 0,
         });
       } else {
-        setError(
-          response?.data?.message ||
-            "Failed to fetch dashboard data"
-        );
+        setError(response?.data?.message || "Failed to fetch dashboard data");
       }
     } catch (err) {
-      console.error(
-        "Dashboard Overview Error:",
-        err
-      );
+      console.error("Dashboard Overview Error:", err);
 
       if (err?.response?.status === 401) {
-        const token =
-          localStorage.getItem("accessToken");
+        const token = localStorage.getItem("accessToken");
 
         if (!token) {
           localStorage.clear();
@@ -436,7 +417,7 @@ const Dashboard = () => {
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Unable to load dashboard data"
+          "Unable to load dashboard data",
       );
     } finally {
       setLoading(false);
@@ -529,7 +510,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-6 lg:p-8">
       <div className="max-w-[1600px] mx-auto">
-
         {/* =====================================================
             Header
         ===================================================== */}
@@ -604,13 +584,7 @@ const Dashboard = () => {
             }}
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 hover:shadow-md transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <RefreshCw
-              size={17}
-              className={
-                loading ? "animate-spin" : ""
-              }
-            />
-
+            <RefreshCw size={17} className={loading ? "animate-spin" : ""} />
             Refresh
           </motion.button>
         </motion.div>
@@ -636,7 +610,6 @@ const Dashboard = () => {
             className="mb-6 flex items-center justify-between gap-4 p-4 bg-red-50 border border-red-200 rounded-xl"
           >
             <div className="flex items-center gap-3">
-
               <motion.div
                 initial={{
                   scale: 0.5,
@@ -653,10 +626,7 @@ const Dashboard = () => {
                 }}
                 className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-100"
               >
-                <AlertCircle
-                  size={19}
-                  className="text-red-600"
-                />
+                <AlertCircle size={19} className="text-red-600" />
               </motion.div>
 
               <div>
@@ -664,9 +634,7 @@ const Dashboard = () => {
                   Unable to load dashboard
                 </p>
 
-                <p className="text-xs text-red-600 mt-0.5">
-                  {error}
-                </p>
+                <p className="text-xs text-red-600 mt-0.5">{error}</p>
               </div>
             </div>
 
@@ -721,7 +689,6 @@ const Dashboard = () => {
                 className="group bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-xl hover:border-slate-300 transition-shadow duration-300"
               >
                 <div className="flex items-start justify-between gap-3">
-
                   {/* =================================================
                       Card Text
                   ================================================= */}
@@ -737,8 +704,7 @@ const Dashboard = () => {
                       }}
                       transition={{
                         duration: 0.4,
-                        delay:
-                          index * 0.12 + 0.15,
+                        delay: index * 0.12 + 0.15,
                       }}
                       className="text-sm font-medium text-slate-500"
                     >
@@ -760,8 +726,7 @@ const Dashboard = () => {
                         }}
                         transition={{
                           duration: 0.5,
-                          delay:
-                            index * 0.08,
+                          delay: index * 0.08,
                         }}
                         className="mt-3 h-9 w-20 bg-slate-100 rounded-lg animate-pulse"
                       />
@@ -777,17 +742,14 @@ const Dashboard = () => {
                         }}
                         transition={{
                           duration: 0.5,
-                          delay:
-                            index * 0.1 + 0.2,
+                          delay: index * 0.1 + 0.2,
                           type: "spring",
                           stiffness: 180,
                           damping: 15,
                         }}
                         className="mt-2 text-3xl font-bold text-slate-800"
                       >
-                        <AnimatedNumber
-                          value={card.value}
-                        />
+                        <AnimatedNumber value={card.value} />
                       </motion.p>
                     )}
                   </div>
@@ -807,8 +769,7 @@ const Dashboard = () => {
                       rotate: 0,
                     }}
                     transition={{
-                      delay:
-                        index * 0.12 + 0.25,
+                      delay: index * 0.12 + 0.25,
                       duration: 0.6,
                       type: "spring",
                       stiffness: 180,
@@ -820,10 +781,7 @@ const Dashboard = () => {
                     }}
                     className="flex-shrink-0 w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300"
                   >
-                    <Icon
-                      size={22}
-                      className="text-[#0062a0]"
-                    />
+                    <Icon size={22} className="text-[#0062a0]" />
                   </motion.div>
                 </div>
 
@@ -840,8 +798,7 @@ const Dashboard = () => {
                     y: 0,
                   }}
                   transition={{
-                    delay:
-                      index * 0.12 + 0.45,
+                    delay: index * 0.12 + 0.45,
                     duration: 0.4,
                   }}
                   className="text-xs text-slate-400 mt-4"
@@ -862,8 +819,7 @@ const Dashboard = () => {
                     opacity: 1,
                   }}
                   transition={{
-                    delay:
-                      index * 0.12 + 0.5,
+                    delay: index * 0.12 + 0.5,
                     duration: 0.6,
                     ease: "easeOut",
                   }}
@@ -883,7 +839,6 @@ const Dashboard = () => {
           ...
         </div>
         */}
-
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
-import { Search, X } from 'lucide-react';
+import { Search, X } from "lucide-react";
 
-const SearchBar = ({ 
-  value, 
-  onChange, 
-  placeholder = "Search ....", 
+const SearchBar = ({
+  value,
+  onChange,
+  placeholder = "Search ....",
   onClear,
-  className = "" 
+  className = "",
 }) => {
   return (
     <div className={`relative w-full max-w-2xl ${className}`}>

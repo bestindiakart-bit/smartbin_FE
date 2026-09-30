@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useMatches, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useLocation, useMatches, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import {
   ArrowLeft,
   History,
@@ -8,15 +8,15 @@ import {
   User,
   Calendar,
   Clock,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 import {
   ForcastGet,
   ProjectConsumptionGet,
-} from '../../../../store/Api_slice/Forecast_Slice';
+} from "../../../../store/Api_slice/Forecast_Slice";
 
-import { fetchPermissions } from '../../../../store/Permission_Store/Permission_Slice';
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 
 const ForCast_View = () => {
   const location = useLocation();
@@ -30,35 +30,34 @@ const ForCast_View = () => {
 
   const VIEWER_CONFIG = {
     forecast: {
-      viewerType: 'forecast',
-      title: 'Forecast',
-      description: 'Manage and monitor forecasts',
-      apiEndpoint: '/forecast/',
-      idLabel: 'Forecast Id',
-      createLabel: 'Create Forecast',
-      searchPlaceholder:
-        'Search by Forecast ID, Customer, Project, or BOM...',
-      deletedMessage: 'Forecast deleted successfully!',
-      deleteErrorMessage: 'Failed to delete forecast',
+      viewerType: "forecast",
+      title: "Forecast",
+      description: "Manage and monitor forecasts",
+      apiEndpoint: "/forecast/",
+      idLabel: "Forecast Id",
+      createLabel: "Create Forecast",
+      searchPlaceholder: "Search by Forecast ID, Customer, Project, or BOM...",
+      deletedMessage: "Forecast deleted successfully!",
+      deleteErrorMessage: "Failed to delete forecast",
       bulkDeleteConfirm:
-        'Are you sure you want to delete {count} selected forecast(s)?',
-      deleteConfirm: 'Are you sure you want to delete forecast {id}?',
+        "Are you sure you want to delete {count} selected forecast(s)?",
+      deleteConfirm: "Are you sure you want to delete forecast {id}?",
     },
 
     consumption: {
-      viewerType: 'consumption',
-      title: 'Consumption',
-      description: 'Manage and monitor consumption',
-      apiEndpoint: '/project-consumption/',
-      idLabel: 'Consumption Id',
-      createLabel: 'Create Consumption',
+      viewerType: "consumption",
+      title: "Consumption",
+      description: "Manage and monitor consumption",
+      apiEndpoint: "/project-consumption/",
+      idLabel: "Consumption Id",
+      createLabel: "Create Consumption",
       searchPlaceholder:
-        'Search by Consumption ID, Customer, Project, or BOM...',
-      deletedMessage: 'Consumption deleted successfully!',
-      deleteErrorMessage: 'Failed to delete consumption',
+        "Search by Consumption ID, Customer, Project, or BOM...",
+      deletedMessage: "Consumption deleted successfully!",
+      deleteErrorMessage: "Failed to delete consumption",
       bulkDeleteConfirm:
-        'Are you sure you want to delete {count} selected consumption(s)?',
-      deleteConfirm: 'Are you sure you want to delete consumption {id}?',
+        "Are you sure you want to delete {count} selected consumption(s)?",
+      deleteConfirm: "Are you sure you want to delete consumption {id}?",
     },
   };
 
@@ -79,17 +78,17 @@ const ForCast_View = () => {
       routeMatches[routeMatches.length - 1]?.pathname ||
       window.location.pathname;
 
-    if (pathname.startsWith('/consumption-viewer')) {
-      return 'consumption';
+    if (pathname.startsWith("/consumption-viewer")) {
+      return "consumption";
     }
 
-    return 'forecast';
+    return "forecast";
   };
 
   const viewerType = getViewerTypeFromMatches(matches);
   const viewerConfig = VIEWER_CONFIG[viewerType];
 
-  const isConsumption = viewerType === 'consumption';
+  const isConsumption = viewerType === "consumption";
 
   /* =========================================================
      PERMISSIONS
@@ -123,10 +122,9 @@ const ForCast_View = () => {
      CONSUMPTION REDUX STATE
   ========================================================= */
 
-  const {
-    projectConsumptionGet,
-    projectConsumption,
-  } = useSelector((state) => state.forecast);
+  const { projectConsumptionGet, projectConsumption } = useSelector(
+    (state) => state.forecast,
+  );
 
   const [viewData, setViewData] = useState(null);
 
@@ -150,14 +148,10 @@ const ForCast_View = () => {
       dispatch(
         ForcastGet({
           endpoint: viewerConfig.apiEndpoint,
-        })
+        }),
       );
     }
-  }, [
-    dispatch,
-    isConsumption,
-    viewerConfig.apiEndpoint,
-  ]);
+  }, [dispatch, isConsumption, viewerConfig.apiEndpoint]);
 
   /* =========================================================
      HELPER
@@ -223,16 +217,10 @@ const ForCast_View = () => {
 
     const forecastData = extractArray(forecastGet);
 
-    const targetData = forecastData.find(
-      (item) => item?._id === rowId
-    );
+    const targetData = forecastData.find((item) => item?._id === rowId);
 
     setViewData(targetData || null);
-  }, [
-    forecastGet,
-    rowId,
-    isConsumption,
-  ]);
+  }, [forecastGet, rowId, isConsumption]);
 
   /* =========================================================
      FIND CONSUMPTION RECORD
@@ -247,23 +235,13 @@ const ForCast_View = () => {
       return;
     }
 
-    const consumptionResponse =
-      projectConsumptionGet || projectConsumption;
-    const consumptionData = extractArray(
-      consumptionResponse
-    );
+    const consumptionResponse = projectConsumptionGet || projectConsumption;
+    const consumptionData = extractArray(consumptionResponse);
 
-    const targetData = consumptionData.find(
-      (item) => item?._id === rowId
-    );
+    const targetData = consumptionData.find((item) => item?._id === rowId);
 
     setViewData(targetData || null);
-  }, [
-    projectConsumptionGet,
-    projectConsumption,
-    rowId,
-    isConsumption,
-  ]);
+  }, [projectConsumptionGet, projectConsumption, rowId, isConsumption]);
 
   /* =========================================================
      LOADING
@@ -289,26 +267,23 @@ const ForCast_View = () => {
     viewData?.projectConsumptionId ||
     viewData?.projectConsumptionID ||
     viewData?._id ||
-    '-';
+    "-";
 
   const customerName =
     viewData?.customerId?.companyName ||
     viewData?.customerId?.customerName ||
-    '-';
+    "-";
 
   const projectName =
-    viewData?.projectId?.projectName ||
-    viewData?.projectId?.name ||
-    '-';
+    viewData?.projectId?.projectName || viewData?.projectId?.name || "-";
 
   /* =========================================================
      FORECAST MONTH DATA
   ========================================================= */
 
-  const forecastMonths =
-    Array.isArray(viewData?.projectForecast)
-      ? viewData.projectForecast
-      : [];
+  const forecastMonths = Array.isArray(viewData?.projectForecast)
+    ? viewData.projectForecast
+    : [];
 
   /* =========================================================
      CONSUMPTION MONTH DATA
@@ -317,13 +292,15 @@ const ForCast_View = () => {
      changing the backend response.
   ========================================================= */
 
-  const consumptionMonths = Array.isArray(
-    viewData?.projectConsumption
-  )
+  const consumptionMonths = Array.isArray(viewData?.projectConsumption)
     ? viewData.projectConsumption.map((monthData) => ({
         ...monthData,
-        consumptionMonth: monthData?.consumptionMonth || monthData?.month || '',
-        productionQuantity: monthData?.productionQuantity ?? monthData?.consumptionQuantity ?? monthData?.quantity ?? 0,
+        consumptionMonth: monthData?.consumptionMonth || monthData?.month || "",
+        productionQuantity:
+          monthData?.productionQuantity ??
+          monthData?.consumptionQuantity ??
+          monthData?.quantity ??
+          0,
         itemConsumptions: Array.isArray(monthData?.itemConsumptions)
           ? monthData.itemConsumptions
           : Array.isArray(monthData?.items)
@@ -347,40 +324,27 @@ const ForCast_View = () => {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-gray-100 text-[15px] text-gray-800 bg-[#f9fafc]">
-            <th className="py-4 px-6 font-semibold min-w-[140px]">
-              Month
-            </th>
+            <th className="py-4 px-6 font-semibold min-w-[140px]">Month</th>
 
             <th className="py-4 px-6 font-semibold min-w-[180px]">
               Production
             </th>
 
-            <th className="py-4 px-6 font-semibold">
-              Supply
-            </th>
+            <th className="py-4 px-6 font-semibold">Supply</th>
 
-            <th className="py-4 px-6 font-semibold min-w-[250px]">
-              Item
-            </th>
+            <th className="py-4 px-6 font-semibold min-w-[250px]">Item</th>
 
-            <th className="py-4 px-6 font-semibold">
-              Required
-            </th>
+            <th className="py-4 px-6 font-semibold">Required</th>
 
-            <th className="py-4 px-6 font-semibold">
-              Total Cons
-            </th>
+            <th className="py-4 px-6 font-semibold">Total Cons</th>
 
-            <th className="py-4 px-6 font-semibold">
-              Supplied Cons
-            </th>
+            <th className="py-4 px-6 font-semibold">Supplied Cons</th>
           </tr>
         </thead>
 
         <tbody className="text-[14px] text-gray-700">
           {forecastMonths.map((monthData, monthIdx) => {
-            const itemsList =
-              monthData?.itemConsumptions || [];
+            const itemsList = monthData?.itemConsumptions || [];
 
             /*
              * If there are no item consumptions,
@@ -393,7 +357,7 @@ const ForCast_View = () => {
                   className="border-t border-gray-200"
                 >
                   <td className="py-4 px-6">
-                    {monthData?.forecastMonth || '-'}
+                    {monthData?.forecastMonth || "-"}
                   </td>
 
                   <td className="py-4 px-6">
@@ -404,10 +368,7 @@ const ForCast_View = () => {
                     {monthData?.supplyQuantity ?? 0}
                   </td>
 
-                  <td
-                    colSpan="4"
-                    className="py-4 px-6 text-gray-400"
-                  >
+                  <td colSpan="4" className="py-4 px-6 text-gray-400">
                     No item consumption data
                   </td>
                 </tr>
@@ -418,9 +379,7 @@ const ForCast_View = () => {
               <tr
                 key={`${monthIdx}-${itemIdx}`}
                 className={`hover:bg-gray-50/50 transition-colors ${
-                  itemIdx !== 0
-                    ? 'border-none'
-                    : 'border-t border-gray-200'
+                  itemIdx !== 0 ? "border-none" : "border-t border-gray-200"
                 }`}
               >
                 {/* Month */}
@@ -428,7 +387,7 @@ const ForCast_View = () => {
                   {itemIdx === 0 && (
                     <div className="flex flex-col gap-3 mt-1">
                       <span className="text-gray-800 font-medium whitespace-nowrap">
-                        {monthData?.forecastMonth || '-'}
+                        {monthData?.forecastMonth || "-"}
                       </span>
                     </div>
                   )}
@@ -442,23 +401,14 @@ const ForCast_View = () => {
                         {monthData?.productionQuantity ?? 0}
                       </span>
 
-                      {Array.isArray(
-                        monthData?.productionHistory
-                      ) &&
-                        monthData.productionHistory.length >
-                          0 && (
+                      {Array.isArray(monthData?.productionHistory) &&
+                        monthData.productionHistory.length > 0 && (
                           <div className="relative group cursor-pointer">
                             <div className="flex items-center gap-1 text-xs font-medium text-[#0062a0] bg-blue-50 px-2 py-1 rounded-md border border-blue-100 hover:bg-blue-100 transition-colors">
                               <History size={13} />
 
                               <span>
-                                Edited (
-                                {
-                                  monthData
-                                    .productionHistory
-                                    .length
-                                }
-                                )
+                                Edited ({monthData.productionHistory.length})
                               </span>
                             </div>
 
@@ -474,15 +424,13 @@ const ForCast_View = () => {
                                   (hist, hIdx) => {
                                     const updaterName =
                                       hist?.updatedBy?.name ||
-                                      hist?.updatedBy
-                                        ?.userName ||
-                                      (typeof hist?.updatedBy ===
-                                      'string'
+                                      hist?.updatedBy?.userName ||
+                                      (typeof hist?.updatedBy === "string"
                                         ? `User ID: ${hist.updatedBy.substring(
                                             0,
-                                            8
+                                            8,
                                           )}...`
-                                        : 'System / Unknown');
+                                        : "System / Unknown");
 
                                     return (
                                       <div
@@ -495,16 +443,13 @@ const ForCast_View = () => {
 
                                             {hist?.updatedAt
                                               ? new Date(
-                                                  hist.updatedAt
-                                                ).toLocaleDateString(
-                                                  'en-US',
-                                                  {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric',
-                                                  }
-                                                )
-                                              : '-'}
+                                                  hist.updatedAt,
+                                                ).toLocaleDateString("en-US", {
+                                                  month: "short",
+                                                  day: "numeric",
+                                                  year: "numeric",
+                                                })
+                                              : "-"}
                                           </span>
 
                                           <span className="flex items-center gap-1.5">
@@ -512,16 +457,12 @@ const ForCast_View = () => {
 
                                             {hist?.updatedAt
                                               ? new Date(
-                                                  hist.updatedAt
-                                                ).toLocaleTimeString(
-                                                  'en-US',
-                                                  {
-                                                    hour: '2-digit',
-                                                    minute:
-                                                      '2-digit',
-                                                  }
-                                                )
-                                              : '-'}
+                                                  hist.updatedAt,
+                                                ).toLocaleTimeString("en-US", {
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                                })
+                                              : "-"}
                                           </span>
                                         </div>
 
@@ -538,7 +479,7 @@ const ForCast_View = () => {
 
                                         <div className="flex items-center gap-3">
                                           <span className="text-sm text-slate-400 line-through decoration-slate-300 font-medium">
-                                            {hist?.oldValue ?? '-'}
+                                            {hist?.oldValue ?? "-"}
                                           </span>
 
                                           <ArrowRight
@@ -547,12 +488,12 @@ const ForCast_View = () => {
                                           />
 
                                           <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-100">
-                                            {hist?.newValue ?? '-'}
+                                            {hist?.newValue ?? "-"}
                                           </span>
                                         </div>
                                       </div>
                                     );
-                                  }
+                                  },
                                 )}
                               </div>
                             </div>
@@ -564,37 +505,27 @@ const ForCast_View = () => {
 
                 {/* Supply */}
                 <td className="py-4 px-6 text-gray-600 align-top">
-                  {itemIdx === 0
-                    ? monthData?.supplyQuantity ?? 0
-                    : ''}
+                  {itemIdx === 0 ? (monthData?.supplyQuantity ?? 0) : ""}
                 </td>
 
                 {/* Item */}
                 <td className="py-4 px-6 text-gray-700 align-top">
-                  <div className="mt-1">
-                    {item?.itemId?.itemName || '-'}
-                  </div>
+                  <div className="mt-1">{item?.itemId?.itemName || "-"}</div>
                 </td>
 
                 {/* Required */}
                 <td className="py-4 px-6 text-gray-700 align-top">
-                  <div className="mt-1">
-                    {item?.requiredQuantity ?? 0}
-                  </div>
+                  <div className="mt-1">{item?.requiredQuantity ?? 0}</div>
                 </td>
 
                 {/* Total Consumption */}
                 <td className="py-4 px-6 text-gray-700 align-top">
-                  <div className="mt-1">
-                    {item?.totalConsumption ?? 0}
-                  </div>
+                  <div className="mt-1">{item?.totalConsumption ?? 0}</div>
                 </td>
 
                 {/* Supplied Consumption */}
                 <td className="py-4 px-6 text-gray-700 align-top">
-                  <div className="mt-1">
-                    {item?.suppliedConsumption ?? 0}
-                  </div>
+                  <div className="mt-1">{item?.suppliedConsumption ?? 0}</div>
                 </td>
               </tr>
             ));
@@ -602,12 +533,8 @@ const ForCast_View = () => {
 
           {forecastMonths.length === 0 && (
             <tr>
-              <td
-                colSpan="7"
-                className="py-12 text-center text-gray-500"
-              >
-                No monthly forecast data available for this
-                record.
+              <td colSpan="7" className="py-12 text-center text-gray-500">
+                No monthly forecast data available for this record.
               </td>
             </tr>
           )}
@@ -625,187 +552,161 @@ const ForCast_View = () => {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-gray-100 text-[15px] text-gray-800 bg-[#f9fafc]">
-            <th className="py-4 px-6 font-semibold min-w-[180px]">
-              Month
-            </th>
+            <th className="py-4 px-6 font-semibold min-w-[180px]">Month</th>
 
             <th className="py-4 px-6 font-semibold min-w-[200px]">
               Consumption
             </th>
 
-            <th className="py-4 px-6 font-semibold min-w-[250px]">
-              Item
-            </th>
+            <th className="py-4 px-6 font-semibold min-w-[250px]">Item</th>
 
-            <th className="py-4 px-6 font-semibold">
-              Required
-            </th>
+            <th className="py-4 px-6 font-semibold">Required</th>
 
-            <th className="py-4 px-6 font-semibold">
-              Total Consumption
-            </th>
+            <th className="py-4 px-6 font-semibold">Total Consumption</th>
 
-            <th className="py-4 px-6 font-semibold">
-              Supplied Consumption
-            </th>
+            <th className="py-4 px-6 font-semibold">Supplied Consumption</th>
           </tr>
         </thead>
 
         <tbody className="text-[14px] text-gray-700">
-          {consumptionMonths.map(
-            (monthData, monthIdx) => {
-              /*
-               * Consumption item arrays can have different
-               * names depending on backend response.
-               */
-              const itemsList =
-                monthData?.itemConsumptions ||
-                monthData?.items ||
-                monthData?.consumptionItems ||
-                [];
+          {consumptionMonths.map((monthData, monthIdx) => {
+            /*
+             * Consumption item arrays can have different
+             * names depending on backend response.
+             */
+            const itemsList =
+              monthData?.itemConsumptions ||
+              monthData?.items ||
+              monthData?.consumptionItems ||
+              [];
 
-              /*
-               * Resolve month from Consumption response.
-               */
-              const month =
-                monthData?.consumptionMonth ||
-                monthData?.month ||
-                monthData?.forecastMonth ||
-                '-';
+            /*
+             * Resolve month from Consumption response.
+             */
+            const month =
+              monthData?.consumptionMonth ||
+              monthData?.month ||
+              monthData?.forecastMonth ||
+              "-";
 
-              /*
-               * Resolve parent consumption quantity.
-               */
-              const quantity =
-                monthData?.productionQuantity ??
-                monthData?.consumptionQuantity ??
-                monthData?.quantity ??
-                monthData?.totalConsumption ??
+            /*
+             * Resolve parent consumption quantity.
+             */
+            const quantity =
+              monthData?.productionQuantity ??
+              monthData?.consumptionQuantity ??
+              monthData?.quantity ??
+              monthData?.totalConsumption ??
+              0;
+
+            /*
+             * If no item array exists, display the
+             * consumption month and quantity directly.
+             */
+            if (itemsList.length === 0) {
+              return (
+                <tr
+                  key={`consumption-month-${monthIdx}`}
+                  className="border-t border-gray-200 hover:bg-gray-50/50 transition-colors"
+                >
+                  <td className="py-4 px-6 align-top">
+                    <span className="text-gray-800 font-medium whitespace-nowrap">
+                      {month}
+                    </span>
+                  </td>
+
+                  <td className="py-4 px-6 align-top">
+                    <span className="font-semibold text-slate-800 text-[15px]">
+                      {quantity}
+                    </span>
+                  </td>
+
+                  <td className="py-4 px-6 text-gray-400">-</td>
+
+                  <td className="py-4 px-6 text-gray-400">-</td>
+
+                  <td className="py-4 px-6 text-gray-700">
+                    {monthData?.totalConsumption ?? quantity}
+                  </td>
+
+                  <td className="py-4 px-6 text-gray-700">
+                    {monthData?.suppliedConsumption ?? 0}
+                  </td>
+                </tr>
+              );
+            }
+
+            return itemsList.map((item, itemIdx) => {
+              const itemName =
+                item?.itemId?.itemName ||
+                item?.itemMasterId?.itemName ||
+                item?.itemName ||
+                "-";
+
+              const requiredQuantity =
+                item?.requiredQuantity ?? item?.required ?? 0;
+
+              const totalConsumption =
+                item?.totalConsumption ??
+                item?.consumptionQuantity ??
+                item?.quantity ??
                 0;
 
-              /*
-               * If no item array exists, display the
-               * consumption month and quantity directly.
-               */
-              if (itemsList.length === 0) {
-                return (
-                  <tr
-                    key={`consumption-month-${monthIdx}`}
-                    className="border-t border-gray-200 hover:bg-gray-50/50 transition-colors"
-                  >
-                    <td className="py-4 px-6 align-top">
+              const suppliedConsumption = item?.suppliedConsumption ?? 0;
+
+              return (
+                <tr
+                  key={`${monthIdx}-${itemIdx}`}
+                  className={`hover:bg-gray-50/50 transition-colors ${
+                    itemIdx !== 0 ? "border-none" : "border-t border-gray-200"
+                  }`}
+                >
+                  {/* Month */}
+                  <td className="py-4 px-6 align-top">
+                    {itemIdx === 0 && (
                       <span className="text-gray-800 font-medium whitespace-nowrap">
                         {month}
                       </span>
-                    </td>
+                    )}
+                  </td>
 
-                    <td className="py-4 px-6 align-top">
+                  {/* Consumption Quantity */}
+                  <td className="py-4 px-6 align-top">
+                    {itemIdx === 0 && (
                       <span className="font-semibold text-slate-800 text-[15px]">
                         {quantity}
                       </span>
-                    </td>
+                    )}
+                  </td>
 
-                    <td className="py-4 px-6 text-gray-400">
-                      -
-                    </td>
+                  {/* Item */}
+                  <td className="py-4 px-6 text-gray-700 align-top">
+                    {itemName}
+                  </td>
 
-                    <td className="py-4 px-6 text-gray-400">
-                      -
-                    </td>
+                  {/* Required */}
+                  <td className="py-4 px-6 text-gray-700 align-top">
+                    {requiredQuantity}
+                  </td>
 
-                    <td className="py-4 px-6 text-gray-700">
-                      {monthData?.totalConsumption ??
-                        quantity}
-                    </td>
+                  {/* Total Consumption */}
+                  <td className="py-4 px-6 text-gray-700 align-top">
+                    {totalConsumption}
+                  </td>
 
-                    <td className="py-4 px-6 text-gray-700">
-                      {monthData?.suppliedConsumption ?? 0}
-                    </td>
-                  </tr>
-                );
-              }
-
-              return itemsList.map((item, itemIdx) => {
-                const itemName =
-                  item?.itemId?.itemName ||
-                  item?.itemMasterId?.itemName ||
-                  item?.itemName ||
-                  '-';
-
-                const requiredQuantity =
-                  item?.requiredQuantity ??
-                  item?.required ??
-                  0;
-
-                const totalConsumption =
-                  item?.totalConsumption ??
-                  item?.consumptionQuantity ??
-                  item?.quantity ??
-                  0;
-
-                const suppliedConsumption =
-                  item?.suppliedConsumption ?? 0;
-
-                return (
-                  <tr
-                    key={`${monthIdx}-${itemIdx}`}
-                    className={`hover:bg-gray-50/50 transition-colors ${
-                      itemIdx !== 0
-                        ? 'border-none'
-                        : 'border-t border-gray-200'
-                    }`}
-                  >
-                    {/* Month */}
-                    <td className="py-4 px-6 align-top">
-                      {itemIdx === 0 && (
-                        <span className="text-gray-800 font-medium whitespace-nowrap">
-                          {month}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Consumption Quantity */}
-                    <td className="py-4 px-6 align-top">
-                      {itemIdx === 0 && (
-                        <span className="font-semibold text-slate-800 text-[15px]">
-                          {quantity}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Item */}
-                    <td className="py-4 px-6 text-gray-700 align-top">
-                      {itemName}
-                    </td>
-
-                    {/* Required */}
-                    <td className="py-4 px-6 text-gray-700 align-top">
-                      {requiredQuantity}
-                    </td>
-
-                    {/* Total Consumption */}
-                    <td className="py-4 px-6 text-gray-700 align-top">
-                      {totalConsumption}
-                    </td>
-
-                    {/* Supplied Consumption */}
-                    <td className="py-4 px-6 text-gray-700 align-top">
-                      {suppliedConsumption}
-                    </td>
-                  </tr>
-                );
-              });
-            }
-          )}
+                  {/* Supplied Consumption */}
+                  <td className="py-4 px-6 text-gray-700 align-top">
+                    {suppliedConsumption}
+                  </td>
+                </tr>
+              );
+            });
+          })}
 
           {consumptionMonths.length === 0 && (
             <tr>
-              <td
-                colSpan="6"
-                className="py-12 text-center text-gray-500"
-              >
-                No monthly consumption data available for
-                this record.
+              <td colSpan="6" className="py-12 text-center text-gray-500">
+                No monthly consumption data available for this record.
               </td>
             </tr>
           )}
@@ -847,11 +748,11 @@ const ForCast_View = () => {
                 {viewerConfig.idLabel}: {recordId}
               </span>
 
-              {' | '}
+              {" | "}
 
               {customerName}
 
-              {' | '}
+              {" | "}
 
               {projectName}
             </p>
@@ -864,9 +765,7 @@ const ForCast_View = () => {
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible">
           <div className="overflow-x-auto overflow-y-visible pb-12">
-            {isConsumption
-              ? renderConsumptionTable()
-              : renderForecastTable()}
+            {isConsumption ? renderConsumptionTable() : renderForecastTable()}
           </div>
         </div>
       </div>

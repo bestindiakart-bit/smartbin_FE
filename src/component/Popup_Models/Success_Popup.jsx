@@ -1,19 +1,21 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const Success_Popup = ({ isOpen, onClose, title, message, isActive }) => {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduceMotion(mediaQuery.matches);
     const handler = (e) => setReduceMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  const transition = reduceMotion ? { duration: 0 } : { duration: 0.4, ease: [0.32, 0.72, 0, 1] };
+  const transition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.4, ease: [0.32, 0.72, 0, 1] };
 
   return (
     <AnimatePresence>
@@ -42,7 +44,12 @@ const Success_Popup = ({ isOpen, onClose, title, message, isActive }) => {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
+                transition={{
+                  delay: 0.1,
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                }}
                 className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-50"
               >
                 <motion.div

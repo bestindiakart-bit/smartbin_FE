@@ -124,16 +124,16 @@
 //   }, []);
 
 //   // Floating label logic
-//   const isFloating = 
-//     isFocused || 
-//     (value !== undefined && value !== null && value.toString().length > 0) || 
-//     type === "date" || 
+//   const isFloating =
+//     isFocused ||
+//     (value !== undefined && value !== null && value.toString().length > 0) ||
+//     type === "date" ||
 //     type === "select" ||
 //     isOpen || // Keep label up when dropdown is open
 //     isActive;
 
 //   const labelStyles = `absolute transition-all duration-200 pointer-events-none z-10 left-3 px-1.5 ${
-//     isFloating 
+//     isFloating
 //       ? "-top-2.5 text-[12px] bg-white"  // Top border position
 //       : "top-1/2 -translate-y-1/2 text-[14px] bg-transparent" // Inside position
 //   } ${
@@ -141,10 +141,10 @@
 //   }`;
 
 //   const inputBaseStyles = `w-full px-4 py-2.5 rounded-lg border text-sm transition-all duration-300 outline-none bg-transparent ${
-//     error 
-//       ? "border-red-500" 
-//       : (isFocused || isActive || isOpen) 
-//         ? "border-[#0062a0] shadow-md shadow-blue-900/10 ring-1 ring-[#0062a0]/10" 
+//     error
+//       ? "border-red-500"
+//       : (isFocused || isActive || isOpen)
+//         ? "border-[#0062a0] shadow-md shadow-blue-900/10 ring-1 ring-[#0062a0]/10"
 //         : "border-slate-300 hover:border-[#0062a0]/50 focus:border-[#0062a0]"
 //   } ${disabled ? "bg-gray-50 cursor-not-allowed opacity-70" : ""}`;
 
@@ -255,10 +255,7 @@ import Select, { components } from "react-select";
 ========================================================= */
 const SmartbinBadge = ({ value }) => {
   const isActive =
-    value === true ||
-    value === 1 ||
-    value === "true" ||
-    value === "1";
+    value === true || value === 1 || value === "true" || value === "1";
 
   return (
     <span
@@ -282,13 +279,9 @@ const CustomOption = (props) => {
   return (
     <components.Option {...props}>
       <div className="flex items-center justify-between w-full gap-3">
-        <span className="text-sm text-slate-700 truncate">
-          {data.label}
-        </span>
+        <span className="text-sm text-slate-700 truncate">{data.label}</span>
 
-        {data.badge && (
-          <SmartbinBadge value={data.badge.value} />
-        )}
+        {data.badge && <SmartbinBadge value={data.badge.value} />}
       </div>
     </components.Option>
   );
@@ -303,13 +296,9 @@ const CustomSingleValue = (props) => {
   return (
     <components.SingleValue {...props}>
       <div className="flex items-center gap-2 w-full min-w-0">
-        <span className="text-sm text-slate-700 truncate">
-          {data.label}
-        </span>
+        <span className="text-sm text-slate-700 truncate">{data.label}</span>
 
-        {data.badge && (
-          <SmartbinBadge value={data.badge.value} />
-        )}
+        {data.badge && <SmartbinBadge value={data.badge.value} />}
       </div>
     </components.SingleValue>
   );
@@ -365,9 +354,7 @@ const ReUsableInput_Fields = ({
           const response = await fetch(apiEndpoint);
           const data = await response.json();
 
-          setDynamicOptions(
-            Array.isArray(data) ? data : []
-          );
+          setDynamicOptions(Array.isArray(data) ? data : []);
         } catch (err) {
           console.error("Input API Error:", err);
           setDynamicOptions([]);
@@ -393,9 +380,7 @@ const ReUsableInput_Fields = ({
 
   const validatePassword = (pwd) => {
     if (!pwd) {
-      setInternalError(
-        required ? "Password is required" : ""
-      );
+      setInternalError(required ? "Password is required" : "");
       return;
     }
 
@@ -406,17 +391,10 @@ const ReUsableInput_Fields = ({
     const hasSpecial = /[!@#$%^&*]/.test(pwd);
 
     if (pwd.length < minLength) {
+      setInternalError(`Password must be at least ${minLength} characters`);
+    } else if (!hasLower || !hasUpper || !hasNumber || !hasSpecial) {
       setInternalError(
-        `Password must be at least ${minLength} characters`
-      );
-    } else if (
-      !hasLower ||
-      !hasUpper ||
-      !hasNumber ||
-      !hasSpecial
-    ) {
-      setInternalError(
-        "Password must contain at least one lowercase, one uppercase, one number, and one special character (!@#$%^&*)"
+        "Password must contain at least one lowercase, one uppercase, one number, and one special character (!@#$%^&*)",
       );
     } else {
       setInternalError("");
@@ -426,18 +404,14 @@ const ReUsableInput_Fields = ({
   /* =======================================================
      FINAL OPTIONS
   ======================================================= */
-  const finalOptions = apiEndpoint
-    ? dynamicOptions
-    : options;
+  const finalOptions = apiEndpoint ? dynamicOptions : options;
 
   /* =======================================================
      SELECTED OPTION
   ======================================================= */
   const selectedOption =
     finalOptions.find(
-      (option) =>
-        String(option?.[valueKey] ?? "") ===
-        String(value ?? "")
+      (option) => String(option?.[valueKey] ?? "") === String(value ?? ""),
     ) || null;
 
   /* =======================================================
@@ -445,9 +419,7 @@ const ReUsableInput_Fields = ({
   ======================================================= */
   const isFloating =
     isFocused ||
-    (value !== undefined &&
-      value !== null &&
-      value.toString().length > 0) ||
+    (value !== undefined && value !== null && value.toString().length > 0) ||
     type === "date" ||
     type === "select" ||
     isActive;
@@ -469,8 +441,8 @@ const ReUsableInput_Fields = ({
       error
         ? "text-red-500 font-semibold"
         : isFocused || isActive
-        ? "text-[#0062a0]"
-        : "text-gray-500"
+          ? "text-[#0062a0]"
+          : "text-gray-500"
     }
   `;
 
@@ -492,14 +464,10 @@ const ReUsableInput_Fields = ({
       error
         ? "border-red-500"
         : isFocused || isActive
-        ? "border-[#0062a0] shadow-md shadow-blue-900/10 ring-1 ring-[#0062a0]/10"
-        : "border-slate-300 hover:border-[#0062a0]/50 focus:border-[#0062a0]"
+          ? "border-[#0062a0] shadow-md shadow-blue-900/10 ring-1 ring-[#0062a0]/10"
+          : "border-slate-300 hover:border-[#0062a0]/50 focus:border-[#0062a0]"
     }
-    ${
-      disabled
-        ? "bg-gray-50 cursor-not-allowed opacity-70"
-        : ""
-    }
+    ${disabled ? "bg-gray-50 cursor-not-allowed opacity-70" : ""}
   `;
 
   /* =======================================================
@@ -510,16 +478,12 @@ const ReUsableInput_Fields = ({
       ...base,
       minHeight: "42px",
       borderRadius: "0.5rem",
-      borderColor: error
-        ? "#ef4444"
-        : state.isFocused
-        ? "#0062a0"
-        : "#cbd5e1",
+      borderColor: error ? "#ef4444" : state.isFocused ? "#0062a0" : "#cbd5e1",
       boxShadow: error
         ? "0 0 0 1px rgba(239,68,68,0.15)"
         : state.isFocused
-        ? "0 0 0 2px rgba(0,98,160,0.15)"
-        : "none",
+          ? "0 0 0 2px rgba(0,98,160,0.15)"
+          : "none",
       backgroundColor: disabled ? "#f8fafc" : "white",
       cursor: disabled ? "not-allowed" : "pointer",
       "&:hover": {
@@ -555,8 +519,7 @@ const ReUsableInput_Fields = ({
       zIndex: 9999,
       borderRadius: "0.75rem",
       overflow: "hidden",
-      boxShadow:
-        "0 10px 30px rgba(15, 23, 42, 0.15)",
+      boxShadow: "0 10px 30px rgba(15, 23, 42, 0.15)",
       border: "1px solid #e2e8f0",
       marginTop: "4px",
     }),
@@ -574,8 +537,8 @@ const ReUsableInput_Fields = ({
       backgroundColor: state.isSelected
         ? "#e0f2fe"
         : state.isFocused
-        ? "#f0f9ff"
-        : "white",
+          ? "#f0f9ff"
+          : "white",
       color: "#334155",
       cursor: "pointer",
       "&:active": {
@@ -614,16 +577,12 @@ const ReUsableInput_Fields = ({
      RETURN
   ======================================================= */
   return (
-    <div
-      className={`relative mt-5 mb-1.5 w-full ${className}`}
-    >
+    <div className={`relative mt-5 mb-1.5 w-full ${className}`}>
       {/* FLOATING LABEL */}
       {label && (
         <label className={labelStyles}>
           {label.toUpperCase()}{" "}
-          {required && (
-            <span className="text-red-500">*</span>
-          )}
+          {required && <span className="text-red-500">*</span>}
         </label>
       )}
 
@@ -640,19 +599,13 @@ const ReUsableInput_Fields = ({
               isLoading={loading}
               placeholder={placeholder}
               isSearchable={searchable !== false}
-              getOptionLabel={(option) =>
-                String(option?.[labelKey] ?? "")
-              }
-              getOptionValue={(option) =>
-                String(option?.[valueKey] ?? "")
-              }
+              getOptionLabel={(option) => String(option?.[labelKey] ?? "")}
+              getOptionValue={(option) => String(option?.[valueKey] ?? "")}
               onChange={(selected) => {
                 onChange({
                   target: {
                     name,
-                    value: selected
-                      ? selected[valueKey]
-                      : "",
+                    value: selected ? selected[valueKey] : "",
                   },
                 });
               }}
@@ -707,9 +660,7 @@ const ReUsableInput_Fields = ({
             {type === "password" && (
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
+                onClick={() => setShowPassword(!showPassword)}
                 className="
                   absolute
                   right-3
@@ -720,11 +671,7 @@ const ReUsableInput_Fields = ({
                   transition-colors
                 "
               >
-                {showPassword ? (
-                  <EyeOff size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             )}
           </div>

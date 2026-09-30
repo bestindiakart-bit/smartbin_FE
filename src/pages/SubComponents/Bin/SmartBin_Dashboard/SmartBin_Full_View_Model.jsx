@@ -50,7 +50,8 @@ const FilterColorDropdown = ({ label, selected, onSelect }) => {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
 
-  const selectedOpt = COLOR_OPTIONS.find((o) => o.value === selected) || COLOR_OPTIONS[0];
+  const selectedOpt =
+    COLOR_OPTIONS.find((o) => o.value === selected) || COLOR_OPTIONS[0];
 
   return (
     <div className="relative" ref={ref}>
@@ -61,13 +62,22 @@ const FilterColorDropdown = ({ label, selected, onSelect }) => {
         className="flex items-center gap-3 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-[#0062a0]/40 transition-all focus:outline-none"
       >
         <div className="flex flex-col text-left">
-          <span className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold leading-none mb-1">{label}</span>
+          <span className="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold leading-none mb-1">
+            {label}
+          </span>
           <div className="flex items-center gap-2 text-sm font-bold text-slate-700 leading-none">
-            {selected !== "All" && <span className={`w-2.5 h-2.5 rounded-full ${selectedOpt.bg} shadow-sm`} />}
+            {selected !== "All" && (
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${selectedOpt.bg} shadow-sm`}
+              />
+            )}
             <span>{selected}</span>
           </div>
         </div>
-        <ChevronDown size={16} className={`text-slate-400 ml-2 transition-transform duration-300 ${open ? "rotate-180 text-[#0062a0]" : ""}`} />
+        <ChevronDown
+          size={16}
+          className={`text-slate-400 ml-2 transition-transform duration-300 ${open ? "rotate-180 text-[#0062a0]" : ""}`}
+        />
       </motion.button>
 
       <AnimatePresence>
@@ -87,7 +97,9 @@ const FilterColorDropdown = ({ label, selected, onSelect }) => {
                   setOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold transition-colors hover:bg-slate-50 ${
-                  selected === opt.value ? "bg-blue-50/50 text-[#0062a0]" : "text-slate-600"
+                  selected === opt.value
+                    ? "bg-blue-50/50 text-[#0062a0]"
+                    : "text-slate-600"
                 }`}
               >
                 <span className={`w-3 h-3 rounded-full ${opt.bg} shadow-sm`} />
@@ -116,7 +128,7 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [binStatusColor, setBinStatusColor] = useState("All");
   const [whStatusColor, setWhStatusColor] = useState("All");
-  
+
   // Modal states
   const [isViewMore, setIsMoreView] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null); // Stores the full clicked row
@@ -135,7 +147,8 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
   }, [debouncedSearch, binStatusColor, whStatusColor]);
 
   // Prepare filter values for API
-  const getApiFilterValue = (color) => (color === "All" ? "" : color.toLowerCase());
+  const getApiFilterValue = (color) =>
+    color === "All" ? "" : color.toLowerCase();
 
   // Fetch Data integrating Search and Color filters
   useEffect(() => {
@@ -149,14 +162,14 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
             itemsPerPage,
             debouncedSearch,
             getApiFilterValue(binStatusColor),
-            getApiFilterValue(whStatusColor)
+            getApiFilterValue(whStatusColor),
           ),
           binDashboard_dynamicGet(
             currentPage,
             itemsPerPage,
             debouncedSearch,
             getApiFilterValue(binStatusColor),
-            getApiFilterValue(whStatusColor)
+            getApiFilterValue(whStatusColor),
           ),
         ]);
 
@@ -164,7 +177,9 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
         setTableData(staticRecords);
         setDynamicData(dynamicRes?.data?.data || []);
 
-        setTotalItems(staticRes?.data?.data?.totalRecords || staticRecords.length);
+        setTotalItems(
+          staticRes?.data?.data?.totalRecords || staticRecords.length,
+        );
       } catch (err) {
         console.error("Full View Fetch Error:", err);
       } finally {
@@ -172,7 +187,14 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
       }
     };
     fetchData();
-  }, [isOpen, currentPage, itemsPerPage, debouncedSearch, binStatusColor, whStatusColor]);
+  }, [
+    isOpen,
+    currentPage,
+    itemsPerPage,
+    debouncedSearch,
+    binStatusColor,
+    whStatusColor,
+  ]);
 
   // Merge static and dynamic data
   const processedData = useMemo(() => {
@@ -182,13 +204,19 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
         ...item, // This preserves all fields including customerMasterId and itemMasterID
         srNo: index + 1,
         id: item.id || item._id || `row-${index}`,
-        currentStatus: liveData?.masterStatus || (item.status === 1 ? "Active" : "Inactive"),
+        currentStatus:
+          liveData?.masterStatus || (item.status === 1 ? "Active" : "Inactive"),
         binQty: liveData?.currentQuantity ?? item.binQty,
-        binStatus: liveData?.statusTag || liveData?.currentStatus || item.binStatus,
-        binStatusMessage: liveData?.statusMessage || "",               
-        binUpdatedOn: liveData?.lastUpdatedAt ? formatDateTime(liveData.lastUpdatedAt) : item.binUpdatedOn,
-        warehouseCurrentStock: liveData?.warehouseCurrentStock ?? item.warehouseCurrentStock,
-        warehouseStatusMessage: item.warehouseStatusMessage || liveData?.warehouseStatusMessage || "",
+        binStatus:
+          liveData?.statusTag || liveData?.currentStatus || item.binStatus,
+        binStatusMessage: liveData?.statusMessage || "",
+        binUpdatedOn: liveData?.lastUpdatedAt
+          ? formatDateTime(liveData.lastUpdatedAt)
+          : item.binUpdatedOn,
+        warehouseCurrentStock:
+          liveData?.warehouseCurrentStock ?? item.warehouseCurrentStock,
+        warehouseStatusMessage:
+          item.warehouseStatusMessage || liveData?.warehouseStatusMessage || "",
       };
     });
   }, [tableData, dynamicData]);
@@ -200,18 +228,18 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
     { header: "Master ID", key: "masterId" },
     { header: "BIN ID", key: "binId" },
     { header: "Item Name", key: "itemName" },
-    { header: "Bin Status", key: "binStatus", isStatus: true },  
-    { header: "Bin Max", key: "binMaxLimit" },             // binStatusTag for color
+    { header: "Bin Status", key: "binStatus", isStatus: true },
+    { header: "Bin Max", key: "binMaxLimit" }, // binStatusTag for color
     { header: "Bin QTY", key: "binQty" },
     { header: "Bin Reorder", key: "binReorderLevel" },
     { header: "Bin Safety", key: "binSafetyLimit" },
     { header: "Bin Updated", key: "binUpdatedOn" },
-    { header: "WH Status", key: "warehouseStatusTag", isPaid: true }, 
-    { header: "WH Max", key: "warehouseMaxLimit" },        // warehouseStatusTag for color
+    { header: "WH Status", key: "warehouseStatusTag", isPaid: true },
+    { header: "WH Max", key: "warehouseMaxLimit" }, // warehouseStatusTag for color
     { header: "WH C Qty", key: "warehouseCurrentStock" },
     { header: "WH Reorder", key: "warehouseReorderLevel" },
     { header: "WH Safety", key: "warehouseSafetyLimit" },
-    { header: "Status", key: "currentStatus", isStatus: true },               // now uses masterStatus
+    { header: "Status", key: "currentStatus", isStatus: true }, // now uses masterStatus
   ];
 
   return (
@@ -231,14 +259,24 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
                 onClick={onClose}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-500 hover:text-[#0062a0] hover:bg-blue-50 transition-all font-bold group"
               >
-                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                <span className="text-md cursor-pointer">Back to Dashboard</span>
+                <ArrowLeft
+                  size={20}
+                  className="group-hover:-translate-x-1 transition-transform"
+                />
+                <span className="text-md cursor-pointer">
+                  Back to Dashboard
+                </span>
               </button>
               <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight uppercase flex-1 text-center hidden md:block">
-                Inventory Status <span className="text-[#0062a0]">Full View</span>
+                Inventory Status{" "}
+                <span className="text-[#0062a0]">Full View</span>
               </h1>
               <div className="flex items-center justify-end">
-                <img src={LogoSmartBin} alt="SmartBin Logo" className="h-9 w-auto object-contain drop-shadow-sm" />
+                <img
+                  src={LogoSmartBin}
+                  alt="SmartBin Logo"
+                  className="h-9 w-auto object-contain drop-shadow-sm"
+                />
               </div>
             </header>
 
@@ -246,7 +284,10 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
             <div className="px-6 md:px-8 py-4 flex flex-col xl:flex-row gap-4 xl:items-center justify-between bg-slate-50/80 border-b border-slate-200">
               <div className="relative group w-full xl:max-w-md">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search size={18} className="text-slate-400 group-focus-within:text-[#0062a0] transition-colors" />
+                  <Search
+                    size={18}
+                    className="text-slate-400 group-focus-within:text-[#0062a0] transition-colors"
+                  />
                 </div>
                 <input
                   type="text"
@@ -256,7 +297,10 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
                   className="w-full pl-11 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#0062a0] focus:ring-4 focus:ring-[#0062a0]/10 shadow-sm transition-all"
                 />
                 {globalSearch && (
-                  <button onClick={() => setGlobalSearch("")} className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-red-500 transition-colors">
+                  <button
+                    onClick={() => setGlobalSearch("")}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-red-500 transition-colors"
+                  >
                     <X size={16} />
                   </button>
                 )}
@@ -265,8 +309,16 @@ const SmartBin_Full_View_Model = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-bold shadow-sm">
                   <Filter size={16} className="text-slate-400" /> Filters
                 </div>
-                <FilterColorDropdown label="Bin Status" selected={binStatusColor} onSelect={setBinStatusColor} />
-                <FilterColorDropdown label="WH Status" selected={whStatusColor} onSelect={setWhStatusColor} />
+                <FilterColorDropdown
+                  label="Bin Status"
+                  selected={binStatusColor}
+                  onSelect={setBinStatusColor}
+                />
+                <FilterColorDropdown
+                  label="WH Status"
+                  selected={whStatusColor}
+                  onSelect={setWhStatusColor}
+                />
               </div>
             </div>
 

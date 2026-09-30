@@ -11,12 +11,14 @@ const formatMonthLabel = (monthKey) => {
 
 const formatValue = (value) => {
   if (value === null || value === undefined || value === "") return "-";
-  if (typeof value === "number") return Number.isFinite(value) ? value.toLocaleString() : "-";
+  if (typeof value === "number")
+    return Number.isFinite(value) ? value.toLocaleString() : "-";
   return String(value);
 };
 
 const formatAccuracy = (value) => {
-  if (value === null || value === undefined || value === "" || value === "-") return "-";
+  if (value === null || value === undefined || value === "" || value === "-")
+    return "-";
   const text = String(value);
   if (text.includes("%")) return text;
   const numeric = Number(value);
@@ -56,7 +58,11 @@ const ForecastAccuracy_Full_View_Model = ({
         row.projectName,
         row.bestPartNumber,
         row.description,
-      ].some((value) => String(value ?? "").toLowerCase().includes(query))
+      ].some((value) =>
+        String(value ?? "")
+          .toLowerCase()
+          .includes(query),
+      ),
     );
   }, [rows, searchQuery]);
 
@@ -70,7 +76,8 @@ const ForecastAccuracy_Full_View_Model = ({
         <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
           <div>
             <h2 className="text-xl font-black tracking-tight text-slate-800">
-              Forecast <span className="text-[#0062a0]">Accuracy Full View</span>
+              Forecast{" "}
+              <span className="text-[#0062a0]">Accuracy Full View</span>
             </h2>
             <p className="mt-1 text-xs font-semibold text-slate-500">
               Forecast vs Consumption Monitoring • {filteredRows.length} records
@@ -89,7 +96,10 @@ const ForecastAccuracy_Full_View_Model = ({
 
         <div className="flex shrink-0 flex-col gap-3 border-b border-slate-200 bg-slate-50/70 px-5 py-3 md:flex-row md:items-center md:justify-between">
           <div className="relative w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              size={17}
+            />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -173,71 +183,85 @@ const ForecastAccuracy_Full_View_Model = ({
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={totalColumns} className="py-16 text-center text-sm font-bold text-slate-500">
+                  <td
+                    colSpan={totalColumns}
+                    className="py-16 text-center text-sm font-bold text-slate-500"
+                  >
                     Loading forecast accuracy data...
                   </td>
                 </tr>
               )}
 
-              {!loading && filteredRows.map((row, rowIndex) => (
-                <tr
-                  key={row.id || `${row.warehouseId}-${row.bestPartNumber}-${rowIndex}`}
-                  className={`border-b border-slate-200 transition-colors hover:bg-blue-50/60 ${
-                    rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/50"
-                  }`}
-                >
-                  <td className="sticky left-0 z-20 border-r border-slate-200 bg-inherit px-3 py-4 text-center text-xs font-black text-slate-500">
-                    {rowIndex + 1}
-                  </td>
-
-                  {columns.map(([key], index) => (
-                    <td
-                      key={key}
-                      title={formatValue(row[key])}
-                      className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-semibold text-slate-700 whitespace-nowrap ${
-                        index === 0 ? "sticky left-[60px] z-20 bg-inherit text-left" : ""
-                      }`}
-                    >
-                      {formatValue(row[key])}
+              {!loading &&
+                filteredRows.map((row, rowIndex) => (
+                  <tr
+                    key={
+                      row.id ||
+                      `${row.warehouseId}-${row.bestPartNumber}-${rowIndex}`
+                    }
+                    className={`border-b border-slate-200 transition-colors hover:bg-blue-50/60 ${
+                      rowIndex % 2 === 0 ? "bg-white" : "bg-slate-50/50"
+                    }`}
+                  >
+                    <td className="sticky left-0 z-20 border-r border-slate-200 bg-inherit px-3 py-4 text-center text-xs font-black text-slate-500">
+                      {rowIndex + 1}
                     </td>
-                  ))}
 
-                  {months.map((month) => {
-                    const actual = row[`accuracy_${month}_actual`];
-                    const forecast = row[`accuracy_${month}_forecast`];
-                    const accuracy = row[`accuracy_${month}_accuracy`];
-                    const numericAccuracy = Number(String(accuracy).replace("%", ""));
+                    {columns.map(([key], index) => (
+                      <td
+                        key={key}
+                        title={formatValue(row[key])}
+                        className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-semibold text-slate-700 whitespace-nowrap ${
+                          index === 0
+                            ? "sticky left-[60px] z-20 bg-inherit text-left"
+                            : ""
+                        }`}
+                      >
+                        {formatValue(row[key])}
+                      </td>
+                    ))}
 
-                    return (
-                      <React.Fragment key={`${row.id || rowIndex}-${month}`}>
-                        <td className="border-r border-slate-200 px-4 py-4 text-center text-[13px] font-bold text-slate-700 whitespace-nowrap">
-                          {formatValue(actual)}
-                        </td>
-                        <td className="border-r border-slate-200 px-4 py-4 text-center text-[13px] font-bold text-slate-700 whitespace-nowrap">
-                          {formatValue(forecast)}
-                        </td>
-                        <td
-                          className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-black whitespace-nowrap ${
-                            Number.isFinite(numericAccuracy)
-                              ? numericAccuracy >= 90
-                                ? "text-green-600"
-                                : numericAccuracy >= 70
-                                ? "text-orange-500"
-                                : "text-red-600"
-                              : "text-slate-500"
-                          }`}
-                        >
-                          {formatAccuracy(accuracy)}
-                        </td>
-                      </React.Fragment>
-                    );
-                  })}
-                </tr>
-              ))}
+                    {months.map((month) => {
+                      const actual = row[`accuracy_${month}_actual`];
+                      const forecast = row[`accuracy_${month}_forecast`];
+                      const accuracy = row[`accuracy_${month}_accuracy`];
+                      const numericAccuracy = Number(
+                        String(accuracy).replace("%", ""),
+                      );
+
+                      return (
+                        <React.Fragment key={`${row.id || rowIndex}-${month}`}>
+                          <td className="border-r border-slate-200 px-4 py-4 text-center text-[13px] font-bold text-slate-700 whitespace-nowrap">
+                            {formatValue(actual)}
+                          </td>
+                          <td className="border-r border-slate-200 px-4 py-4 text-center text-[13px] font-bold text-slate-700 whitespace-nowrap">
+                            {formatValue(forecast)}
+                          </td>
+                          <td
+                            className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-black whitespace-nowrap ${
+                              Number.isFinite(numericAccuracy)
+                                ? numericAccuracy >= 90
+                                  ? "text-green-600"
+                                  : numericAccuracy >= 70
+                                    ? "text-orange-500"
+                                    : "text-red-600"
+                                : "text-slate-500"
+                            }`}
+                          >
+                            {formatAccuracy(accuracy)}
+                          </td>
+                        </React.Fragment>
+                      );
+                    })}
+                  </tr>
+                ))}
 
               {!loading && filteredRows.length === 0 && (
                 <tr>
-                  <td colSpan={totalColumns} className="py-20 text-center text-sm font-bold text-slate-500">
+                  <td
+                    colSpan={totalColumns}
+                    className="py-20 text-center text-sm font-bold text-slate-500"
+                  >
                     No forecast accuracy records found.
                   </td>
                 </tr>

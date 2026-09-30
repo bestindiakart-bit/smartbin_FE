@@ -1,19 +1,29 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const ErrorMessage_Popup = ({ isOpen, onClose, onConfirm, title, message, btnText = "Try Again", isActive }) => {
+const ErrorMessage_Popup = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  btnText = "Try Again",
+  isActive,
+}) => {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduceMotion(mediaQuery.matches);
     const handler = (e) => setReduceMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  const transition = reduceMotion ? { duration: 0 } : { duration: 0.4, ease: [0.32, 0.72, 0, 1] };
+  const transition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.4, ease: [0.32, 0.72, 0, 1] };
 
   return (
     <AnimatePresence>
@@ -42,7 +52,12 @@ const ErrorMessage_Popup = ({ isOpen, onClose, onConfirm, title, message, btnTex
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
+                transition={{
+                  delay: 0.1,
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                }}
                 className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50"
               >
                 <motion.div
@@ -82,7 +97,9 @@ const ErrorMessage_Popup = ({ isOpen, onClose, onConfirm, title, message, btnTex
                 whileTap={{ scale: 0.98 }}
                 onClick={onConfirm || onClose}
                 className={`w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 ${
-                  isActive ? "bg-[#0062a0] shadow-lg shadow-blue-900/20" : "bg-[#0062a0] hover:bg-[#005285] shadow-md"
+                  isActive
+                    ? "bg-[#0062a0] shadow-lg shadow-blue-900/20"
+                    : "bg-[#0062a0] hover:bg-[#005285] shadow-md"
                 }`}
               >
                 {btnText}

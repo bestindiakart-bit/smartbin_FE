@@ -3,7 +3,10 @@
 import { toast } from "sonner";
 
 const formatMessage = (msg) => {
-  return msg?.toLowerCase()?.replace(/_/g, " ")?.replace(/\b\w/g, (char) => char.toUpperCase());
+  return msg
+    ?.toLowerCase()
+    ?.replace(/_/g, " ")
+    ?.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export const showToast = {
@@ -13,8 +16,7 @@ export const showToast = {
   error: (title, description) =>
     toast.error(formatMessage(title), { description }),
 
-  info: (title, description) =>
-    toast(formatMessage(title), { description }),
+  info: (title, description) => toast(formatMessage(title), { description }),
 
   promise: (promise, messages) =>
     toast.promise(promise, {

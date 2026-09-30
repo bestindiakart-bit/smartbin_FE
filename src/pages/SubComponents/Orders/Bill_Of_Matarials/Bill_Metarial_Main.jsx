@@ -1,12 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 
 const Bill_Metarial_Main = () => {
   return (
     <div>
-      
-      <Outlet/>
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default Bill_Metarial_Main
+export default Bill_Metarial_Main;

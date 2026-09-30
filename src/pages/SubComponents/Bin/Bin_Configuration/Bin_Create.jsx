@@ -1,10 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronUp,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -28,17 +23,12 @@ import {
 
 const SmartbinBadge = ({ value }) => {
   const isActive =
-    value === true ||
-    value === 1 ||
-    value === "true" ||
-    value === "1";
+    value === true || value === 1 || value === "true" || value === "1";
 
   return (
     <span
       className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-        isActive
-          ? "bg-green-100 text-green-700"
-          : "bg-gray-100 text-gray-700"
+        isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
       }`}
     >
       {isActive ? "ACTIVE" : "INACTIVE"}
@@ -121,54 +111,45 @@ const Bin_Create = () => {
 
   const [confirm, setConfirm] = useState(false);
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [fetchingData, setFetchingData] =
-    useState(false);
+  const [fetchingData, setFetchingData] = useState(false);
 
-  const [isDescExpanded, setIsDescExpanded] =
-    useState(false);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   /* =========================================================
      POPUP STATES
   ========================================================= */
 
-  const [successModel, setSuccessModel] =
-    useState(false);
+  const [successModel, setSuccessModel] = useState(false);
 
-  const [successMessage, setSuccessMessage] =
-    useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const [errorModel, setErrorModel] =
-    useState(false);
+  const [errorModel, setErrorModel] = useState(false);
 
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   /* =========================================================
      CUSTOMER OPTIONS
   ========================================================= */
 
-  const [customerOptions, setCustomerOptions] =
-    useState([
-      {
-        label: "Loading...",
-        value: "",
-      },
-    ]);
+  const [customerOptions, setCustomerOptions] = useState([
+    {
+      label: "Loading...",
+      value: "",
+    },
+  ]);
 
   /* =========================================================
      PROJECT OPTIONS
   ========================================================= */
 
-  const [projectOptions, setProjectOptions] =
-    useState([
-      {
-        label: "Select Project",
-        value: "",
-      },
-    ]);
+  const [projectOptions, setProjectOptions] = useState([
+    {
+      label: "Select Project",
+      value: "",
+    },
+  ]);
 
   /* =========================================================
      WAREHOUSE OPTIONS
@@ -182,45 +163,38 @@ const Bin_Create = () => {
      warehouseCode = ELEV-WH-001
      ========================================================= */
 
-  const [warehouseOptions, setWarehouseOptions] =
-    useState([
-      {
-        label: "Select Warehouse",
-        value: "",
-        warehouseCode: "",
-      },
-    ]);
+  const [warehouseOptions, setWarehouseOptions] = useState([
+    {
+      label: "Select Warehouse",
+      value: "",
+      warehouseCode: "",
+    },
+  ]);
 
   /* =========================================================
      ITEM OPTIONS
   ========================================================= */
 
-  const [itemOptions, setItemOptions] =
-    useState([
-      {
-        label: "Select Item",
-        value: "",
-      },
-    ]);
+  const [itemOptions, setItemOptions] = useState([
+    {
+      label: "Select Item",
+      value: "",
+    },
+  ]);
 
   /* =========================================================
      WAREHOUSE ITEM DATA
   ========================================================= */
 
-  const [allItemsData, setAllItemsData] =
-    useState([]);
+  const [allItemsData, setAllItemsData] = useState([]);
 
   /* =========================================================
      WEIGHT UNIT STATES
   ========================================================= */
 
-  const [binWeightUnit, setBinWeightUnit] =
-    useState("kg");
+  const [binWeightUnit, setBinWeightUnit] = useState("kg");
 
-  const [
-    customerWeightUnit,
-    setCustomerWeightUnit,
-  ] = useState("kg");
+  const [customerWeightUnit, setCustomerWeightUnit] = useState("kg");
 
   /* =========================================================
      FORM DATA
@@ -234,31 +208,31 @@ const Bin_Create = () => {
   ========================================================= */
 
   const [formData, setFormData] = useState({
-  customerId: "",
-  projectId: "",
-  masterId: "",
-  binId: "",
-  supplierItemName: "",
-  customerItemName: "",
+    customerId: "",
+    projectId: "",
+    masterId: "",
+    binId: "",
+    supplierItemName: "",
+    customerItemName: "",
 
-  binAllowableWeight: "",
-  binAllowableLimit: "",
-  customerAllowableWeight: "",
-  customerAllowableLimit: "",
+    binAllowableWeight: "",
+    binAllowableLimit: "",
+    customerAllowableWeight: "",
+    customerAllowableLimit: "",
 
-  safetyStockQuantity: "",
-  rol: "",
-  itemPerPrice: "",
+    safetyStockQuantity: "",
+    rol: "",
+    itemPerPrice: "",
 
-  weightPerUnit: "",
-  weightPerPrice: "", // ADD THIS
+    weightPerUnit: "",
+    weightPerPrice: "", // ADD THIS
 
-  itemMasterId: "",
-  warehouseId: "",
-  warehouseCode: "",
-  warehouseName: "",
-  itemStatus: false,
-});
+    itemMasterId: "",
+    warehouseId: "",
+    warehouseCode: "",
+    warehouseName: "",
+    itemStatus: false,
+  });
 
   /* =========================================================
      1. FETCH CUSTOMER DATA
@@ -269,30 +243,27 @@ const Bin_Create = () => {
       try {
         const customerRes = await customer_id();
 
-        const customers =
-          customerRes?.data?.data || [];
+        const customers = customerRes?.data?.data || [];
 
         setCustomerOptions([
-  {
-    label: "Select Customer",
-    value: "",
-  },
+          {
+            label: "Select Customer",
+            value: "",
+          },
 
-  ...customers.map((customer) => ({
-    label: `${customer?.customerName}-(${customer?.companyName})` || "-",
+          ...customers.map((customer) => ({
+            label:
+              `${customer?.customerName}-(${customer?.companyName})` || "-",
 
-    value: customer?._id || "",
+            value: customer?._id || "",
 
-    badge: {
-      value: customer?.ishavesmartbin,
-    },
-  })),
-]);
+            badge: {
+              value: customer?.ishavesmartbin,
+            },
+          })),
+        ]);
       } catch (error) {
-        console.error(
-          "Failed to fetch customer data:",
-          error
-        );
+        console.error("Failed to fetch customer data:", error);
 
         setCustomerOptions([
           {
@@ -319,21 +290,15 @@ const Bin_Create = () => {
       try {
         setFetchingData(true);
 
-        const res =
-          await bin_dashboard_getById(rowId);
+        const res = await bin_dashboard_getById(rowId);
 
-        const data =
-          res?.data?.data?.record ||
-          res?.data?.data ||
-          res?.data;
+        const data = res?.data?.data?.record || res?.data?.data || res?.data;
 
         if (!data) {
           return;
         }
 
-        console.log(
-          "========== EDIT BIN DATA =========="
-        );
+        console.log("========== EDIT BIN DATA ==========");
 
         console.log(data);
 
@@ -384,28 +349,18 @@ const Bin_Create = () => {
 
         let warehouseName = "";
 
-        if (
-          data.warehouseId &&
-          typeof data.warehouseId === "object"
-        ) {
+        if (data.warehouseId && typeof data.warehouseId === "object") {
           warehouseCode =
-            data.warehouseId?.warehouseId ||
-            data.warehouseId?.code ||
-            "";
+            data.warehouseId?.warehouseId || data.warehouseId?.code || "";
 
-          warehouseMongoId =
-            data.warehouseId?._id || "";
+          warehouseMongoId = data.warehouseId?._id || "";
 
           warehouseName =
-            data.warehouseId?.warehouseName ||
-            data.warehouseId?.name ||
-            "";
+            data.warehouseId?.warehouseName || data.warehouseId?.name || "";
         } else {
-          warehouseCode =
-            data.warehouseId || "";
+          warehouseCode = data.warehouseId || "";
 
-          warehouseName =
-            data.warehouseName || "";
+          warehouseName = data.warehouseName || "";
         }
 
         /* =================================================
@@ -421,41 +376,21 @@ const Bin_Create = () => {
            WEIGHTS
         ================================================= */
 
-        const bWeight = parseWeightStr(
-          data.binAllowableWeight
-        );
+        const bWeight = parseWeightStr(data.binAllowableWeight);
 
-        const cWeight = parseWeightStr(
-          data.customerAllowableWeight
-        );
+        const cWeight = parseWeightStr(data.customerAllowableWeight);
 
-        setBinWeightUnit(
-          bWeight.unit
-        );
+        setBinWeightUnit(bWeight.unit);
 
-        setCustomerWeightUnit(
-          cWeight.unit
-        );
+        setCustomerWeightUnit(cWeight.unit);
 
-        console.log(
-          "EDIT warehouseCode:",
-          warehouseCode
-        );
+        console.log("EDIT warehouseCode:", warehouseCode);
 
-        console.log(
-          "EDIT warehouseMongoId:",
-          warehouseMongoId
-        );
+        console.log("EDIT warehouseMongoId:", warehouseMongoId);
 
-        console.log(
-          "EDIT warehouseName:",
-          warehouseName
-        );
+        console.log("EDIT warehouseName:", warehouseName);
 
-        console.log(
-          "EDIT itemMasterId:",
-          itemMasterId
-        );
+        console.log("EDIT itemMasterId:", itemMasterId);
 
         /* =================================================
            SET FORM
@@ -466,40 +401,28 @@ const Bin_Create = () => {
 
           projectId,
 
-          masterId:
-            data.masterId || "",
+          masterId: data.masterId || "",
 
-          binId:
-            data.binId || "",
+          binId: data.binId || "",
 
-          supplierItemName:
-            data.supplierItemName || "",
+          supplierItemName: data.supplierItemName || "",
 
-          customerItemName:
-            data.customerItemName || "",
+          customerItemName: data.customerItemName || "",
 
-          binAllowableWeight:
-            bWeight.value || "",
+          binAllowableWeight: bWeight.value || "",
 
           binAllowableLimit:
-            data.binAllowablelimit ??
-            data.binAllowableLimit ??
-            "",
+            data.binAllowablelimit ?? data.binAllowableLimit ?? "",
 
-          customerAllowableWeight:
-            cWeight.value || "",
+          customerAllowableWeight: cWeight.value || "",
 
-          customerAllowableLimit:
-            data.customerAllowableLimit ?? "",
+          customerAllowableLimit: data.customerAllowableLimit ?? "",
 
-          safetyStockQuantity:
-            data.safetyStockQuantity ?? "",
+          safetyStockQuantity: data.safetyStockQuantity ?? "",
 
-          rol:
-            data.rol ?? "",
+          rol: data.rol ?? "",
 
-          itemPerPrice:
-            data.itemPerPrice ?? "",
+          itemPerPrice: data.itemPerPrice ?? "",
 
           /*
              Don't depend on old weight.
@@ -517,23 +440,16 @@ const Bin_Create = () => {
 
              Otherwise warehouse effect will resolve it.
           */
-          warehouseId:
-            warehouseMongoId,
+          warehouseId: warehouseMongoId,
 
           warehouseCode,
 
           warehouseName,
 
-          itemStatus:
-            data.itemStatus ??
-            data.status ??
-            false,
+          itemStatus: data.itemStatus ?? data.status ?? false,
         });
       } catch (error) {
-        console.error(
-          "Error fetching bin details:",
-          error
-        );
+        console.error("Error fetching bin details:", error);
       } finally {
         setFetchingData(false);
       }
@@ -560,13 +476,9 @@ const Bin_Create = () => {
       }
 
       try {
-        const projectRes =
-          await bin_ProjectName_get(
-            formData.customerId
-          );
+        const projectRes = await bin_ProjectName_get(formData.customerId);
 
-        const projects =
-          projectRes?.data?.data || [];
+        const projects = projectRes?.data?.data || [];
 
         setProjectOptions([
           {
@@ -575,18 +487,13 @@ const Bin_Create = () => {
           },
 
           ...projects.map((project) => ({
-            label:
-              project.projectName || "-",
+            label: project.projectName || "-",
 
-            value:
-              project._id || "",
+            value: project._id || "",
           })),
         ]);
       } catch (error) {
-        console.error(
-          "Failed to fetch projects:",
-          error
-        );
+        console.error("Failed to fetch projects:", error);
 
         setProjectOptions([
           {
@@ -640,17 +547,11 @@ const Bin_Create = () => {
           },
         ]);
 
-        const res =
-          await get_warehouse_byCustomer(
-            formData.customerId
-          );
+        const res = await get_warehouse_byCustomer(formData.customerId);
 
-        const warehouses =
-          res?.data?.data?.warehouses || [];
+        const warehouses = res?.data?.data?.warehouses || [];
 
-        console.log(
-          "========== WAREHOUSE LIST =========="
-        );
+        console.log("========== WAREHOUSE LIST ==========");
 
         console.log(warehouses);
 
@@ -658,32 +559,28 @@ const Bin_Create = () => {
            CREATE OPTIONS
         ================================================= */
 
-        const options = warehouses.map(
-          (warehouse) => ({
-            label:
-              warehouse.warehouseName ||
-              warehouse.name ||
-              warehouse.warehouseId ||
-              "Unnamed Warehouse",
+        const options = warehouses.map((warehouse) => ({
+          label:
+            warehouse.warehouseName ||
+            warehouse.name ||
+            warehouse.warehouseId ||
+            "Unnamed Warehouse",
 
-            /*
+          /*
               THIS IS WHAT GETS STORED IN
               formData.warehouseId
 
               Example:
               65dfab12cd34567890123999
             */
-            value:
-              warehouse._id || "",
+          value: warehouse._id || "",
 
-            /*
+          /*
               THIS IS USED ONLY FOR:
               /warehouse/ELEV-WH-001/items
             */
-            warehouseCode:
-              warehouse.warehouseId || "",
-          })
-        );
+          warehouseCode: warehouse.warehouseId || "",
+        }));
 
         setWarehouseOptions([
           {
@@ -707,32 +604,16 @@ const Bin_Create = () => {
            Mongo _id.
         ================================================= */
 
-        if (
-          isEditMode &&
-          formData.warehouseCode
-        ) {
-          const matchingWarehouse =
-            warehouses.find(
-              (warehouse) =>
-                String(
-                  warehouse.warehouseId
-                ) ===
-                String(
-                  formData.warehouseCode
-                ) ||
-                String(
-                  warehouse._id
-                ) ===
-                String(
-                  formData.warehouseCode
-                )
-            );
+        if (isEditMode && formData.warehouseCode) {
+          const matchingWarehouse = warehouses.find(
+            (warehouse) =>
+              String(warehouse.warehouseId) ===
+                String(formData.warehouseCode) ||
+              String(warehouse._id) === String(formData.warehouseCode),
+          );
 
           if (matchingWarehouse) {
-            console.log(
-              "EDIT MATCHED WAREHOUSE:",
-              matchingWarehouse
-            );
+            console.log("EDIT MATCHED WAREHOUSE:", matchingWarehouse);
 
             setFormData((prev) => ({
               ...prev,
@@ -740,30 +621,23 @@ const Bin_Create = () => {
               /*
                 Payload ID
               */
-              warehouseId:
-                matchingWarehouse._id,
+              warehouseId: matchingWarehouse._id,
 
               /*
                 API ID
               */
-              warehouseCode:
-                matchingWarehouse.warehouseId,
+              warehouseCode: matchingWarehouse.warehouseId,
 
               /*
                 Display name
               */
               warehouseName:
-                matchingWarehouse.warehouseName ||
-                matchingWarehouse.name ||
-                "",
+                matchingWarehouse.warehouseName || matchingWarehouse.name || "",
             }));
           }
         }
       } catch (error) {
-        console.error(
-          "Failed to fetch warehouses:",
-          error
-        );
+        console.error("Failed to fetch warehouses:", error);
 
         setWarehouseOptions([
           {
@@ -776,11 +650,7 @@ const Bin_Create = () => {
     };
 
     fetchWarehouses();
-  }, [
-    formData.customerId,
-    formData.warehouseCode,
-    isEditMode,
-  ]);
+  }, [formData.customerId, formData.warehouseCode, isEditMode]);
 
   /* =========================================================
      5. FETCH ITEMS BY WAREHOUSE
@@ -808,8 +678,7 @@ const Bin_Create = () => {
 
   useEffect(() => {
     const fetchWarehouseItems = async () => {
-      const warehouseCode =
-        formData.warehouseCode;
+      const warehouseCode = formData.warehouseCode;
 
       if (!warehouseCode) {
         setItemOptions([
@@ -832,14 +701,9 @@ const Bin_Create = () => {
           },
         ]);
 
-        console.log(
-          "========== ITEMS API =========="
-        );
+        console.log("========== ITEMS API ==========");
 
-        console.log(
-          "Warehouse Code:",
-          warehouseCode
-        );
+        console.log("Warehouse Code:", warehouseCode);
 
         /*
           IMPORTANT:
@@ -853,18 +717,11 @@ const Bin_Create = () => {
           /warehouse/65df.../items
         */
 
-        const res =
-          await get_items_byWarehouse(
-            warehouseCode
-          );
+        const res = await get_items_byWarehouse(warehouseCode);
 
-        console.log(
-          "WAREHOUSE ITEMS RESPONSE:",
-          res?.data
-        );
+        console.log("WAREHOUSE ITEMS RESPONSE:", res?.data);
 
-        const items =
-          res?.data?.data?.items || [];
+        const items = res?.data?.data?.items || [];
 
         setAllItemsData(items);
 
@@ -877,20 +734,13 @@ const Bin_Create = () => {
           ...items.map((item) => ({
             label: `${item.itemMasterId?.itemName || "-"} (${item.itemMasterId?.partNumber || "-"})`,
 
-            value:
-              item.itemMasterId?._id || "",
+            value: item.itemMasterId?._id || "",
           })),
         ]);
       } catch (error) {
-        console.error(
-          "Failed to fetch warehouse items:",
-          error
-        );
+        console.error("Failed to fetch warehouse items:", error);
 
-        console.error(
-          "Items API error response:",
-          error?.response?.data
-        );
+        console.error("Items API error response:", error?.response?.data);
 
         setAllItemsData([]);
 
@@ -922,51 +772,30 @@ const Bin_Create = () => {
   ========================================================= */
 
   useEffect(() => {
-    if (
-      !formData.itemMasterId ||
-      !allItemsData.length
-    ) {
+    if (!formData.itemMasterId || !allItemsData.length) {
       return;
     }
 
-    const selectedItem =
-      allItemsData.find(
-        (item) =>
-          String(
-            item.itemMasterId?._id
-          ) ===
-          String(
-            formData.itemMasterId
-          )
-      );
+    const selectedItem = allItemsData.find(
+      (item) =>
+        String(item.itemMasterId?._id) === String(formData.itemMasterId),
+    );
 
     if (!selectedItem) {
-      console.log(
-        "Selected item not found:",
-        formData.itemMasterId
-      );
+      console.log("Selected item not found:", formData.itemMasterId);
 
       return;
     }
 
-    const masterItem =
-      selectedItem.itemMasterId;
+    const masterItem = selectedItem.itemMasterId;
 
-    console.log(
-      "========== SELECTED ITEM =========="
-    );
+    console.log("========== SELECTED ITEM ==========");
 
     console.log(selectedItem);
 
-    console.log(
-      "Item Name:",
-      masterItem?.itemName
-    );
+    console.log("Item Name:", masterItem?.itemName);
 
-    console.log(
-      "Weight Per Unit:",
-      masterItem?.weightPerUnit
-    );
+    console.log("Weight Per Unit:", masterItem?.weightPerUnit);
 
     setFormData((prev) => ({
       ...prev,
@@ -974,73 +803,48 @@ const Bin_Create = () => {
       /*
         Item Name
       */
-      supplierItemName:
-        masterItem?.itemName ||
-        prev.supplierItemName,
+      supplierItemName: masterItem?.itemName || prev.supplierItemName,
 
       /*
         Weight per Unit
       */
-      weightPerUnit:
-        masterItem?.weightPerUnit ??
-        prev.weightPerUnit,
+      weightPerUnit: masterItem?.weightPerUnit ?? prev.weightPerUnit,
     }));
-  }, [
-    formData.itemMasterId,
-    allItemsData,
-  ]);
+  }, [formData.itemMasterId, allItemsData]);
 
   /* =========================================================
      7. AUTOMATIC QUANTITY CALCULATION
   ========================================================= */
 
   useEffect(() => {
-    if (
-      !formData.itemMasterId ||
-      !allItemsData.length
-    ) {
+    if (!formData.itemMasterId || !allItemsData.length) {
       return;
     }
 
-    const unitWeight =
-      parseFloat(
-        formData.weightPerUnit
-      ) || 1;
+    const unitWeight = parseFloat(formData.weightPerUnit) || 1;
 
-    const numericBinWeight =
-      parseFloat(
-        formData.binAllowableWeight
-      );
+    const numericBinWeight = parseFloat(formData.binAllowableWeight);
 
-    const numericCustWeight =
-      parseFloat(
-        formData.customerAllowableWeight
-      );
+    const numericCustWeight = parseFloat(formData.customerAllowableWeight);
 
     setFormData((prev) => ({
       ...prev,
 
-      binAllowableLimit:
-        !isNaN(numericBinWeight)
-          ? Math.floor(
-              (
-                binWeightUnit === "kg"
-                  ? numericBinWeight * 1000
-                  : numericBinWeight
-              ) / unitWeight
-            ).toString()
-          : prev.binAllowableLimit,
+      binAllowableLimit: !isNaN(numericBinWeight)
+        ? Math.floor(
+            (binWeightUnit === "kg"
+              ? numericBinWeight * 1000
+              : numericBinWeight) / unitWeight,
+          ).toString()
+        : prev.binAllowableLimit,
 
-      customerAllowableLimit:
-        !isNaN(numericCustWeight)
-          ? Math.floor(
-              (
-                customerWeightUnit === "kg"
-                  ? numericCustWeight * 1000
-                  : numericCustWeight
-              ) / unitWeight
-            ).toString()
-          : prev.customerAllowableLimit,
+      customerAllowableLimit: !isNaN(numericCustWeight)
+        ? Math.floor(
+            (customerWeightUnit === "kg"
+              ? numericCustWeight * 1000
+              : numericCustWeight) / unitWeight,
+          ).toString()
+        : prev.customerAllowableLimit,
     }));
   }, [
     formData.binAllowableWeight,
@@ -1109,18 +913,11 @@ const Bin_Create = () => {
     ======================================================= */
 
     if (name === "warehouseId") {
-      const selectedWarehouse =
-        warehouseOptions.find(
-          (warehouse) =>
-            String(
-              warehouse.value
-            ) === String(value)
-        );
-
-      console.log(
-        "SELECTED WAREHOUSE:",
-        selectedWarehouse
+      const selectedWarehouse = warehouseOptions.find(
+        (warehouse) => String(warehouse.value) === String(value),
       );
+
+      console.log("SELECTED WAREHOUSE:", selectedWarehouse);
 
       setFormData((prev) => ({
         ...prev,
@@ -1139,16 +936,12 @@ const Bin_Create = () => {
           Example:
           ELEV-WH-001
         */
-        warehouseCode:
-          selectedWarehouse
-            ?.warehouseCode || "",
+        warehouseCode: selectedWarehouse?.warehouseCode || "",
 
         /*
           Display name
         */
-        warehouseName:
-          selectedWarehouse
-            ?.label || "",
+        warehouseName: selectedWarehouse?.label || "",
 
         /*
           Reset item
@@ -1177,13 +970,9 @@ const Bin_Create = () => {
     ======================================================= */
 
     if (name === "itemMasterId") {
-      const selectedItem =
-        allItemsData.find(
-          (item) =>
-            String(
-              item.itemMasterId?._id
-            ) === String(value)
-        );
+      const selectedItem = allItemsData.find(
+        (item) => String(item.itemMasterId?._id) === String(value),
+      );
 
       setFormData((prev) => ({
         ...prev,
@@ -1191,14 +980,9 @@ const Bin_Create = () => {
         itemMasterId: value,
 
         supplierItemName:
-          selectedItem?.itemMasterId
-            ?.itemName ||
-          prev.supplierItemName,
+          selectedItem?.itemMasterId?.itemName || prev.supplierItemName,
 
-        weightPerUnit:
-          selectedItem?.itemMasterId
-            ?.weightPerUnit ??
-          "",
+        weightPerUnit: selectedItem?.itemMasterId?.weightPerUnit ?? "",
       }));
 
       return;
@@ -1218,20 +1002,11 @@ const Bin_Create = () => {
      9. SELECTED ITEM
   ========================================================= */
 
-  const selectedItem =
-    allItemsData.find(
-      (item) =>
-        String(
-          item.itemMasterId?._id
-        ) ===
-        String(
-          formData.itemMasterId
-        )
-    );
+  const selectedItem = allItemsData.find(
+    (item) => String(item.itemMasterId?._id) === String(formData.itemMasterId),
+  );
 
-  const selectedItemDesc =
-    selectedItem?.itemMasterId
-      ?.itemDescription || "";
+  const selectedItemDesc = selectedItem?.itemMasterId?.itemDescription || "";
 
   /* =========================================================
      10. FINAL SUBMISSION
@@ -1243,9 +1018,7 @@ const Bin_Create = () => {
       !formData.itemMasterId ||
       !formData.warehouseId
     ) {
-      setErrorMessage(
-        "Customer, Warehouse and Item are required."
-      );
+      setErrorMessage("Customer, Warehouse and Item are required.");
 
       setErrorModel(true);
 
@@ -1272,83 +1045,60 @@ const Bin_Create = () => {
       ===================================================== */
 
       const payload = {
-  customerId: formData.customerId,
-  projectId: formData.projectId,
-  masterId: formData.masterId,
-  binId: formData.binId,
+        customerId: formData.customerId,
+        projectId: formData.projectId,
+        masterId: formData.masterId,
+        binId: formData.binId,
 
-  binAllowableWeight: formData.binAllowableWeight,
-  binAllowableLimit: Number(formData.binAllowableLimit),
+        binAllowableWeight: formData.binAllowableWeight,
+        binAllowableLimit: Number(formData.binAllowableLimit),
 
-  customerAllowableWeight: formData.customerAllowableWeight,
-  customerAllowableLimit: Number(formData.customerAllowableLimit),
+        customerAllowableWeight: formData.customerAllowableWeight,
+        customerAllowableLimit: Number(formData.customerAllowableLimit),
 
-  safetyStockQuantity: Number(formData.safetyStockQuantity),
-  rol: Number(formData.rol),
+        safetyStockQuantity: Number(formData.safetyStockQuantity),
+        rol: Number(formData.rol),
 
-  itemPerPrice: Number(formData.itemPerPrice),
+        itemPerPrice: Number(formData.itemPerPrice),
 
-  weightPerUnit: Number(formData.weightPerUnit),
-  weightPerPrice: Number(formData.weightPerPrice), // ADD THIS
+        weightPerUnit: Number(formData.weightPerUnit),
+        weightPerPrice: Number(formData.weightPerPrice), // ADD THIS
 
-  itemMasterId: formData.itemMasterId,
+        itemMasterId: formData.itemMasterId,
 
-  // MongoDB warehouse _id for create/edit payload
-  warehouseId: formData.warehouseId,
+        // MongoDB warehouse _id for create/edit payload
+        warehouseId: formData.warehouseId,
 
-  warehouseName: formData.warehouseName,
+        warehouseName: formData.warehouseName,
 
-  itemStatus: formData.itemStatus,
-};
+        itemStatus: formData.itemStatus,
+      };
 
-      console.log(
-        "========== FINAL PAYLOAD =========="
-      );
+      console.log("========== FINAL PAYLOAD ==========");
 
       console.log(payload);
 
-      console.log(
-        "Payload warehouseId:",
-        payload.warehouseId
-      );
+      console.log("Payload warehouseId:", payload.warehouseId);
 
-      console.log(
-        "Payload warehouseName:",
-        payload.warehouseName
-      );
+      console.log("Payload warehouseName:", payload.warehouseName);
 
-      console.log(
-        "Payload warehouseCode:",
-        formData.warehouseCode
-      );
+      console.log("Payload warehouseCode:", formData.warehouseCode);
 
-      console.log(
-        "Payload weightPerUnit:",
-        payload.weightPerUnit
-      );
+      console.log("Payload weightPerUnit:", payload.weightPerUnit);
 
       const res = isEditMode
-        ? await bin_dashboard_Edit(
-            rowId,
-            payload
-          )
-        : await bin_dashboard_create(
-            payload
-          );
+        ? await bin_dashboard_Edit(rowId, payload)
+        : await bin_dashboard_create(payload);
 
       if (res?.data?.success) {
         const apiSuccessMessage =
           res?.data?.data?.message ||
           res?.data?.message ||
           `Bin Configuration ${
-            isEditMode
-              ? "Updated"
-              : "Created"
+            isEditMode ? "Updated" : "Created"
           } Successfully!`;
 
-        setSuccessMessage(
-          apiSuccessMessage
-        );
+        setSuccessMessage(apiSuccessMessage);
 
         setSuccessModel(true);
 
@@ -1363,33 +1113,22 @@ const Bin_Create = () => {
           res?.data?.message ||
           "Something went wrong while saving.";
 
-        setErrorMessage(
-          apiErrorMessage
-        );
+        setErrorMessage(apiErrorMessage);
 
         setErrorModel(true);
       }
     } catch (error) {
-      console.error(
-        "Submission failed:",
-        error
-      );
+      console.error("Submission failed:", error);
 
-      console.error(
-        "Server response:",
-        error?.response?.data
-      );
+      console.error("Server response:", error?.response?.data);
 
       const apiErrorMessage =
-        error?.response?.data?.data
-          ?.message ||
+        error?.response?.data?.data?.message ||
         error?.response?.data?.message ||
         error?.message ||
         "An unexpected error occurred.";
 
-      setErrorMessage(
-        apiErrorMessage
-      );
+      setErrorMessage(apiErrorMessage);
 
       setErrorModel(true);
     } finally {
@@ -1405,16 +1144,9 @@ const Bin_Create = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-[#0062a0]" size={48} />
 
-          <Loader2
-            className="animate-spin text-[#0062a0]"
-            size={48}
-          />
-
-          <p className="text-slate-500 font-medium">
-            Loading Bin Details...
-          </p>
-
+          <p className="text-slate-500 font-medium">Loading Bin Details...</p>
         </div>
       </div>
     );
@@ -1431,13 +1163,11 @@ const Bin_Create = () => {
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
       <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
-
         {/* =================================================
             HEADER
         ================================================= */}
 
         <div className="flex items-center gap-4 mb-8">
-
           <button
             onClick={() => navigate(-1)}
             className="p-3 hover:bg-[#f0f9ff] text-[#0062a0] rounded-2xl transition-all cursor-pointer"
@@ -1446,11 +1176,8 @@ const Bin_Create = () => {
           </button>
 
           <h1 className="text-2xl md:text-3xl font-semibold text-slate-800">
-            {isEditMode
-              ? "Edit Bin Configuration"
-              : "Create Bin Configuration"}
+            {isEditMode ? "Edit Bin Configuration" : "Create Bin Configuration"}
           </h1>
-
         </div>
 
         {/* =================================================
@@ -1458,7 +1185,6 @@ const Bin_Create = () => {
         ================================================= */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1 items-start">
-
           {/* CUSTOMER */}
 
           <ReUsableInput_Fields
@@ -1497,7 +1223,6 @@ const Bin_Create = () => {
           {/* ITEM */}
 
           <div className="flex flex-col w-full min-h-[90px]">
-
             <ReUsableInput_Fields
               label="Item Name"
               name="itemMasterId"
@@ -1505,61 +1230,37 @@ const Bin_Create = () => {
               options={itemOptions}
               value={formData.itemMasterId}
               onChange={handleChange}
-              disabled={
-                !formData.warehouseCode
-              }
+              disabled={!formData.warehouseCode}
             />
 
             {selectedItemDesc && (
               <div className="flex items-start justify-between text-blue-600 bg-blue-50/50 px-2 py-1.5 rounded-lg border border-blue-100/50 mt-1">
-
                 <span
                   className={`text-[13px] font-medium leading-tight transition-all duration-300 ${
-                    isDescExpanded
-                      ? "whitespace-normal"
-                      : "line-clamp-1"
+                    isDescExpanded ? "whitespace-normal" : "line-clamp-1"
                   }`}
                 >
-
-                  <span className="font-bold mr-1">
-                    Desc:
-                  </span>
+                  <span className="font-bold mr-1">Desc:</span>
 
                   {selectedItemDesc}
-
                 </span>
 
-                {selectedItemDesc.length >
-                  50 && (
+                {selectedItemDesc.length > 50 && (
                   <button
                     type="button"
-                    onClick={() =>
-                      setIsDescExpanded(
-                        !isDescExpanded
-                      )
-                    }
+                    onClick={() => setIsDescExpanded(!isDescExpanded)}
                     className="ml-2 flex-shrink-0 cursor-pointer text-blue-500 hover:text-blue-700 hover:bg-blue-100 p-0.5 rounded-full transition-colors mt-[1px]"
-                    title={
-                      isDescExpanded
-                        ? "Show less"
-                        : "Show more"
-                    }
+                    title={isDescExpanded ? "Show less" : "Show more"}
                   >
                     {isDescExpanded ? (
-                      <ChevronUp
-                        size={16}
-                      />
+                      <ChevronUp size={16} />
                     ) : (
-                      <ChevronDown
-                        size={16}
-                      />
+                      <ChevronDown size={16} />
                     )}
                   </button>
                 )}
-
               </div>
             )}
-
           </div>
 
           {/* MASTER ID */}
@@ -1613,41 +1314,25 @@ const Bin_Create = () => {
           {/* BIN ALLOWABLE WEIGHT */}
 
           <div className="relative">
-
             <ReUsableInput_Fields
               label="BIN Allowable Weight"
               name="binAllowableWeight"
               type="number"
-              value={
-                formData.binAllowableWeight
-              }
+              value={formData.binAllowableWeight}
               onChange={handleChange}
             />
 
             <div className="absolute right-1 bottom-[8px] z-10">
-
               <select
                 value={binWeightUnit}
-                onChange={(e) =>
-                  setBinWeightUnit(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setBinWeightUnit(e.target.value)}
                 className="bg-slate-100 text-slate-700 text-sm font-bold rounded-lg px-2 py-1.5 outline-none border border-slate-200 cursor-pointer shadow-sm"
               >
+                <option value="kg">kg</option>
 
-                <option value="kg">
-                  kg
-                </option>
-
-                <option value="gm">
-                  gm
-                </option>
-
+                <option value="gm">gm</option>
               </select>
-
             </div>
-
           </div>
 
           {/* BIN ALLOWABLE LIMIT */}
@@ -1655,52 +1340,32 @@ const Bin_Create = () => {
           <ReUsableInput_Fields
             label="BIN Allowable Limit"
             name="binAllowableLimit"
-            value={
-              formData.binAllowableLimit
-            }
+            value={formData.binAllowableLimit}
             disabled={true}
           />
 
           {/* CUSTOMER ALLOWABLE WEIGHT */}
 
           <div className="relative">
-
             <ReUsableInput_Fields
               label="Customer Allowable Weight"
               name="customerAllowableWeight"
               type="number"
-              value={
-                formData.customerAllowableWeight
-              }
+              value={formData.customerAllowableWeight}
               onChange={handleChange}
             />
 
             <div className="absolute right-1 bottom-[8px] z-10">
-
               <select
-                value={
-                  customerWeightUnit
-                }
-                onChange={(e) =>
-                  setCustomerWeightUnit(
-                    e.target.value
-                  )
-                }
+                value={customerWeightUnit}
+                onChange={(e) => setCustomerWeightUnit(e.target.value)}
                 className="bg-slate-100 text-slate-700 text-sm font-bold rounded-lg px-2 py-1.5 outline-none border border-slate-200 cursor-pointer shadow-sm"
               >
+                <option value="kg">kg</option>
 
-                <option value="kg">
-                  kg
-                </option>
-
-                <option value="gm">
-                  gm
-                </option>
-
+                <option value="gm">gm</option>
               </select>
-
             </div>
-
           </div>
 
           {/* CUSTOMER ALLOWABLE LIMIT */}
@@ -1708,9 +1373,7 @@ const Bin_Create = () => {
           <ReUsableInput_Fields
             label="Customer Allowable Limit"
             name="customerAllowableLimit"
-            value={
-              formData.customerAllowableLimit
-            }
+            value={formData.customerAllowableLimit}
             disabled={true}
           />
 
@@ -1720,9 +1383,7 @@ const Bin_Create = () => {
             label="Safety Stock Quantity"
             name="safetyStockQuantity"
             type="number"
-            value={
-              formData.safetyStockQuantity
-            }
+            value={formData.safetyStockQuantity}
             onChange={handleChange}
           />
 
@@ -1735,7 +1396,6 @@ const Bin_Create = () => {
             value={formData.rol}
             onChange={handleChange}
           />
-
         </div>
 
         {/* =================================================
@@ -1743,30 +1403,18 @@ const Bin_Create = () => {
         ================================================= */}
 
         <div className="flex items-center gap-6 justify-end mt-12 mb-4">
-
-          <Button
-            variant="secondary"
-            onClick={() => navigate(-1)}
-          >
+          <Button variant="secondary" onClick={() => navigate(-1)}>
             Cancel
           </Button>
 
           <Button
             variant="primary"
-            onClick={() =>
-              setConfirm(true)
-            }
+            onClick={() => setConfirm(true)}
             disabled={isSubmitting}
           >
-            {isSubmitting
-              ? "Processing..."
-              : isEditMode
-              ? "Update"
-              : "Create"}
+            {isSubmitting ? "Processing..." : isEditMode ? "Update" : "Create"}
           </Button>
-
         </div>
-
       </div>
 
       {/* =================================================
@@ -1775,16 +1423,10 @@ const Bin_Create = () => {
 
       <Confirmation_Popup
         isOpen={confirm}
-        onClose={() =>
-          setConfirm(false)
-        }
-        onConfirm={
-          handleFinalSubmit
-        }
+        onClose={() => setConfirm(false)}
+        onConfirm={handleFinalSubmit}
         message={`Are you sure you want to ${
-          isEditMode
-            ? "Update"
-            : "Create"
+          isEditMode ? "Update" : "Create"
         } Bin Configuration?`}
       />
 
@@ -1794,9 +1436,7 @@ const Bin_Create = () => {
 
       <Success_Popup
         isOpen={successModel}
-        onClose={() =>
-          setSuccessModel(false)
-        }
+        onClose={() => setSuccessModel(false)}
         message={successMessage}
       />
 
@@ -1806,12 +1446,9 @@ const Bin_Create = () => {
 
       <ErrorMessage_Popup
         isOpen={errorModel}
-        onClose={() =>
-          setErrorModel(false)
-        }
+        onClose={() => setErrorModel(false)}
         message={errorMessage}
       />
-
     </motion.div>
   );
 };

@@ -243,15 +243,15 @@
 //   bomData: null,
 //   projectData: null,
 //   forecastGet: null,
-//   forecastDeleteResult: null,  
-//   forecastDeleteError: null,   
+//   forecastDeleteResult: null,
+//   forecastDeleteError: null,
 //   forecastPostResult: null,
-//   forecastPostError: null,     
+//   forecastPostError: null,
 //   singleBomData: null,
 //   loading: false,
 //   error: null,
 //   postLoading: false,
-//   deleteLoading: false,  
+//   deleteLoading: false,
 //   forcastUpdate : null,
 // };
 
@@ -411,13 +411,13 @@
 // });
 
 // // Export actions and reducer
-// export const { 
-//   clearBomData, 
-//   clearProjectData, 
-//   clearSingleBomData, 
+// export const {
+//   clearBomData,
+//   clearProjectData,
+//   clearSingleBomData,
 //   clearForecastPostResult,
 //   clearForecastDeleteResult,
-//   resetForecastForm 
+//   resetForecastForm
 // } = ForecastSlice.actions;
 
 // export default ForecastSlice.reducer;
@@ -435,12 +435,12 @@ const Base_Url = import.meta.env.VITE_API_URL;
 */
 
 const api = axios.create({
-    baseURL: Base_Url,
+  baseURL: Base_Url,
 
-    headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-    },
+  headers: {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 /*
@@ -450,20 +450,20 @@ const api = axios.create({
 */
 
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("accessToken");
+  (config) => {
+    const token = localStorage.getItem("accessToken");
 
-        if (token) {
-            config.headers = config.headers || {};
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
-        return config;
-    },
-
-    (error) => {
-        return Promise.reject(error);
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
+
+    return config;
+  },
+
+  (error) => {
+    return Promise.reject(error);
+  },
 );
 
 /*
@@ -473,45 +473,42 @@ api.interceptors.request.use(
 */
 
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+  (response) => {
+    return response;
+  },
 
-    (error) => {
-        if (!error.response) {
-            console.error("Network error or server unreachable");
+  (error) => {
+    if (!error.response) {
+      console.error("Network error or server unreachable");
 
-            window.location.href = "/network-error";
+      window.location.href = "/network-error";
 
-            return Promise.reject(error);
-        }
-
-        const { status } = error.response;
-
-        /*
-         * Only redirect to login when the authentication token
-         * is actually missing.
-         *
-         * This prevents a normal API authorization/permission
-         * response from unnecessarily destroying the session.
-         */
-
-        if (status === 401) {
-            const token = localStorage.getItem("accessToken");
-
-            if (!token) {
-                localStorage.clear();
-                window.location.href = "/login";
-            }
-
-            console.error(
-                "Unauthorized API request:",
-                error.config?.url
-            );
-        }
-
-        return Promise.reject(error);
+      return Promise.reject(error);
     }
+
+    const { status } = error.response;
+
+    /*
+     * Only redirect to login when the authentication token
+     * is actually missing.
+     *
+     * This prevents a normal API authorization/permission
+     * response from unnecessarily destroying the session.
+     */
+
+    if (status === 401) {
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) {
+        localStorage.clear();
+        window.location.href = "/login";
+      }
+
+      console.error("Unauthorized API request:", error.config?.url);
+    }
+
+    return Promise.reject(error);
+  },
 );
 
 /*
@@ -520,27 +517,24 @@ api.interceptors.response.use(
 |--------------------------------------------------------------------------
 */
 
-const getErrorMessage = (
-    error,
-    defaultMessage = "Something went wrong"
-) => {
-    if (error.response?.data?.message) {
-        return error.response.data.message;
-    }
+const getErrorMessage = (error, defaultMessage = "Something went wrong") => {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
 
-    if (error.response?.data?.error) {
-        return error.response.data.error;
-    }
+  if (error.response?.data?.error) {
+    return error.response.data.error;
+  }
 
-    if (typeof error.response?.data === "string") {
-        return error.response.data;
-    }
+  if (typeof error.response?.data === "string") {
+    return error.response.data;
+  }
 
-    if (error.message) {
-        return error.message;
-    }
+  if (error.message) {
+    return error.message;
+  }
 
-    return defaultMessage;
+  return defaultMessage;
 };
 
 /*
@@ -574,11 +568,9 @@ export const fetchCustomerId = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data || "Something went wrong"
-      );
+      return rejectWithValue(error.response?.data || "Something went wrong");
     }
-  }
+  },
 );
 
 /*
@@ -588,21 +580,17 @@ export const fetchCustomerId = createAsyncThunk(
 */
 
 export const fetchProjectApi = createAsyncThunk(
-    "customer/fetchProjectApi",
+  "customer/fetchProjectApi",
 
-    async (customerId, { rejectWithValue }) => {
-        try {
-            const response = await api.get(
-                `/project/by-customer/${customerId}`
-            );
+  async (customerId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/project/by-customer/${customerId}`);
 
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(
-                error.response?.data || "Something went wrong"
-            );
-        }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
     }
+  },
 );
 
 /*
@@ -612,24 +600,19 @@ export const fetchProjectApi = createAsyncThunk(
 */
 
 export const fetchBomApi = createAsyncThunk(
-    "customer/fetchBomApi",
+  "customer/fetchBomApi",
 
-    async (
-        { customerId, projectId },
-        { rejectWithValue }
-    ) => {
-        try {
-            const response = await api.get(
-                `/bom/customer/${customerId}/project/${projectId}`
-            );
+  async ({ customerId, projectId }, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `/bom/customer/${customerId}/project/${projectId}`,
+      );
 
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(
-                error.response?.data || "Something went wrong"
-            );
-        }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
     }
+  },
 );
 
 /*
@@ -639,21 +622,17 @@ export const fetchBomApi = createAsyncThunk(
 */
 
 export const fetchSingleBomApi = createAsyncThunk(
-    "customer/fetchSingleBomApi",
+  "customer/fetchSingleBomApi",
 
-    async (bomId, { rejectWithValue }) => {
-        try {
-            const response = await api.get(
-                `/bom/${bomId}`
-            );
+  async (bomId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/bom/${bomId}`);
 
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(
-                error.response?.data || "Something went wrong"
-            );
-        }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
     }
+  },
 );
 
 /*
@@ -666,164 +645,120 @@ export const fetchSingleBomApi = createAsyncThunk(
  * Create Forecast
  */
 export const ForcastPost = createAsyncThunk(
-    "forecast/ForcastPost",
+  "forecast/ForcastPost",
 
-    async (payload, { rejectWithValue }) => {
-        try {
-            const response = await api.post(
-                "/forecast",
-                payload
-            );
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/forecast", payload);
 
-            return {
-                success: true,
-                message:
-                    response.data?.message ||
-                    "Forecast created successfully",
+      return {
+        success: true,
+        message: response.data?.message || "Forecast created successfully",
 
-                data:
-                    response.data?.data ||
-                    response.data,
-            };
-        } catch (error) {
-            return rejectWithValue({
-                success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                message: getErrorMessage(
-                    error,
-                    "Failed to create forecast"
-                ),
+        message: getErrorMessage(error, "Failed to create forecast"),
 
-                data: error.response?.data,
-            });
-        }
+        data: error.response?.data,
+      });
     }
+  },
 );
 
 /*
  * Update Forecast
  */
 export const ForcastUpdate = createAsyncThunk(
-    "forecast/ForcastUpdate",
+  "forecast/ForcastUpdate",
 
-    async (
-        { id, payload },
-        { rejectWithValue }
-    ) => {
-        try {
-            const response = await api.put(
-                `/forecast/${id}`,
-                payload
-            );
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/forecast/${id}`, payload);
 
-            return {
-                success: true,
+      return {
+        success: true,
 
-                message:
-                    response.data?.message ||
-                    "Forecast updated successfully",
+        message: response.data?.message || "Forecast updated successfully",
 
-                data:
-                    response.data?.data ||
-                    response.data,
-            };
-        } catch (error) {
-            return rejectWithValue({
-                success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                message: getErrorMessage(
-                    error,
-                    "Failed to update forecast"
-                ),
+        message: getErrorMessage(error, "Failed to update forecast"),
 
-                data: error.response?.data,
-            });
-        }
+        data: error.response?.data,
+      });
     }
+  },
 );
 
 /*
  * Get Forecast
  */
 export const ForcastGet = createAsyncThunk(
-    "forecast/ForcastGet",
+  "forecast/ForcastGet",
 
-    async (
-        { endpoint = "/forecast" } = {},
-        { rejectWithValue }
-    ) => {
-        try {
-            /*
-             * IMPORTANT:
-             * api already contains baseURL.
-             */
+  async ({ endpoint = "/forecast" } = {}, { rejectWithValue }) => {
+    try {
+      /*
+       * IMPORTANT:
+       * api already contains baseURL.
+       */
 
-            const response = await api.get(
-                endpoint
-            );
+      const response = await api.get(endpoint);
 
-            return {
-                success: true,
+      return {
+        success: true,
 
-                message:
-                    response.data?.message ||
-                    "Forecast fetched successfully",
+        message: response.data?.message || "Forecast fetched successfully",
 
-                data:
-                    response.data?.data ||
-                    response.data,
-            };
-        } catch (error) {
-            return rejectWithValue({
-                success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                message: getErrorMessage(
-                    error,
-                    "Failed to fetch data"
-                ),
+        message: getErrorMessage(error, "Failed to fetch data"),
 
-                data: error.response?.data,
-            });
-        }
+        data: error.response?.data,
+      });
     }
+  },
 );
 
 /*
  * Delete Forecast
  */
 export const ForcastDelete = createAsyncThunk(
-    "forecast/ForcastDelete",
+  "forecast/ForcastDelete",
 
-    async (id, { rejectWithValue }) => {
-        try {
-            const response = await api.delete(
-                `/forecast/${id}`
-            );
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/forecast/${id}`);
 
-            return {
-                success: true,
+      return {
+        success: true,
 
-                message:
-                    response.data?.message ||
-                    "Forecast deleted successfully",
+        message: response.data?.message || "Forecast deleted successfully",
 
-                data:
-                    response.data?.data ||
-                    response.data,
-            };
-        } catch (error) {
-            return rejectWithValue({
-                success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                message: getErrorMessage(
-                    error,
-                    "Failed to delete forecast"
-                ),
+        message: getErrorMessage(error, "Failed to delete forecast"),
 
-                data: error.response?.data,
-            });
-        }
+        data: error.response?.data,
+      });
     }
+  },
 );
 
 /*
@@ -839,38 +774,30 @@ export const ForcastDelete = createAsyncThunk(
  * /project-consumption
  */
 export const ProjectConsumptionGet = createAsyncThunk(
-    "projectConsumption/get",
+  "projectConsumption/get",
 
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await api.get(
-                "/project-consumption"
-            );
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/project-consumption");
 
-            return {
-                success: true,
+      return {
+        success: true,
 
-                message:
-                    response.data?.message ||
-                    "Project consumption fetched successfully",
+        message:
+          response.data?.message || "Project consumption fetched successfully",
 
-                data:
-                    response.data?.data ||
-                    response.data,
-            };
-        } catch (error) {
-            return rejectWithValue({
-                success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                message: getErrorMessage(
-                    error,
-                    "Failed to fetch project consumption"
-                ),
+        message: getErrorMessage(error, "Failed to fetch project consumption"),
 
-                data: error.response?.data,
-            });
-        }
+        data: error.response?.data,
+      });
     }
+  },
 );
 
 /*
@@ -880,39 +807,30 @@ export const ProjectConsumptionGet = createAsyncThunk(
  * /project-consumption
  */
 export const ProjectConsumptionPost = createAsyncThunk(
-    "projectConsumption/post",
+  "projectConsumption/post",
 
-    async (payload, { rejectWithValue }) => {
-        try {
-            const response = await api.post(
-                "/project-consumption",
-                payload
-            );
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/project-consumption", payload);
 
-            return {
-                success: true,
+      return {
+        success: true,
 
-                message:
-                    response.data?.message ||
-                    "Project consumption created successfully",
+        message:
+          response.data?.message || "Project consumption created successfully",
 
-                data:
-                    response.data?.data ||
-                    response.data,
-            };
-        } catch (error) {
-            return rejectWithValue({
-                success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                message: getErrorMessage(
-                    error,
-                    "Failed to create project consumption"
-                ),
+        message: getErrorMessage(error, "Failed to create project consumption"),
 
-                data: error.response?.data,
-            });
-        }
+        data: error.response?.data,
+      });
     }
+  },
 );
 
 /*
@@ -921,41 +839,32 @@ export const ProjectConsumptionPost = createAsyncThunk(
  * GET
  * /project-consumption/{id}
  */
-export const ProjectConsumptionGetById =
-    createAsyncThunk(
-        "projectConsumption/getById",
+export const ProjectConsumptionGetById = createAsyncThunk(
+  "projectConsumption/getById",
 
-        async (id, { rejectWithValue }) => {
-            try {
-                const response = await api.get(
-                    `/project-consumption/${id}`
-                );
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/project-consumption/${id}`);
 
-                return {
-                    success: true,
+      return {
+        success: true,
 
-                    message:
-                        response.data?.message ||
-                        "Project consumption fetched successfully",
+        message:
+          response.data?.message || "Project consumption fetched successfully",
 
-                    data:
-                        response.data?.data ||
-                        response.data,
-                };
-            } catch (error) {
-                return rejectWithValue({
-                    success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                    message: getErrorMessage(
-                        error,
-                        "Failed to fetch project consumption"
-                    ),
+        message: getErrorMessage(error, "Failed to fetch project consumption"),
 
-                    data: error.response?.data,
-                });
-            }
-        }
-    );
+        data: error.response?.data,
+      });
+    }
+  },
+);
 
 /*
  * Delete Consumption
@@ -963,41 +872,32 @@ export const ProjectConsumptionGetById =
  * DELETE
  * /project-consumption/{id}
  */
-export const ProjectConsumptionDelete =
-    createAsyncThunk(
-        "projectConsumption/delete",
+export const ProjectConsumptionDelete = createAsyncThunk(
+  "projectConsumption/delete",
 
-        async (id, { rejectWithValue }) => {
-            try {
-                const response = await api.delete(
-                    `/project-consumption/${id}`
-                );
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/project-consumption/${id}`);
 
-                return {
-                    success: true,
+      return {
+        success: true,
 
-                    message:
-                        response.data?.message ||
-                        "Project consumption deleted successfully",
+        message:
+          response.data?.message || "Project consumption deleted successfully",
 
-                    data:
-                        response.data?.data ||
-                        response.data,
-                };
-            } catch (error) {
-                return rejectWithValue({
-                    success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                    message: getErrorMessage(
-                        error,
-                        "Failed to delete project consumption"
-                    ),
+        message: getErrorMessage(error, "Failed to delete project consumption"),
 
-                    data: error.response?.data,
-                });
-            }
-        }
-    );
+        data: error.response?.data,
+      });
+    }
+  },
+);
 
 /*
  * Update Consumption Entry
@@ -1005,45 +905,35 @@ export const ProjectConsumptionDelete =
  * PUT
  * /project-consumption/{id}/entry
  */
-export const ProjectConsumptionEntryUpdate =
-    createAsyncThunk(
-        "projectConsumption/updateEntry",
+export const ProjectConsumptionEntryUpdate = createAsyncThunk(
+  "projectConsumption/updateEntry",
 
-        async (
-            { id, payload },
-            { rejectWithValue }
-        ) => {
-            try {
-                const response = await api.put(
-                    `/project-consumption/${id}/entry`,
-                    payload
-                );
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(
+        `/project-consumption/${id}/entry`,
+        payload,
+      );
 
-                return {
-                    success: true,
+      return {
+        success: true,
 
-                    message:
-                        response.data?.message ||
-                        "Consumption entry updated successfully",
+        message:
+          response.data?.message || "Consumption entry updated successfully",
 
-                    data:
-                        response.data?.data ||
-                        response.data,
-                };
-            } catch (error) {
-                return rejectWithValue({
-                    success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                    message: getErrorMessage(
-                        error,
-                        "Failed to update consumption entry"
-                    ),
+        message: getErrorMessage(error, "Failed to update consumption entry"),
 
-                    data: error.response?.data,
-                });
-            }
-        }
-    );
+        data: error.response?.data,
+      });
+    }
+  },
+);
 
 /*
  * Delete Consumption Item
@@ -1051,44 +941,38 @@ export const ProjectConsumptionEntryUpdate =
  * DELETE
  * /project-consumption/{id}/month/{month}/item/{itemId}
  */
-export const ProjectConsumptionItemDelete =
-    createAsyncThunk(
-        "projectConsumption/deleteItem",
+export const ProjectConsumptionItemDelete = createAsyncThunk(
+  "projectConsumption/deleteItem",
 
-        async (
-            { id, month, itemId },
-            { rejectWithValue }
-        ) => {
-            try {
-                const response = await api.delete(
-                    `/project-consumption/${id}/month/${month}/item/${itemId}`
-                );
+  async ({ id, month, itemId }, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(
+        `/project-consumption/${id}/month/${month}/item/${itemId}`,
+      );
 
-                return {
-                    success: true,
+      return {
+        success: true,
 
-                    message:
-                        response.data?.message ||
-                        "Item consumption entry deleted successfully",
+        message:
+          response.data?.message ||
+          "Item consumption entry deleted successfully",
 
-                    data:
-                        response.data?.data ||
-                        response.data,
-                };
-            } catch (error) {
-                return rejectWithValue({
-                    success: false,
+        data: response.data?.data || response.data,
+      };
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
 
-                    message: getErrorMessage(
-                        error,
-                        "Failed to delete item consumption entry"
-                    ),
+        message: getErrorMessage(
+          error,
+          "Failed to delete item consumption entry",
+        ),
 
-                    data: error.response?.data,
-                });
-            }
-        }
-    );
+        data: error.response?.data,
+      });
+    }
+  },
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -1097,64 +981,64 @@ export const ProjectConsumptionItemDelete =
 */
 
 const initialState = {
-    /*
-     * Common data
-     */
-    forcastEdit: [],
-    bomData: null,
-    projectData: null,
-    singleBomData: null,
+  /*
+   * Common data
+   */
+  forcastEdit: [],
+  bomData: null,
+  projectData: null,
+  singleBomData: null,
 
-    /*
-     * Forecast
-     */
-    forecastGet: null,
-    forecastDeleteResult: null,
-    forecastDeleteError: null,
+  /*
+   * Forecast
+   */
+  forecastGet: null,
+  forecastDeleteResult: null,
+  forecastDeleteError: null,
 
-    forecastPostResult: null,
-    forecastPostError: null,
+  forecastPostResult: null,
+  forecastPostError: null,
 
-    forcastUpdate: null,
-    forecastUpdateError: null,
+  forcastUpdate: null,
+  forecastUpdateError: null,
 
-    /*
-     * Consumption
-     */
-    projectConsumption: null,
-    projectConsumptionGetById: null,
+  /*
+   * Consumption
+   */
+  projectConsumption: null,
+  projectConsumptionGetById: null,
 
-    projectConsumptionPostResult: null,
-    projectConsumptionPostError: null,
+  projectConsumptionPostResult: null,
+  projectConsumptionPostError: null,
 
-    projectConsumptionDeleteResult: null,
-    projectConsumptionDeleteError: null,
+  projectConsumptionDeleteResult: null,
+  projectConsumptionDeleteError: null,
 
-    projectConsumptionEntryResult: null,
-    projectConsumptionEntryError: null,
+  projectConsumptionEntryResult: null,
+  projectConsumptionEntryError: null,
 
-    projectConsumptionItemDeleteResult: null,
-    projectConsumptionItemDeleteError: null,
+  projectConsumptionItemDeleteResult: null,
+  projectConsumptionItemDeleteError: null,
 
-    /*
-     * Loading
-     */
-    loading: false,
+  /*
+   * Loading
+   */
+  loading: false,
 
-    postLoading: false,
-    deleteLoading: false,
-    updateLoading: false,
+  postLoading: false,
+  deleteLoading: false,
+  updateLoading: false,
 
-    projectConsumptionLoading: false,
-    projectConsumptionPostLoading: false,
-    projectConsumptionDeleteLoading: false,
-    projectConsumptionEntryLoading: false,
-    projectConsumptionItemDeleteLoading: false,
+  projectConsumptionLoading: false,
+  projectConsumptionPostLoading: false,
+  projectConsumptionDeleteLoading: false,
+  projectConsumptionEntryLoading: false,
+  projectConsumptionItemDeleteLoading: false,
 
-    /*
-     * Error
-     */
-    error: null,
+  /*
+   * Error
+   */
+  error: null,
 };
 
 /*
@@ -1164,586 +1048,450 @@ const initialState = {
 */
 
 const ForecastSlice = createSlice({
-    name: "forcastEdit",
+  name: "forcastEdit",
 
-    initialState,
+  initialState,
 
-    reducers: {
-        /*
-         * BOM
-         */
-        clearBomData: (state) => {
-            state.bomData = null;
-        },
+  reducers: {
+    /*
+     * BOM
+     */
+    clearBomData: (state) => {
+      state.bomData = null;
+    },
 
-        clearProjectData: (state) => {
-            state.projectData = null;
-        },
+    clearProjectData: (state) => {
+      state.projectData = null;
+    },
 
-        clearSingleBomData: (state) => {
-            state.singleBomData = null;
-        },
-
-        /*
-         * Forecast Post
-         */
-        clearForecastPostResult: (state) => {
-            state.forecastPostResult = null;
-            state.forecastPostError = null;
-        },
-
-        /*
-         * Forecast Delete
-         */
-        clearForecastDeleteResult: (state) => {
-            state.forecastDeleteResult = null;
-            state.forecastDeleteError = null;
-        },
-
-        /*
-         * Consumption Post
-         */
-        clearProjectConsumptionPostResult: (state) => {
-            state.projectConsumptionPostResult = null;
-            state.projectConsumptionPostError = null;
-        },
-
-        /*
-         * Consumption Delete
-         */
-        clearProjectConsumptionDeleteResult: (state) => {
-            state.projectConsumptionDeleteResult = null;
-            state.projectConsumptionDeleteError = null;
-        },
-
-        /*
-         * Consumption Entry
-         */
-        clearProjectConsumptionEntryResult: (state) => {
-            state.projectConsumptionEntryResult = null;
-            state.projectConsumptionEntryError = null;
-        },
-
-        /*
-         * Consumption Item Delete
-         */
-        clearProjectConsumptionItemDeleteResult: (state) => {
-            state.projectConsumptionItemDeleteResult = null;
-            state.projectConsumptionItemDeleteError = null;
-        },
-
-        /*
-         * Reset
-         */
-        resetForecastForm: (state) => {
-            state.forcastEdit = [];
-
-            state.bomData = null;
-            state.projectData = null;
-            state.singleBomData = null;
-
-            state.forecastGet = null;
-
-            state.forecastPostResult = null;
-            state.forecastPostError = null;
-
-            state.forecastDeleteResult = null;
-            state.forecastDeleteError = null;
-
-            state.forcastUpdate = null;
-            state.forecastUpdateError = null;
-
-            state.projectConsumption = null;
-            state.projectConsumptionGetById = null;
-
-            state.projectConsumptionPostResult = null;
-            state.projectConsumptionPostError = null;
-
-            state.projectConsumptionDeleteResult = null;
-            state.projectConsumptionDeleteError = null;
-
-            state.projectConsumptionEntryResult = null;
-            state.projectConsumptionEntryError = null;
-
-            state.projectConsumptionItemDeleteResult = null;
-            state.projectConsumptionItemDeleteError = null;
-
-            state.error = null;
-        },
+    clearSingleBomData: (state) => {
+      state.singleBomData = null;
     },
 
     /*
+     * Forecast Post
+     */
+    clearForecastPostResult: (state) => {
+      state.forecastPostResult = null;
+      state.forecastPostError = null;
+    },
+
+    /*
+     * Forecast Delete
+     */
+    clearForecastDeleteResult: (state) => {
+      state.forecastDeleteResult = null;
+      state.forecastDeleteError = null;
+    },
+
+    /*
+     * Consumption Post
+     */
+    clearProjectConsumptionPostResult: (state) => {
+      state.projectConsumptionPostResult = null;
+      state.projectConsumptionPostError = null;
+    },
+
+    /*
+     * Consumption Delete
+     */
+    clearProjectConsumptionDeleteResult: (state) => {
+      state.projectConsumptionDeleteResult = null;
+      state.projectConsumptionDeleteError = null;
+    },
+
+    /*
+     * Consumption Entry
+     */
+    clearProjectConsumptionEntryResult: (state) => {
+      state.projectConsumptionEntryResult = null;
+      state.projectConsumptionEntryError = null;
+    },
+
+    /*
+     * Consumption Item Delete
+     */
+    clearProjectConsumptionItemDeleteResult: (state) => {
+      state.projectConsumptionItemDeleteResult = null;
+      state.projectConsumptionItemDeleteError = null;
+    },
+
+    /*
+     * Reset
+     */
+    resetForecastForm: (state) => {
+      state.forcastEdit = [];
+
+      state.bomData = null;
+      state.projectData = null;
+      state.singleBomData = null;
+
+      state.forecastGet = null;
+
+      state.forecastPostResult = null;
+      state.forecastPostError = null;
+
+      state.forecastDeleteResult = null;
+      state.forecastDeleteError = null;
+
+      state.forcastUpdate = null;
+      state.forecastUpdateError = null;
+
+      state.projectConsumption = null;
+      state.projectConsumptionGetById = null;
+
+      state.projectConsumptionPostResult = null;
+      state.projectConsumptionPostError = null;
+
+      state.projectConsumptionDeleteResult = null;
+      state.projectConsumptionDeleteError = null;
+
+      state.projectConsumptionEntryResult = null;
+      state.projectConsumptionEntryError = null;
+
+      state.projectConsumptionItemDeleteResult = null;
+      state.projectConsumptionItemDeleteError = null;
+
+      state.error = null;
+    },
+  },
+
+  /*
      |--------------------------------------------------------------------------
      | Extra Reducers
      |--------------------------------------------------------------------------
      */
 
-    extraReducers: (builder) => {
-        builder
-
-            /*
-             * ---------------------------------------------------------------
-             * Customer
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                fetchCustomerId.pending,
-                (state) => {
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                fetchCustomerId.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    state.forcastEdit = action.payload;
-                }
-            )
-
-            .addCase(
-                fetchCustomerId.rejected,
-                (state, action) => {
-                    state.loading = false;
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Project
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                fetchProjectApi.pending,
-                (state) => {
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                fetchProjectApi.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    state.projectData = action.payload;
-                }
-            )
-
-            .addCase(
-                fetchProjectApi.rejected,
-                (state, action) => {
-                    state.loading = false;
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * BOM
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                fetchBomApi.pending,
-                (state) => {
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                fetchBomApi.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    state.bomData = action.payload;
-                }
-            )
-
-            .addCase(
-                fetchBomApi.rejected,
-                (state, action) => {
-                    state.loading = false;
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Single BOM
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                fetchSingleBomApi.pending,
-                (state) => {
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                fetchSingleBomApi.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    state.singleBomData = action.payload;
-                }
-            )
-
-            .addCase(
-                fetchSingleBomApi.rejected,
-                (state, action) => {
-                    state.loading = false;
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Forecast POST
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ForcastPost.pending,
-                (state) => {
-                    state.postLoading = true;
-                    state.forecastPostError = null;
-                    state.forecastPostResult = null;
-                }
-            )
-
-            .addCase(
-                ForcastPost.fulfilled,
-                (state, action) => {
-                    state.postLoading = false;
-                    state.forecastPostResult = action.payload;
-                }
-            )
-
-            .addCase(
-                ForcastPost.rejected,
-                (state, action) => {
-                    state.postLoading = false;
-                    state.forecastPostError = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Forecast GET
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ForcastGet.pending,
-                (state) => {
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                ForcastGet.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    state.forecastGet = action.payload;
-                }
-            )
-
-            .addCase(
-                ForcastGet.rejected,
-                (state, action) => {
-                    state.loading = false;
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Forecast DELETE
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ForcastDelete.pending,
-                (state) => {
-                    state.deleteLoading = true;
-                    state.forecastDeleteError = null;
-                    state.forecastDeleteResult = null;
-                }
-            )
-
-            .addCase(
-                ForcastDelete.fulfilled,
-                (state, action) => {
-                    state.deleteLoading = false;
-                    state.forecastDeleteResult = action.payload;
-                }
-            )
-
-            .addCase(
-                ForcastDelete.rejected,
-                (state, action) => {
-                    state.deleteLoading = false;
-                    state.forecastDeleteError = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Forecast UPDATE
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ForcastUpdate.pending,
-                (state) => {
-                    state.updateLoading = true;
-                    state.forecastUpdateError = null;
-                    state.forcastUpdate = null;
-                }
-            )
-
-            .addCase(
-                ForcastUpdate.fulfilled,
-                (state, action) => {
-                    state.updateLoading = false;
-                    state.forcastUpdate = action.payload;
-                }
-            )
-
-            .addCase(
-                ForcastUpdate.rejected,
-                (state, action) => {
-                    state.updateLoading = false;
-                    state.forecastUpdateError = action.payload;
-                }
-            )
-
-            /*
-             * ===============================================================
-             * CONSUMPTION
-             * ===============================================================
-             */
-
-            /*
-             * ---------------------------------------------------------------
-             * Consumption GET
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ProjectConsumptionGet.pending,
-                (state) => {
-                    state.projectConsumptionLoading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionGet.fulfilled,
-                (state, action) => {
-                    state.projectConsumptionLoading = false;
-
-                    state.projectConsumption =
-                        action.payload;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionGet.rejected,
-                (state, action) => {
-                    state.projectConsumptionLoading = false;
-
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Consumption POST
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ProjectConsumptionPost.pending,
-                (state) => {
-                    state.projectConsumptionPostLoading = true;
-
-                    state.projectConsumptionPostError = null;
-
-                    state.projectConsumptionPostResult = null;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionPost.fulfilled,
-                (state, action) => {
-                    state.projectConsumptionPostLoading = false;
-
-                    state.projectConsumptionPostResult =
-                        action.payload;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionPost.rejected,
-                (state, action) => {
-                    state.projectConsumptionPostLoading = false;
-
-                    state.projectConsumptionPostError =
-                        action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Consumption GET BY ID
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ProjectConsumptionGetById.pending,
-                (state) => {
-                    state.projectConsumptionLoading = true;
-                    state.error = null;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionGetById.fulfilled,
-                (state, action) => {
-                    state.projectConsumptionLoading = false;
-
-                    state.projectConsumptionGetById =
-                        action.payload;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionGetById.rejected,
-                (state, action) => {
-                    state.projectConsumptionLoading = false;
-
-                    state.error = action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Consumption DELETE
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ProjectConsumptionDelete.pending,
-                (state) => {
-                    state.projectConsumptionDeleteLoading = true;
-
-                    state.projectConsumptionDeleteError = null;
-
-                    state.projectConsumptionDeleteResult = null;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionDelete.fulfilled,
-                (state, action) => {
-                    state.projectConsumptionDeleteLoading = false;
-
-                    state.projectConsumptionDeleteResult =
-                        action.payload;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionDelete.rejected,
-                (state, action) => {
-                    state.projectConsumptionDeleteLoading = false;
-
-                    state.projectConsumptionDeleteError =
-                        action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Consumption ENTRY UPDATE
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ProjectConsumptionEntryUpdate.pending,
-                (state) => {
-                    state.projectConsumptionEntryLoading = true;
-
-                    state.projectConsumptionEntryError = null;
-
-                    state.projectConsumptionEntryResult = null;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionEntryUpdate.fulfilled,
-                (state, action) => {
-                    state.projectConsumptionEntryLoading = false;
-
-                    state.projectConsumptionEntryResult =
-                        action.payload;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionEntryUpdate.rejected,
-                (state, action) => {
-                    state.projectConsumptionEntryLoading = false;
-
-                    state.projectConsumptionEntryError =
-                        action.payload;
-                }
-            )
-
-            /*
-             * ---------------------------------------------------------------
-             * Consumption ITEM DELETE
-             * ---------------------------------------------------------------
-             */
-
-            .addCase(
-                ProjectConsumptionItemDelete.pending,
-                (state) => {
-                    state.projectConsumptionItemDeleteLoading = true;
-
-                    state.projectConsumptionItemDeleteError = null;
-
-                    state.projectConsumptionItemDeleteResult = null;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionItemDelete.fulfilled,
-                (state, action) => {
-                    state.projectConsumptionItemDeleteLoading = false;
-
-                    state.projectConsumptionItemDeleteResult =
-                        action.payload;
-                }
-            )
-
-            .addCase(
-                ProjectConsumptionItemDelete.rejected,
-                (state, action) => {
-                    state.projectConsumptionItemDeleteLoading = false;
-
-                    state.projectConsumptionItemDeleteError =
-                        action.payload;
-                }
-            );
-    },
+  extraReducers: (builder) => {
+    builder
+
+      /*
+       * ---------------------------------------------------------------
+       * Customer
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(fetchCustomerId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(fetchCustomerId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.forcastEdit = action.payload;
+      })
+
+      .addCase(fetchCustomerId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Project
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(fetchProjectApi.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(fetchProjectApi.fulfilled, (state, action) => {
+        state.loading = false;
+        state.projectData = action.payload;
+      })
+
+      .addCase(fetchProjectApi.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * BOM
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(fetchBomApi.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(fetchBomApi.fulfilled, (state, action) => {
+        state.loading = false;
+        state.bomData = action.payload;
+      })
+
+      .addCase(fetchBomApi.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Single BOM
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(fetchSingleBomApi.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(fetchSingleBomApi.fulfilled, (state, action) => {
+        state.loading = false;
+        state.singleBomData = action.payload;
+      })
+
+      .addCase(fetchSingleBomApi.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Forecast POST
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ForcastPost.pending, (state) => {
+        state.postLoading = true;
+        state.forecastPostError = null;
+        state.forecastPostResult = null;
+      })
+
+      .addCase(ForcastPost.fulfilled, (state, action) => {
+        state.postLoading = false;
+        state.forecastPostResult = action.payload;
+      })
+
+      .addCase(ForcastPost.rejected, (state, action) => {
+        state.postLoading = false;
+        state.forecastPostError = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Forecast GET
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ForcastGet.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(ForcastGet.fulfilled, (state, action) => {
+        state.loading = false;
+        state.forecastGet = action.payload;
+      })
+
+      .addCase(ForcastGet.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Forecast DELETE
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ForcastDelete.pending, (state) => {
+        state.deleteLoading = true;
+        state.forecastDeleteError = null;
+        state.forecastDeleteResult = null;
+      })
+
+      .addCase(ForcastDelete.fulfilled, (state, action) => {
+        state.deleteLoading = false;
+        state.forecastDeleteResult = action.payload;
+      })
+
+      .addCase(ForcastDelete.rejected, (state, action) => {
+        state.deleteLoading = false;
+        state.forecastDeleteError = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Forecast UPDATE
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ForcastUpdate.pending, (state) => {
+        state.updateLoading = true;
+        state.forecastUpdateError = null;
+        state.forcastUpdate = null;
+      })
+
+      .addCase(ForcastUpdate.fulfilled, (state, action) => {
+        state.updateLoading = false;
+        state.forcastUpdate = action.payload;
+      })
+
+      .addCase(ForcastUpdate.rejected, (state, action) => {
+        state.updateLoading = false;
+        state.forecastUpdateError = action.payload;
+      })
+
+      /*
+       * ===============================================================
+       * CONSUMPTION
+       * ===============================================================
+       */
+
+      /*
+       * ---------------------------------------------------------------
+       * Consumption GET
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ProjectConsumptionGet.pending, (state) => {
+        state.projectConsumptionLoading = true;
+        state.error = null;
+      })
+
+      .addCase(ProjectConsumptionGet.fulfilled, (state, action) => {
+        state.projectConsumptionLoading = false;
+
+        state.projectConsumption = action.payload;
+      })
+
+      .addCase(ProjectConsumptionGet.rejected, (state, action) => {
+        state.projectConsumptionLoading = false;
+
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Consumption POST
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ProjectConsumptionPost.pending, (state) => {
+        state.projectConsumptionPostLoading = true;
+
+        state.projectConsumptionPostError = null;
+
+        state.projectConsumptionPostResult = null;
+      })
+
+      .addCase(ProjectConsumptionPost.fulfilled, (state, action) => {
+        state.projectConsumptionPostLoading = false;
+
+        state.projectConsumptionPostResult = action.payload;
+      })
+
+      .addCase(ProjectConsumptionPost.rejected, (state, action) => {
+        state.projectConsumptionPostLoading = false;
+
+        state.projectConsumptionPostError = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Consumption GET BY ID
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ProjectConsumptionGetById.pending, (state) => {
+        state.projectConsumptionLoading = true;
+        state.error = null;
+      })
+
+      .addCase(ProjectConsumptionGetById.fulfilled, (state, action) => {
+        state.projectConsumptionLoading = false;
+
+        state.projectConsumptionGetById = action.payload;
+      })
+
+      .addCase(ProjectConsumptionGetById.rejected, (state, action) => {
+        state.projectConsumptionLoading = false;
+
+        state.error = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Consumption DELETE
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ProjectConsumptionDelete.pending, (state) => {
+        state.projectConsumptionDeleteLoading = true;
+
+        state.projectConsumptionDeleteError = null;
+
+        state.projectConsumptionDeleteResult = null;
+      })
+
+      .addCase(ProjectConsumptionDelete.fulfilled, (state, action) => {
+        state.projectConsumptionDeleteLoading = false;
+
+        state.projectConsumptionDeleteResult = action.payload;
+      })
+
+      .addCase(ProjectConsumptionDelete.rejected, (state, action) => {
+        state.projectConsumptionDeleteLoading = false;
+
+        state.projectConsumptionDeleteError = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Consumption ENTRY UPDATE
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ProjectConsumptionEntryUpdate.pending, (state) => {
+        state.projectConsumptionEntryLoading = true;
+
+        state.projectConsumptionEntryError = null;
+
+        state.projectConsumptionEntryResult = null;
+      })
+
+      .addCase(ProjectConsumptionEntryUpdate.fulfilled, (state, action) => {
+        state.projectConsumptionEntryLoading = false;
+
+        state.projectConsumptionEntryResult = action.payload;
+      })
+
+      .addCase(ProjectConsumptionEntryUpdate.rejected, (state, action) => {
+        state.projectConsumptionEntryLoading = false;
+
+        state.projectConsumptionEntryError = action.payload;
+      })
+
+      /*
+       * ---------------------------------------------------------------
+       * Consumption ITEM DELETE
+       * ---------------------------------------------------------------
+       */
+
+      .addCase(ProjectConsumptionItemDelete.pending, (state) => {
+        state.projectConsumptionItemDeleteLoading = true;
+
+        state.projectConsumptionItemDeleteError = null;
+
+        state.projectConsumptionItemDeleteResult = null;
+      })
+
+      .addCase(ProjectConsumptionItemDelete.fulfilled, (state, action) => {
+        state.projectConsumptionItemDeleteLoading = false;
+
+        state.projectConsumptionItemDeleteResult = action.payload;
+      })
+
+      .addCase(ProjectConsumptionItemDelete.rejected, (state, action) => {
+        state.projectConsumptionItemDeleteLoading = false;
+
+        state.projectConsumptionItemDeleteError = action.payload;
+      });
+  },
 });
 
 /*
@@ -1753,19 +1501,19 @@ const ForecastSlice = createSlice({
 */
 
 export const {
-    clearBomData,
-    clearProjectData,
-    clearSingleBomData,
+  clearBomData,
+  clearProjectData,
+  clearSingleBomData,
 
-    clearForecastPostResult,
-    clearForecastDeleteResult,
+  clearForecastPostResult,
+  clearForecastDeleteResult,
 
-    clearProjectConsumptionPostResult,
-    clearProjectConsumptionDeleteResult,
-    clearProjectConsumptionEntryResult,
-    clearProjectConsumptionItemDeleteResult,
+  clearProjectConsumptionPostResult,
+  clearProjectConsumptionDeleteResult,
+  clearProjectConsumptionEntryResult,
+  clearProjectConsumptionItemDeleteResult,
 
-    resetForecastForm,
+  resetForecastForm,
 } = ForecastSlice.actions;
 
 /*

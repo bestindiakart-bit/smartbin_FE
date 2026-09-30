@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // Phone Input Package
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 // Components
 import Button from "../../../../component/button/Buttons";
@@ -26,20 +26,98 @@ import {
 } from "../../../../service/Master_Services/Master_Services";
 
 // Default template in case a user type has no permissions set
-const defaultPermissionsList =[
-  { module: "dashboard", create: false, view: false, edit: false, delete: false },
-  { module: "customer_master", create: false, view: false, edit: false, delete: false },
-  { module: "user_master", create: false, view: false, edit: false, delete: false },
-  { module: "project_master", create: false, view: false, edit: false, delete: false },
-  { module: "item_master", create: false, view: false, edit: false, delete: false },
-  { module: "user_type_permission_master", create: false, view: false, edit: false, delete: false },
-  { module: "warehouse_creation", create: false, view: false, edit: false, delete: false },
-  { module: "warehouse_order_details", create: false, view: false, edit: false, delete: false },
-  { module: "bin_configuration", create: false, view: false, edit: false, delete: false },
-  { module: "bill_of_materials", create: false, view: false, edit: false, delete: false },
-  { module: "forecast_viewer", create: false, view: false, edit: false, delete: false },
-  { module: "smart_bin_dashboard", create: false, view: false, edit: false, delete: false },
-  { module: "overall_report", create: false, view: false, edit: false, delete: false },
+const defaultPermissionsList = [
+  {
+    module: "dashboard",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "customer_master",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "user_master",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "project_master",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "item_master",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "user_type_permission_master",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "warehouse_creation",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "warehouse_order_details",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "bin_configuration",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "bill_of_materials",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "forecast_viewer",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "smart_bin_dashboard",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
+  {
+    module: "overall_report",
+    create: false,
+    view: false,
+    edit: false,
+    delete: false,
+  },
 ];
 
 const UserMaster_Create = () => {
@@ -62,8 +140,8 @@ const UserMaster_Create = () => {
   });
 
   // --- MODAL STATES ---
-  const[isTypeModalOpen, setIsTypeModalOpen] = useState(false);
-  const[newTypeName, setNewTypeName] = useState("");
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
   const [isAddingType, setIsAddingType] = useState(false);
 
   // --- UI STATES ---
@@ -88,7 +166,7 @@ const UserMaster_Create = () => {
 
   // --- PERMISSIONS STATE ---
   const [permissions, setPermissions] = useState(
-    JSON.parse(JSON.stringify(defaultPermissionsList))
+    JSON.parse(JSON.stringify(defaultPermissionsList)),
   );
 
   // --- FORM STATE ---
@@ -109,7 +187,11 @@ const UserMaster_Create = () => {
     try {
       const res = await customer_id();
       const rawData = res?.data?.data;
-      const customerArray = Array.isArray(rawData) ? rawData : rawData ? [rawData] :[];
+      const customerArray = Array.isArray(rawData)
+        ? rawData
+        : rawData
+          ? [rawData]
+          : [];
 
       const formattedData = customerArray.map((item) => ({
         label: item.companyName || item.customerName || item.customerId,
@@ -123,36 +205,38 @@ const UserMaster_Create = () => {
       setCustomerOptions([{ label: "Error loading customers", value: "" }]);
       return [];
     }
-  },[]);
+  }, []);
 
   // --- 2. FETCH USER TYPES (Including Permissions) ---
   const fetchUserTypes = useCallback(async () => {
     try {
       const res = await user_type_get();
-      const rawData = res?.data?.data ||[];
+      const rawData = res?.data?.data || [];
       const formattedData = rawData.map((item) => ({
         label: item.userTypeName,
         value: item._id,
-        permissions: item.permissions ||[], // Capture the template permissions here
+        permissions: item.permissions || [], // Capture the template permissions here
       }));
 
       setUserTypes(formattedData);
       return formattedData;
     } catch (err) {
       console.error("Failed to fetch user types:", err);
-      setUserTypes([{ label: "Error loading types", value: "", permissions: [] }]);
-      return[];
+      setUserTypes([
+        { label: "Error loading types", value: "", permissions: [] },
+      ]);
+      return [];
     }
-  },[]);
+  }, []);
 
   // --- FETCH INITIAL DATA ON MOUNT ---
   useEffect(() => {
     const initializePage = async () => {
       setFetchingData(true);
       try {
-        const[fetchedTypes, fetchedCustomers] = await Promise.all([
+        const [fetchedTypes, fetchedCustomers] = await Promise.all([
           fetchUserTypes(),
-          fetchcustomerID()
+          fetchcustomerID(),
         ]);
 
         let initialData = {};
@@ -165,7 +249,7 @@ const UserMaster_Create = () => {
             initialPerms = fetchedTypes[0].permissions;
           }
         }
-        
+
         // Auto-select if there is exactly one customer
         if (fetchedCustomers?.length === 1) {
           initialData.customerId = fetchedCustomers[0].value;
@@ -182,8 +266,16 @@ const UserMaster_Create = () => {
               userName: data.userName || "",
               loginEmail: data.loginEmail || "",
               password: "",
-              userType: data.userTypeId?._id || data.userTypeId || initialData.userType || "",
-              customerId: data.customerId?._id || data.customerId || initialData.customerId || "",
+              userType:
+                data.userTypeId?._id ||
+                data.userTypeId ||
+                initialData.userType ||
+                "",
+              customerId:
+                data.customerId?._id ||
+                data.customerId ||
+                initialData.customerId ||
+                "",
               position: data.position || "",
               department: data.department || "",
               mobileNumber: data.mobile || "",
@@ -197,10 +289,9 @@ const UserMaster_Create = () => {
           }
         }
 
-        setFormData(prev => ({ ...prev, ...initialData }));
+        setFormData((prev) => ({ ...prev, ...initialData }));
         // Deep clone the array to prevent accidental mutations across components
         setPermissions(JSON.parse(JSON.stringify(initialPerms)));
-
       } catch (err) {
         setErrorPopup({ open: true, message: getErrorMessage(err) });
       } finally {
@@ -208,7 +299,7 @@ const UserMaster_Create = () => {
       }
     };
     initializePage();
-  },[isEditMode, rowId, fetchUserTypes, fetchcustomerID]);
+  }, [isEditMode, rowId, fetchUserTypes, fetchcustomerID]);
 
   // Success Redirect Logic
   useEffect(() => {
@@ -228,14 +319,17 @@ const UserMaster_Create = () => {
       setIsAddingType(true);
       const res = await user_type_post({ userTypeName: newTypeName });
       if (res.data.success) {
-        const msg = res.data?.data?.message || res.data?.message || "User Type added successfully";
+        const msg =
+          res.data?.data?.message ||
+          res.data?.message ||
+          "User Type added successfully";
         setNewTypeName("");
         setIsTypeModalOpen(false);
         const fetched = await fetchUserTypes();
-        
+
         // If there's exactly one after adding, auto-select it and populate permissions
         if (fetched.length === 1) {
-          setFormData(prev => ({ ...prev, userType: fetched[0].value }));
+          setFormData((prev) => ({ ...prev, userType: fetched[0].value }));
           if (fetched[0].permissions?.length > 0) {
             setPermissions(JSON.parse(JSON.stringify(fetched[0].permissions)));
           }
@@ -255,7 +349,7 @@ const UserMaster_Create = () => {
 
     // If the User Type changes dynamically, map its permissions into the grid
     if (name === "userType") {
-      const selectedType = userTypes.find(type => type.value === value);
+      const selectedType = userTypes.find((type) => type.value === value);
       if (selectedType && selectedType.permissions?.length > 0) {
         // Deep copy the template so modifications only affect this user
         setPermissions(JSON.parse(JSON.stringify(selectedType.permissions)));
@@ -273,12 +367,12 @@ const UserMaster_Create = () => {
     if (value.startsWith(dialCode)) {
       nationalNumber = value.slice(dialCode.length);
     }
-    nationalNumber = nationalNumber.replace(/\D/g, ''); // Extract exact numbers
-    
+    nationalNumber = nationalNumber.replace(/\D/g, ""); // Extract exact numbers
+
     setFormData((prev) => ({
       ...prev,
       mobileNumberFull: value,
-      mobileNumber: nationalNumber
+      mobileNumber: nationalNumber,
     }));
   };
 
@@ -296,28 +390,42 @@ const UserMaster_Create = () => {
     pass += numbers[Math.floor(Math.random() * numbers.length)];
     pass += special[Math.floor(Math.random() * special.length)];
 
-    for (let i = 0; i < 6; i++) { 
+    for (let i = 0; i < 6; i++) {
       pass += all[Math.floor(Math.random() * all.length)];
     }
 
-    pass = pass.split('').sort(() => 0.5 - Math.random()).join('');
-    setFormData(prev => ({ ...prev, password: pass }));
+    pass = pass
+      .split("")
+      .sort(() => 0.5 - Math.random())
+      .join("");
+    setFormData((prev) => ({ ...prev, password: pass }));
   };
 
   // Pre-Submission Validations
   const triggerSubmitConfirm = () => {
-    if (!formData.userName || !formData.loginEmail || !formData.userType || !formData.customerId) {
-      setErrorPopup({ open: true, message: "Required fields (Name, Email, Type, Linked Customer) are missing." });
+    if (
+      !formData.userName ||
+      !formData.loginEmail ||
+      !formData.userType ||
+      !formData.customerId
+    ) {
+      setErrorPopup({
+        open: true,
+        message:
+          "Required fields (Name, Email, Type, Linked Customer) are missing.",
+      });
       return;
     }
 
     // Password Validation
     if (formData.password) {
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
       if (!passwordRegex.test(formData.password)) {
         setErrorPopup({
           open: true,
-          message: "Password must be at least 8 characters long, and include an uppercase letter, a lowercase letter, a number, and a special character.",
+          message:
+            "Password must be at least 8 characters long, and include an uppercase letter, a lowercase letter, a number, and a special character.",
         });
         return;
       }
@@ -325,7 +433,10 @@ const UserMaster_Create = () => {
 
     // Mobile validation
     if (formData.mobileNumber && formData.mobileNumber.length > 10) {
-      setErrorPopup({ open: true, message: "Mobile Number cannot exceed 10 digits." });
+      setErrorPopup({
+        open: true,
+        message: "Mobile Number cannot exceed 10 digits.",
+      });
       return;
     }
 
@@ -345,7 +456,7 @@ const UserMaster_Create = () => {
         userName: formData.userName,
         loginEmail: formData.loginEmail,
         userTypeId: formData.userType,
-        customerId: formData.customerId, 
+        customerId: formData.customerId,
         position: formData.position,
         department: formData.department,
         mobile: formData.mobileNumber,
@@ -361,7 +472,10 @@ const UserMaster_Create = () => {
         res = await user_create_edit(rowId, finalPayload);
       } else {
         if (!formData.password) {
-          setErrorPopup({ open: true, message: "Password is required for new users." });
+          setErrorPopup({
+            open: true,
+            message: "Password is required for new users.",
+          });
           setLoading(false);
           return;
         }
@@ -369,7 +483,10 @@ const UserMaster_Create = () => {
       }
 
       if (res?.data?.success) {
-        const msg = res.data?.data?.message || res.data?.message || `User ${isEditMode ? "updated" : "created"} successfully!`;
+        const msg =
+          res.data?.data?.message ||
+          res.data?.message ||
+          `User ${isEditMode ? "updated" : "created"} successfully!`;
         setSuccessPopup({ open: true, message: msg, shouldNavigate: true });
       }
     } catch (error) {
@@ -381,7 +498,11 @@ const UserMaster_Create = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 100, damping: 15 },
+    },
   };
 
   if (fetchingData) {
@@ -393,12 +514,21 @@ const UserMaster_Create = () => {
   }
 
   return (
-    <motion.div initial="hidden" animate="visible" className="min-h-screen bg-slate-50/30">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      className="min-h-screen bg-slate-50/30"
+    >
       <div className="max-w-[1300px] mx-auto bg-white rounded-3xl shadow-xl p-5 md:p-10 border border-slate-100">
-        
         {/* Header */}
-        <motion.div variants={itemVariants} className="flex items-center gap-4 mb-10">
-          <button onClick={() => navigate(-1)} className="p-3 hover:bg-[#f0f9ff] text-[#0062a0] rounded-2xl cursor-pointer">
+        <motion.div
+          variants={itemVariants}
+          className="flex items-center gap-4 mb-10"
+        >
+          <button
+            onClick={() => navigate(-1)}
+            className="p-3 hover:bg-[#f0f9ff] text-[#0062a0] rounded-2xl cursor-pointer"
+          >
             <ArrowLeft size={24} />
           </button>
           <h1 className="text-2xl md:text-3xl font-semibold text-slate-800">
@@ -408,68 +538,80 @@ const UserMaster_Create = () => {
 
         {/* Form Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
-
-
           <motion.div variants={itemVariants}>
-             {customerOptions.length === 1 && customerOptions[0].value !== "" ? (
-                 <ReUsableInput_Fields
-                    label="Linked Customer"
-                    value={customerOptions[0].label}
-                    disabled
-                    onChange={() => {}}
-                  />
-             ) : (
-                 <ReUsableInput_Fields
-                    label="Select Customer"
-                    name="customerId"
-                    type="select"
-                    options={customerOptions}
-                    value={formData.customerId}
-                    onChange={handleChange}
-                    required
-                  />
-             )}
+            {customerOptions.length === 1 && customerOptions[0].value !== "" ? (
+              <ReUsableInput_Fields
+                label="Linked Customer"
+                value={customerOptions[0].label}
+                disabled
+                onChange={() => {}}
+              />
+            ) : (
+              <ReUsableInput_Fields
+                label="Select Customer"
+                name="customerId"
+                type="select"
+                options={customerOptions}
+                value={formData.customerId}
+                onChange={handleChange}
+                required
+              />
+            )}
           </motion.div>
-          
+
           <motion.div variants={itemVariants} className="relative">
-             {/* Only show ADD TYPE and Select if we have more than 1 option */}
-             {userTypes.length === 1 && userTypes[0].value !== "" ? (
-                 <ReUsableInput_Fields
-                    label="User Type"
-                    value={userTypes[0].label}
-                    disabled
-                    onChange={() => {}}
-                  />
-             ) : (
-                <>
-                  <ReUsableInput_Fields
-                    label="User Type"
-                    name="userType"
-                    type="select"
-                    options={userTypes}
-                    value={formData.userType}
-                    onChange={handleChange}
-                    required
-                  />
-                </>
-             )}
-          </motion.div>
-
-          
-
-          <motion.div variants={itemVariants}>
-            <ReUsableInput_Fields label="User Name" name="userName" value={formData.userName} onChange={handleChange} required />
+            {/* Only show ADD TYPE and Select if we have more than 1 option */}
+            {userTypes.length === 1 && userTypes[0].value !== "" ? (
+              <ReUsableInput_Fields
+                label="User Type"
+                value={userTypes[0].label}
+                disabled
+                onChange={() => {}}
+              />
+            ) : (
+              <>
+                <ReUsableInput_Fields
+                  label="User Type"
+                  name="userType"
+                  type="select"
+                  options={userTypes}
+                  value={formData.userType}
+                  onChange={handleChange}
+                  required
+                />
+              </>
+            )}
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <ReUsableInput_Fields label="Login Email" name="loginEmail" type="email" value={formData.loginEmail} onChange={handleChange} required />
+            <ReUsableInput_Fields
+              label="User Name"
+              name="userName"
+              value={formData.userName}
+              onChange={handleChange}
+              required
+            />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <ReUsableInput_Fields
+              label="Login Email"
+              name="loginEmail"
+              type="email"
+              value={formData.loginEmail}
+              onChange={handleChange}
+              required
+            />
           </motion.div>
 
           {/* Password Input with Generate Button */}
           {!isEditMode && (
-            <motion.div variants={itemVariants} className="flex flex-col relative mt-2">
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col relative mt-2"
+            >
               <div className="absolute right-0 top-0 z-20">
-                <button 
+                <button
                   type="button"
                   onClick={handleGeneratePassword}
                   className="text-[#0062a0] text-[11px] font-bold hover:underline cursor-pointer bg-white px-1 flex items-center gap-1"
@@ -477,35 +619,64 @@ const UserMaster_Create = () => {
                   <Wand2 size={12} /> GENERATE
                 </button>
               </div>
-              <ReUsableInput_Fields 
-                label="Password" 
-                name="password" 
-                type="text" 
-                value={formData.password} 
-                onChange={handleChange} 
+              <ReUsableInput_Fields
+                label="Password"
+                name="password"
+                type="text"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Enter or generate password"
               />
-              <span className="text-[10px] text-slate-400 mt-1">Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.</span>
+              <span className="text-[10px] text-slate-400 mt-1">
+                Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.
+              </span>
             </motion.div>
           )}
 
-          <motion.div variants={itemVariants} className={!isEditMode ? "mt-2" : ""}>
-            <ReUsableInput_Fields label="Position" name="position" value={formData.position} onChange={handleChange} />
+          <motion.div
+            variants={itemVariants}
+            className={!isEditMode ? "mt-2" : ""}
+          >
+            <ReUsableInput_Fields
+              label="Position"
+              name="position"
+              value={formData.position}
+              onChange={handleChange}
+            />
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <ReUsableInput_Fields label="Department" name="department" value={formData.department} onChange={handleChange} />
+            <ReUsableInput_Fields
+              label="Department"
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
+            />
           </motion.div>
 
           {/* Primary Phone Number with Country Flag */}
-          <motion.div variants={itemVariants} className="flex flex-col gap-1 w-full relative z-10">
-            <label className="text-[13px] font-semibold text-slate-700">Mobile Number</label>
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col gap-1 w-full relative z-10"
+          >
+            <label className="text-[13px] font-semibold text-slate-700">
+              Mobile Number
+            </label>
             <PhoneInput
-              country={'in'}
+              country={"in"}
               value={formData.mobileNumberFull}
               onChange={(value, country) => handlePhoneChange(value, country)}
-              inputStyle={{ width: '100%', height: '42px', borderRadius: '0.5rem', borderColor: '#e2e8f0' }}
-              buttonStyle={{ borderRadius: '0.5rem 0 0 0.5rem', borderColor: '#e2e8f0', backgroundColor: '#f8fafc' }}
+              inputStyle={{
+                width: "100%",
+                height: "42px",
+                borderRadius: "0.5rem",
+                borderColor: "#e2e8f0",
+              }}
+              buttonStyle={{
+                borderRadius: "0.5rem 0 0 0.5rem",
+                borderColor: "#e2e8f0",
+                backgroundColor: "#f8fafc",
+              }}
             />
           </motion.div>
         </div>
@@ -520,12 +691,27 @@ const UserMaster_Create = () => {
             <div className="h-[1px] flex-1 bg-slate-100"></div>
           </div>
 
-          <Overall_Permissions permissions={permissions} setPermissions={setPermissions} />
+          <Overall_Permissions
+            permissions={permissions}
+            setPermissions={setPermissions}
+          />
 
           <div className="flex items-center gap-4 justify-end mt-10 pb-4">
-            <Button variant="secondary" onClick={() => navigate(-1)}>Cancel</Button>
-            <Button variant="primary" onClick={triggerSubmitConfirm} disabled={loading}>
-              {loading ? <Loader2 size={18} className="animate-spin" /> : isEditMode ? "Update" : "Create"}
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={triggerSubmitConfirm}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : isEditMode ? (
+                "Update"
+              ) : (
+                "Create"
+              )}
             </Button>
           </div>
         </motion.div>
@@ -542,12 +728,27 @@ const UserMaster_Create = () => {
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Add User Type</h3>
-                <button onClick={() => setIsTypeModalOpen(false)}><X size={20} /></button>
+                <button onClick={() => setIsTypeModalOpen(false)}>
+                  <X size={20} />
+                </button>
               </div>
-              <ReUsableInput_Fields label="Type Name" value={newTypeName} onChange={(e) => setNewTypeName(e.target.value)} />
+              <ReUsableInput_Fields
+                label="Type Name"
+                value={newTypeName}
+                onChange={(e) => setNewTypeName(e.target.value)}
+              />
               <div className="flex gap-3 justify-end mt-8">
-                <Button variant="secondary" onClick={() => setIsTypeModalOpen(false)}>Cancel</Button>
-                <Button variant="primary" onClick={handleAddUserType} disabled={isAddingType}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsTypeModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleAddUserType}
+                  disabled={isAddingType}
+                >
                   {isAddingType ? "Saving..." : "Save"}
                 </Button>
               </div>

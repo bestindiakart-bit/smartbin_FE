@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../../component/button/Buttons';
-import ErrorMessage_Popup from '../../component/Popup_Models/ErrorMessage_Popup';
-import Success_Popup from '../../component/Popup_Models/Success_Popup';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../../component/button/Buttons";
+import ErrorMessage_Popup from "../../component/Popup_Models/ErrorMessage_Popup";
+import Success_Popup from "../../component/Popup_Models/Success_Popup";
 import PreLoader from "../../component/Pre_Loader/PreLoader";
-import { user_verify } from '../../service/Login/Login';
-import AuthLayout from './AuthLayout';
+import { user_verify } from "../../service/Login/Login";
+import AuthLayout from "./AuthLayout";
 import { useDispatch } from "react-redux";
 import { fetchPermissions } from "../../store/Permission_Store/Permission_Slice";
 
@@ -14,8 +14,8 @@ const Otp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef([]);
   const [showLoader, setShowLoader] = useState(false);
@@ -23,22 +23,22 @@ const Otp = () => {
   // Popup States
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [popupMessage, setPopupMessage] = useState('');
+  const [popupMessage, setPopupMessage] = useState("");
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
 
   useEffect(() => {
-    const storedEmail = localStorage.getItem('temp_login_email');
+    const storedEmail = localStorage.getItem("temp_login_email");
     if (storedEmail) {
       setEmail(storedEmail);
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   }, [navigate]);
 
   const handleSubmit = async (e, autoSubmitOtp = null) => {
     if (e) e.preventDefault();
 
-    const otpValue = autoSubmitOtp || otp.join('');
+    const otpValue = autoSubmitOtp || otp.join("");
 
     if (otpValue.length < 6) {
       setPopupMessage("Please enter the full 6-digit code.");
@@ -51,7 +51,7 @@ const Otp = () => {
     try {
       const response = await user_verify({
         loginEmail: email,
-        otp: otpValue
+        otp: otpValue,
       });
 
       const apiData = response?.data?.data || response?.data || response;
@@ -63,20 +63,20 @@ const Otp = () => {
 
       //  Store auth data
       if (apiData?.accessToken) {
-        localStorage.setItem('accessToken', apiData.accessToken);
-        localStorage.setItem('email', email);
+        localStorage.setItem("accessToken", apiData.accessToken);
+        localStorage.setItem("email", email);
       }
 
       if (apiData?.user) {
-        localStorage.setItem('user', JSON.stringify(apiData.user));
+        localStorage.setItem("user", JSON.stringify(apiData.user));
       }
 
       if (apiData?.userId) {
-        localStorage.setItem('userId', apiData.userId);
+        localStorage.setItem("userId", apiData.userId);
       }
 
       if (apiData?.role) {
-        localStorage.setItem('role', apiData.role);
+        localStorage.setItem("role", apiData.role);
       }
 
       const firstTime = apiData?.isFirstLogin === true;
@@ -101,15 +101,13 @@ const Otp = () => {
         setShowLoader(false);
 
         if (firstTime) {
-          navigate('/login/first-time-login');
+          navigate("/login/first-time-login");
         } else {
-          navigate('/dashboard');
+          navigate("/dashboard");
         }
-
       }, 1500);
 
-      localStorage.removeItem('temp_login_email');
-
+      localStorage.removeItem("temp_login_email");
     } catch (error) {
       console.error("Verification Error:", error);
 
@@ -121,7 +119,7 @@ const Otp = () => {
 
       setPopupMessage(errorMessage);
       setShowError(true);
-      setOtp(['', '', '', '', '', '']);
+      setOtp(["", "", "", "", "", ""]);
 
       inputRefs.current[0]?.focus();
     } finally {
@@ -140,19 +138,22 @@ const Otp = () => {
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (newOtp.join('').length === 6 && !loading) {
-      handleSubmit(null, newOtp.join(''));
+    if (newOtp.join("").length === 6 && !loading) {
+      handleSubmit(null, newOtp.join(""));
     }
   };
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pasteData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
 
     if (pasteData) {
       const newOtp = [...otp];
       for (let i = 0; i < 6; i++) {
-        newOtp[i] = pasteData[i] || '';
+        newOtp[i] = pasteData[i] || "";
       }
       setOtp(newOtp);
 
@@ -164,14 +165,16 @@ const Otp = () => {
   };
 
   const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
-  
+
   return (
-    <AuthLayout title="Verify OTP" subtitle={`We've sent a 6-digit code to ${email}`}>
-      
+    <AuthLayout
+      title="Verify OTP"
+      subtitle={`We've sent a 6-digit code to ${email}`}
+    >
       <AnimatePresence>
         {showLoader && (
           <motion.div

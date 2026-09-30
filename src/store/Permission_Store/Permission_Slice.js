@@ -1,21 +1,19 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { loginMeAPI } from '../../service/Login/Login';
-
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { loginMeAPI } from "../../service/Login/Login";
 
 export const fetchPermissions = createAsyncThunk(
-  'permissions/fetchPermissions',
+  "permissions/fetchPermissions",
   async (_, { rejectWithValue }) => {
     try {
       const response = await loginMeAPI();
-      return response?.data?.data?.permissions; 
-     
-
+      return response?.data?.data?.permissions;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to fetch permissions");
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch permissions",
+      );
     }
-  }
+  },
 );
-
 
 const initialState = {
   permissions: [],
@@ -24,13 +22,13 @@ const initialState = {
 };
 
 const permissionSlice = createSlice({
-  name: 'permissions',
+  name: "permissions",
   initialState,
   reducers: {
     // Standard reducers for manual updates if needed
     clearPermissions: (state) => {
       state.permissions = [];
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -53,5 +51,5 @@ export const { clearPermissions } = permissionSlice.actions;
 export default permissionSlice.reducer;
 
 // Selector to check permission for a specific module easily
-export const selectModulePermission = (state, moduleName) => 
-  state.permissions.permissions.find(p => p.module === moduleName);
+export const selectModulePermission = (state, moduleName) =>
+  state.permissions.permissions.find((p) => p.module === moduleName);

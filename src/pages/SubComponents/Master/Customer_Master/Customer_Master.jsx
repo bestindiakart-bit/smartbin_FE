@@ -36,7 +36,7 @@ const Customer_Master = () => {
   const userPermissions = permissions[1] || {};
 
   // Define permission checks
- const canView = userPermissions?.view ||  false;
+  const canView = userPermissions?.view || false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
@@ -304,9 +304,7 @@ const Customer_Master = () => {
     return (
       <span
         className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-          isActive
-            ? "bg-green-100 text-green-700"
-            : "bg-gray-100 text-gray-700"
+          isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
         }`}
       >
         {formatSmartbinStatus(value).toUpperCase()}
@@ -323,12 +321,9 @@ const Customer_Master = () => {
     {
       header: "Has Smartbin",
       key: "ishavesmartbin",
-      render: (value) => 
-        {
-        return (
-          <SmartbinBadge value={value} />
-        )
-      }
+      render: (value) => {
+        return <SmartbinBadge value={value} />;
+      },
     },
     { header: "Active", key: "status", isToggle: true },
   ];

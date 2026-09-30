@@ -1,11 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 
 const Order_Processing_Main = () => {
   return (
     <div>
-      <Outlet/>
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default Order_Processing_Main
+export default Order_Processing_Main;

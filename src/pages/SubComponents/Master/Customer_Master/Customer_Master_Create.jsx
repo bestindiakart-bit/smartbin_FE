@@ -392,8 +392,8 @@ const Customer_Master_Create = () => {
               setPermissions(updatedPermissions);
             }
           }
-        } // In the edit mode data fetch (around line 200)
-catch (err) {
+        } catch (err) {
+          // In the edit mode data fetch (around line 200)
           console.error("Error fetching customer details:", err);
 
           let errMsg = "Error fetching customer details";
@@ -420,7 +420,7 @@ catch (err) {
     initializePage();
   }, [isEditMode, rowId]);
 
-// In fetchTypes function (around line 250)
+  // In fetchTypes function (around line 250)
   const fetchTypes = async () => {
     try {
       const res = await customer_get_Type();
@@ -470,7 +470,7 @@ catch (err) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "ishavesmartbin") {
       setFormData((prev) => ({
         ...prev,
@@ -571,8 +571,9 @@ catch (err) {
       setIsAddingType(true);
       const res = await customer_post_Type({ customerTypeName: newTypeName });
 
-    // Get message from API response
-    const successMessage = res?.data?.message || 
+      // Get message from API response
+      const successMessage =
+        res?.data?.message ||
         res?.data?.msg ||
         "Customer type added successfully!";
 
@@ -685,7 +686,7 @@ catch (err) {
         ishavesmartbin: formData.ishavesmartbin,
         geoLocation: {
           type: "Point",
-        coordinates: coords.length === 2 ? coords : [80.2707, 13.0827], // Default coordinates if empty
+          coordinates: coords.length === 2 ? coords : [80.2707, 13.0827], // Default coordinates if empty
         },
         permissions: permissions,
       };
@@ -697,55 +698,57 @@ catch (err) {
         res = await customer_create(finalPayload);
       }
 
-    // Get message from API response
-    const successMessage = res?.data?.message || 
+      // Get message from API response
+      const successMessage =
+        res?.data?.message ||
         res?.data?.msg ||
-                           (isEditMode ? "Customer updated successfully!" : "Customer created successfully!");
+        (isEditMode
+          ? "Customer updated successfully!"
+          : "Customer created successfully!");
 
       setSuccessPopup({
         open: true,
         message: successMessage,
       });
-    
     } catch (error) {
       console.error("Submission error:", error);
 
-    // Extract error message from the 409 response structure
+      // Extract error message from the 409 response structure
       let errMsg = "An unexpected error occurred";
 
       if (error.response) {
-      // The request was made and the server responded with a status code
+        // The request was made and the server responded with a status code
         console.log("Error response data:", error.response.data);
         console.log("Error response status:", error.response.status);
 
-      // Handle the specific error structure: { success: false, data: { message: "..." }, statusCode: 409 }
+        // Handle the specific error structure: { success: false, data: { message: "..." }, statusCode: 409 }
         if (error.response.data) {
-        // Check if data has the structure with success and data.message
+          // Check if data has the structure with success and data.message
           if (error.response.data.data && error.response.data.data.message) {
             errMsg = error.response.data.data.message;
-        } 
-        // Check if data directly has message property
-        else if (error.response.data.message) {
+          }
+          // Check if data directly has message property
+          else if (error.response.data.message) {
             errMsg = error.response.data.message;
-        }
-        // Check if data has msg property
-        else if (error.response.data.msg) {
+          }
+          // Check if data has msg property
+          else if (error.response.data.msg) {
             errMsg = error.response.data.msg;
-        }
-        // If it's a string, use it directly
-        else if (typeof error.response.data === 'string') {
+          }
+          // If it's a string, use it directly
+          else if (typeof error.response.data === "string") {
             errMsg = error.response.data;
           }
         }
       } else if (error.request) {
-      // The request was made but no response was received
+        // The request was made but no response was received
         errMsg = "No response from server. Please check your connection.";
       } else {
-      // Something happened in setting up the request
+        // Something happened in setting up the request
         errMsg = error.message || "Failed to process request";
       }
 
-    // Add status code information if available and relevant
+      // Add status code information if available and relevant
       if (error.response?.status === 409) {
         errMsg = errMsg || "Duplicate entry: Company name already exists";
       }

@@ -5,11 +5,11 @@ import {
   List,
   Loader2,
   Package,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {fetchPermissions} from "../../../../store/Permission_Store/Permission_Slice"
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
 // Components
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import SearchBar from "../../../../component/SearchBar/SearchBar";
@@ -30,24 +30,23 @@ import { useDispatch, useSelector } from "react-redux";
 
 const Item_Master = () => {
   const navigate = useNavigate();
-        const { permissions } = useSelector((state) => state.permissions);
+  const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[3] || {};
   console.log("Permissions in User Master:", userPermissions);
-  
+
   // Define permission checks
-  const canView = userPermissions?.view ||  false;
+  const canView = userPermissions?.view || false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
-  
-  
+
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
 
   // Search Params for View Toggle (Grid vs Table)
-  const[searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentView = searchParams.get("view") || "grid";
 
   const setView = (viewType) => {
@@ -67,7 +66,7 @@ const Item_Master = () => {
   // Table Pagination & Selection States
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const[selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   // Search Term State
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,7 +77,7 @@ const Item_Master = () => {
       const res = await item_master_get();
       if (res?.data?.success) {
         const apiData = res?.data?.data;
-        setItemGetData(apiData?.items ||[]);
+        setItemGetData(apiData?.items || []);
         setPagination({
           totalRecords: apiData?.totalRecords,
           totalPages: apiData?.totalPages,
@@ -94,7 +93,7 @@ const Item_Master = () => {
 
   useEffect(() => {
     fetchData();
-  },[]);
+  }, []);
 
   // --- EXPORT LOGIC ---
   const handleExport = async (format) => {
@@ -167,7 +166,7 @@ const Item_Master = () => {
   const handleStatusToggle = async (item) => {
     const itemId = item._id || item.id;
     // Toggle between 1 (Active) and 0 (Inactive)
-    const newStatus = item.status === 1 ? 0 : 1; 
+    const newStatus = item.status === 1 ? 0 : 1;
 
     try {
       // Items API typically expects FormData due to images.
@@ -180,7 +179,7 @@ const Item_Master = () => {
       if (res?.data?.success || res?.status === 200) {
         // Update local state to immediately reflect the change
         const updatedData = itemgetData.map((row) =>
-          (row._id || row.id) === itemId ? { ...row, status: newStatus } : row
+          (row._id || row.id) === itemId ? { ...row, status: newStatus } : row,
         );
         setItemGetData(updatedData);
       }
@@ -190,7 +189,7 @@ const Item_Master = () => {
   };
 
   // --- TABLE COLUMNS CONFIGURATION ---
-  const tableColumns =[
+  const tableColumns = [
     { header: "Part Number", key: "partNumber" },
     { header: "Item Name", key: "itemName" },
     { header: "Weight (g)", key: "weightPerUnit" },
@@ -223,7 +222,7 @@ const Item_Master = () => {
   const activeItems = itemgetData.filter((item) => item.status === 1).length;
   const inactiveItems = itemgetData.filter((item) => item.status !== 1).length;
 
-  const StatsData =[
+  const StatsData = [
     {
       title: "Total Items",
       count: pagination?.totalRecords || itemgetData.length,
@@ -275,14 +274,23 @@ const Item_Master = () => {
         </div>
 
         <div className="flex items-center gap-3 w-full lg:w-auto">
-          <Button disabled={!canCreate} onClick={() => setIsCreateModel(true)} variant="primary">
+          <Button
+            disabled={!canCreate}
+            onClick={() => setIsCreateModel(true)}
+            variant="primary"
+          >
             Create Category
           </Button>
-          <Button disabled={!canCreate} onClick={() => navigate("item-create")} variant="primary">
+          <Button
+            disabled={!canCreate}
+            onClick={() => navigate("item-create")}
+            variant="primary"
+          >
             Create Item
           </Button>
 
-          <Download_Button disabled={!canView}
+          <Download_Button
+            disabled={!canView}
             onSelect={handleExport}
             tooltipText={exportLoading ? "Generating..." : "Export Data"}
           />
@@ -478,4 +486,5 @@ const Item_Master = () => {
   );
 };
 
-export default Item_Master;``
+export default Item_Master;
+``;

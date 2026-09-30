@@ -1,10 +1,5 @@
-
 const MoreViewModel = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  return <div></div>;
+};
 
-export default MoreViewModel
+export default MoreViewModel;

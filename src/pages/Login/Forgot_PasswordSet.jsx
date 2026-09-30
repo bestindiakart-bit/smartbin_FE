@@ -1,62 +1,71 @@
-import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ErrorMessage_Popup from '../../component/Popup_Models/ErrorMessage_Popup';
-import Success_Popup from '../../component/Popup_Models/Success_Popup';
-import ReUsableInput_Fields from '../../component/ReUsableInput_Fields/ReUsableInput_Fields';
-import Button from '../../component/button/Buttons';
-import { Forgot_Change_Password } from '../../service/Login/Login';
-import AuthLayout from './AuthLayout';
+import { motion } from "framer-motion";
+import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ErrorMessage_Popup from "../../component/Popup_Models/ErrorMessage_Popup";
+import Success_Popup from "../../component/Popup_Models/Success_Popup";
+import ReUsableInput_Fields from "../../component/ReUsableInput_Fields/ReUsableInput_Fields";
+import Button from "../../component/button/Buttons";
+import { Forgot_Change_Password } from "../../service/Login/Login";
+import AuthLayout from "./AuthLayout";
 
 const Forgot_PasswordSet = () => {
   const navigate = useNavigate();
 
-  const[email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const[newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const[loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [popup, setPopup] = useState({ success: false, error: false, message: '' });
+  const [popup, setPopup] = useState({
+    success: false,
+    error: false,
+    message: "",
+  });
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('email') || localStorage.getItem('temp_login_email');
+    const savedEmail =
+      localStorage.getItem("email") || localStorage.getItem("temp_login_email");
 
     if (savedEmail) {
       setEmail(savedEmail);
     } else {
-      setPopup({ 
-        success: false, 
-        error: true, 
-        message: 'Session expired. Please enter your email again.' 
+      setPopup({
+        success: false,
+        error: true,
+        message: "Session expired. Please enter your email again.",
       });
-      setTimeout(() => navigate('/forgot-password'), 2000);
+      setTimeout(() => navigate("/forgot-password"), 2000);
     }
-  },[navigate]);
+  }, [navigate]);
 
   useEffect(() => {
     if (popup.success) {
       const timer = setTimeout(() => {
-        setPopup(prev => ({ ...prev, success: false }));
-        localStorage.removeItem('email');
-        localStorage.removeItem('temp_login_email');
-        navigate('/login');
+        setPopup((prev) => ({ ...prev, success: false }));
+        localStorage.removeItem("email");
+        localStorage.removeItem("temp_login_email");
+        navigate("/login");
       }, 2500);
       return () => clearTimeout(timer);
     }
-  },[popup.success, navigate]);
+  }, [popup.success, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!otp) {
-      setPopup({ success: false, error: true, message: 'Please enter OTP.' });
+      setPopup({ success: false, error: true, message: "Please enter OTP." });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPopup({ success: false, error: true, message: 'Passwords do not match!' });
+      setPopup({
+        success: false,
+        error: true,
+        message: "Passwords do not match!",
+      });
       return;
     }
 
@@ -66,38 +75,37 @@ const Forgot_PasswordSet = () => {
       const payload = {
         loginEmail: email,
         otp: otp,
-        newPassword: newPassword
+        newPassword: newPassword,
       };
 
       const response = await Forgot_Change_Password(payload);
 
-      const successMsg = 
-        response?.data?.data?.message || 
-        response?.data?.message || 
+      const successMsg =
+        response?.data?.data?.message ||
+        response?.data?.message ||
         response?.message ||
-        'Password changed successfully!';
+        "Password changed successfully!";
 
-      setPopup({ 
-        success: true, 
-        error: false, 
-        message: successMsg 
+      setPopup({
+        success: true,
+        error: false,
+        message: successMsg,
       });
-
     } catch (error) {
-      console.error('Reset password error:', error);
+      console.error("Reset password error:", error);
 
-      const errorMessage = 
-        error?.response?.data?.data?.message || 
+      const errorMessage =
+        error?.response?.data?.data?.message ||
         error?.response?.data?.message ||
-        error?.data?.data?.message || 
-        error?.data?.message || 
+        error?.data?.data?.message ||
+        error?.data?.message ||
         error?.message ||
-        'Invalid OTP or request failed.';
+        "Invalid OTP or request failed.";
 
-      setPopup({ 
-        success: false, 
-        error: true, 
-        message: errorMessage 
+      setPopup({
+        success: false,
+        error: true,
+        message: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -162,33 +170,38 @@ const Forgot_PasswordSet = () => {
               <Loader2 className="animate-spin" size={20} />
               <span>Updating...</span>
             </div>
-          ) : 'Reset Password'}
+          ) : (
+            "Reset Password"
+          )}
         </Button>
 
         <button
           type="button"
-          onClick={() => navigate('/login')}
+          onClick={() => navigate("/login")}
           className="mt-8 flex items-center justify-center gap-2 text-sm font-bold text-slate-500 hover:text-[#0062a0] transition-colors group cursor-pointer"
         >
-          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
           Back to Login
         </button>
       </motion.form>
 
       {/* Popups */}
-      <Success_Popup 
-        isOpen={popup.success} 
+      <Success_Popup
+        isOpen={popup.success}
         onClose={() => {
-            localStorage.clear();
-            navigate('/login');
-        }} 
-        message={popup.message} 
+          localStorage.clear();
+          navigate("/login");
+        }}
+        message={popup.message}
       />
 
-      <ErrorMessage_Popup 
-        isOpen={popup.error} 
-        onClose={() => setPopup({ ...popup, error: false })} 
-        message={popup.message} 
+      <ErrorMessage_Popup
+        isOpen={popup.error}
+        onClose={() => setPopup({ ...popup, error: false })}
+        message={popup.message}
       />
     </AuthLayout>
   );

@@ -7,37 +7,37 @@ import Otp from "../../pages/Login/Otp";
 import Otp_Main from "../../pages/Login/Otp_Main";
 
 export const Login_Routes = [
-    {
-        path:"login",
-        Component:Login_Main,
-        children:[
-            {
-                index:true,
-                Component:Login,
-            },
-            {
-                path:"otp",
-                Component:Otp_Main,
-                children:[
-                    {
-                        index:true,
-                        Component:Otp,
-                    },
-                ]
-            },
-            {
-                path:"first-time-login",
-                Component:FirstTime_Login,
-            },
-            
-            {
-                path:"forgot-password",
-                Component:Forgot_Password,
-            },
-            {
-                path:"forgot-change-password",
-                Component:Forgot_PasswordSet,
-            }
-        ]
-    },
-]
+  {
+    path: "login",
+    Component: Login_Main,
+    children: [
+      {
+        index: true,
+        Component: Login,
+      },
+      {
+        path: "otp",
+        Component: Otp_Main,
+        children: [
+          {
+            index: true,
+            Component: Otp,
+          },
+        ],
+      },
+      {
+        path: "first-time-login",
+        Component: FirstTime_Login,
+      },
+
+      {
+        path: "forgot-password",
+        Component: Forgot_Password,
+      },
+      {
+        path: "forgot-change-password",
+        Component: Forgot_PasswordSet,
+      },
+    ],
+  },
+];

@@ -58,7 +58,8 @@ const getViewerType = (matches, pathname) => {
     .find((match) => match.handle?.viewerType)?.handle?.viewerType;
 
   if (routeViewerType === "forecastAccuracy") return "forecastAccuracy";
-  if (pathname.startsWith("/forecast-accuracy-report")) return "forecastAccuracy";
+  if (pathname.startsWith("/forecast-accuracy-report"))
+    return "forecastAccuracy";
   return "smartbin";
 };
 
@@ -88,7 +89,8 @@ const SmartBin_Dashboard = () => {
   const [successModel, setSuccessModel] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isOpenSmartModel, setIsOpenSmartModel] = useState(false);
-  const [isOpenForecastAccuracyFullView, setIsOpenForecastAccuracyFullView] = useState(false);
+  const [isOpenForecastAccuracyFullView, setIsOpenForecastAccuracyFullView] =
+    useState(false);
 
   const [tableData, setTableData] = useState([]);
   const [dynamicData, setDynamicData] = useState([]);
@@ -187,17 +189,14 @@ const SmartBin_Dashboard = () => {
         warehouseCurrentStock:
           liveData?.warehouseCurrentStock ?? item.warehouseCurrentStock,
         warehouseStatusMessage:
-          item.warehouseStatusMessage ||
-          liveData?.warehouseStatusMessage ||
-          "",
+          item.warehouseStatusMessage || liveData?.warehouseStatusMessage || "",
         warehouseStatusTag:
           liveData?.warehouseStatusTag || item.warehouseStatusTag,
         currentStatus:
-          liveData?.masterStatus ||
-          (item.status === 1 ? "Active" : "Inactive"),
+          liveData?.masterStatus || (item.status === 1 ? "Active" : "Inactive"),
       };
     });
-  }, [tableData, dynamicData])  // ------------------------------------------------------------
+  }, [tableData, dynamicData]); // ------------------------------------------------------------
   // FORECAST ACCURACY NORMALIZATION
   // ------------------------------------------------------------
 
@@ -226,7 +225,7 @@ const SmartBin_Dashboard = () => {
       if (!monthMatch) return;
 
       const monthKey = `${monthMatch[1]}-${String(
-        Number(monthMatch[2])
+        Number(monthMatch[2]),
       ).padStart(2, "0")}`;
 
       if (!result[monthKey]) {
@@ -266,13 +265,11 @@ const SmartBin_Dashboard = () => {
             value.consumptionQuantity ??
             value.actualQuantity ??
             value.actualQty,
-          value.forecast ??
-            value.forecastQuantity ??
-            value.forecastQty,
+          value.forecast ?? value.forecastQuantity ?? value.forecastQty,
           value.accuracy ??
             value.forecastAccuracy ??
             value.accuracyPercentage ??
-            value.accuracyPercent
+            value.accuracyPercent,
         );
       });
     }
@@ -294,13 +291,11 @@ const SmartBin_Dashboard = () => {
             value?.consumptionQuantity ??
             value?.actualQuantity ??
             value?.actualQty,
-          value?.forecast ??
-            value?.forecastQuantity ??
-            value?.forecastQty,
+          value?.forecast ?? value?.forecastQuantity ?? value?.forecastQty,
           value?.accuracy ??
             value?.forecastAccuracy ??
             value?.accuracyPercentage ??
-            value?.accuracyPercent
+            value?.accuracyPercent,
         );
       });
     }
@@ -327,7 +322,7 @@ const SmartBin_Dashboard = () => {
             value?.forecastQuantity ??
             value?.quantity ??
             value?.productionQuantity ??
-            value?.forecastQty
+            value?.forecastQty,
         );
       });
     });
@@ -354,7 +349,7 @@ const SmartBin_Dashboard = () => {
             value?.consumptionQuantity ??
             value?.quantity ??
             value?.actualQuantity ??
-            value?.actualQty
+            value?.actualQty,
         );
       });
     });
@@ -369,10 +364,7 @@ const SmartBin_Dashboard = () => {
         const actual = Number(month.actual);
         const forecast = Number(month.forecast);
 
-        if (
-          Number.isFinite(actual) &&
-          Number.isFinite(forecast)
-        ) {
+        if (Number.isFinite(actual) && Number.isFinite(forecast)) {
           if (actual === 0 && forecast === 0) {
             month.accuracy = 100;
           } else if (actual !== 0) {
@@ -380,8 +372,8 @@ const SmartBin_Dashboard = () => {
               0,
               Math.min(
                 100,
-                100 - (Math.abs(actual - forecast) / Math.abs(actual)) * 100
-              )
+                100 - (Math.abs(actual - forecast) / Math.abs(actual)) * 100,
+              ),
             );
           }
         }
@@ -416,45 +408,29 @@ const SmartBin_Dashboard = () => {
           item?.project?.projectName ??
           item?.project?.name ??
           "-",
-        warehouseId:
-          item?.warehouseId ??
-          item?.warehouse?.warehouseId ??
-          "-",
+        warehouseId: item?.warehouseId ?? item?.warehouse?.warehouseId ?? "-",
         bestPartNumber:
           item?.bestPartNumber ??
           item?.customerPartNumber ??
           item?.partNumber ??
           "-",
         description:
-          item?.description ??
-          item?.itemDescription ??
-          item?.itemName ??
-          "-",
+          item?.description ?? item?.itemDescription ?? item?.itemName ?? "-",
         bomQuantity:
-          item?.bomQuantity ??
-          item?.bomQty ??
-          item?.bom?.quantity ??
-          "-",
+          item?.bomQuantity ?? item?.bomQty ?? item?.bom?.quantity ?? "-",
         currentQuantity:
           item?.currentQuantity ??
           item?.currentStock ??
           item?.currentQty ??
           "-",
-        rol:
-          item?.rol ??
-          item?.reorderLevel ??
-          item?.reorderQuantity ??
-          "-",
+        rol: item?.rol ?? item?.reorderLevel ?? item?.reorderQuantity ?? "-",
         safetyStockQuantity:
           item?.safetyStockQuantity ??
           item?.safetyStock ??
           item?.safeStock ??
           "-",
         maximumQuantity:
-          item?.maximumQuantity ??
-          item?.maximumQty ??
-          item?.maxQuantity ??
-          "-",
+          item?.maximumQuantity ?? item?.maximumQty ?? item?.maxQuantity ?? "-",
         monthly,
       };
     });
@@ -464,9 +440,7 @@ const SmartBin_Dashboard = () => {
     const monthSet = new Set();
 
     normalizedForecastAccuracy.forEach((row) => {
-      Object.keys(row.monthly || {}).forEach((month) =>
-        monthSet.add(month)
-      );
+      Object.keys(row.monthly || {}).forEach((month) => monthSet.add(month));
     });
 
     return [...monthSet].sort();
@@ -479,14 +453,11 @@ const SmartBin_Dashboard = () => {
       accuracyMonths.forEach((month) => {
         const values = item.monthly?.[month] || {};
 
-        row[`accuracy_${month}_actual`] =
-          values.actual ?? "-";
+        row[`accuracy_${month}_actual`] = values.actual ?? "-";
 
-        row[`accuracy_${month}_forecast`] =
-          values.forecast ?? "-";
+        row[`accuracy_${month}_forecast`] = values.forecast ?? "-";
 
-        row[`accuracy_${month}_accuracy`] =
-          values.accuracy ?? "-";
+        row[`accuracy_${month}_accuracy`] = values.accuracy ?? "-";
       });
 
       return row;
@@ -517,7 +488,7 @@ const SmartBin_Dashboard = () => {
         ].some((value) =>
           String(value ?? "")
             .toLowerCase()
-            .includes(query)
+            .includes(query),
         );
       }
 
@@ -533,7 +504,7 @@ const SmartBin_Dashboard = () => {
       ].some((value) =>
         String(value ?? "")
           .toLowerCase()
-          .includes(query)
+          .includes(query),
       );
     });
   }, [
@@ -549,16 +520,8 @@ const SmartBin_Dashboard = () => {
 
     const start = (currentPage - 1) * itemsPerPage;
 
-    return filteredData.slice(
-      start,
-      start + itemsPerPage
-    );
-  }, [
-    isForecastAccuracy,
-    filteredData,
-    currentPage,
-    itemsPerPage,
-  ]);
+    return filteredData.slice(start, start + itemsPerPage);
+  }, [isForecastAccuracy, filteredData, currentPage, itemsPerPage]);
 
   const tableDisplayData = isForecastAccuracy
     ? paginatedAccuracyData
@@ -574,47 +537,34 @@ const SmartBin_Dashboard = () => {
 
     const totalPages = Math.max(
       1,
-      Math.ceil(filteredData.length / itemsPerPage)
+      Math.ceil(filteredData.length / itemsPerPage),
     );
 
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
-  }, [
-    isForecastAccuracy,
-    filteredData.length,
-    itemsPerPage,
-    currentPage,
-  ]);
+  }, [isForecastAccuracy, filteredData.length, itemsPerPage, currentPage]);
 
   const statsData = useMemo(() => {
     if (isForecastAccuracy) {
       const data = filteredData;
 
       const missingForecast = data.filter(
-        (row) => row.hasForecastData === false
+        (row) => row.hasForecastData === false,
       ).length;
 
       const missingActual = data.filter(
-        (row) => row.hasActualData === false
+        (row) => row.hasActualData === false,
       ).length;
 
       const accuracyValues = data.flatMap((row) =>
-        accuracyMonths.map(
-          (month) =>
-            row[`accuracy_${month}_accuracy`]
-        )
+        accuracyMonths.map((month) => row[`accuracy_${month}_accuracy`]),
       );
 
       const numericAccuracy = accuracyValues
         .map((value) => {
-          if (
-            typeof value === "string" &&
-            value.trim().endsWith("%")
-          ) {
-            return Number(
-              value.trim().replace("%", "")
-            );
+          if (typeof value === "string" && value.trim().endsWith("%")) {
+            return Number(value.trim().replace("%", ""));
           }
 
           return Number(value);
@@ -623,10 +573,8 @@ const SmartBin_Dashboard = () => {
 
       const averageAccuracy = numericAccuracy.length
         ? Math.round(
-            numericAccuracy.reduce(
-              (sum, value) => sum + value,
-              0
-            ) / numericAccuracy.length
+            numericAccuracy.reduce((sum, value) => sum + value, 0) /
+              numericAccuracy.length,
           )
         : 0;
 
@@ -639,31 +587,21 @@ const SmartBin_Dashboard = () => {
         },
         {
           title: "Missing Forecast",
-          count: missingForecast
-            .toString()
-            .padStart(2, "0"),
+          count: missingForecast.toString().padStart(2, "0"),
           footerText: "Needs forecast data",
-          icon: (
-            <UserRoundX className="text-red-500" />
-          ),
+          icon: <UserRoundX className="text-red-500" />,
         },
         {
           title: "Missing Actual",
-          count: missingActual
-            .toString()
-            .padStart(2, "0"),
+          count: missingActual.toString().padStart(2, "0"),
           footerText: "Needs consumption data",
-          icon: (
-            <AlertTriangle className="text-orange-500" />
-          ),
+          icon: <AlertTriangle className="text-orange-500" />,
         },
         {
           title: "Avg Accuracy",
           count: `${averageAccuracy}%`,
           footerText: "Across available months",
-          icon: (
-            <UserCheck className="text-green-500" />
-          ),
+          icon: <UserCheck className="text-green-500" />,
         },
       ];
     }
@@ -671,20 +609,13 @@ const SmartBin_Dashboard = () => {
     const dataForStats = filteredData;
 
     const uniqueProjectsCount = new Set(
-      dataForStats
-        .map((d) => d.projectName)
-        .filter(Boolean)
+      dataForStats.map((d) => d.projectName).filter(Boolean),
     ).size;
 
     const criticalCount = dataForStats.filter((d) => {
-      const status =
-        d.binStatus?.toLowerCase() || "";
+      const status = d.binStatus?.toLowerCase() || "";
 
-      return (
-        status === "red" ||
-        status === "orange" ||
-        status === "critical"
-      );
+      return status === "red" || status === "orange" || status === "critical";
     }).length;
 
     const onlineCount = dataForStats.filter(
@@ -692,14 +623,12 @@ const SmartBin_Dashboard = () => {
         d.currentStatus?.toLowerCase() === "active" ||
         d.binStatus?.toLowerCase() === "online" ||
         d.binStatus?.toLowerCase() === "green" ||
-        d.status === 1
+        d.status === 1,
     ).length;
 
     const healthPct =
       dataForStats.length > 0
-        ? Math.round(
-            (onlineCount / dataForStats.length) * 100
-          )
+        ? Math.round((onlineCount / dataForStats.length) * 100)
         : 0;
 
     return [
@@ -717,29 +646,18 @@ const SmartBin_Dashboard = () => {
       },
       {
         title: "Critical Stock",
-        count: criticalCount
-          .toString()
-          .padStart(2, "0"),
+        count: criticalCount.toString().padStart(2, "0"),
         footerText: "Needs Attention",
-        icon: (
-          <UserRoundX className="text-red-500" />
-        ),
+        icon: <UserRoundX className="text-red-500" />,
       },
       {
         title: "System Health",
         count: `${healthPct}%`,
         footerText: "Online/Active",
-        icon: (
-          <UserCheck className="text-green-500" />
-        ),
+        icon: <UserCheck className="text-green-500" />,
       },
     ];
-  }, [
-    isForecastAccuracy,
-    filteredData,
-    totalItems,
-    accuracyMonths,
-  ]);
+  }, [isForecastAccuracy, filteredData, totalItems, accuracyMonths]);
 
   // ------------------------------------------------------------
   // SMART BIN COLUMN CONFIGURATION
@@ -835,7 +753,7 @@ const SmartBin_Dashboard = () => {
         isStatus: true,
       },
     ],
-    []
+    [],
   );
 
   const columns = smartBinColumns;
@@ -844,11 +762,7 @@ const SmartBin_Dashboard = () => {
   // FORECAST ACCURACY TABLE
   // ------------------------------------------------------------
   const formatTableValue = (value) => {
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
+    if (value === null || value === undefined || value === "") {
       return "-";
     }
 
@@ -873,9 +787,7 @@ const SmartBin_Dashboard = () => {
 
     const numeric = Number(value);
 
-    return Number.isFinite(numeric)
-      ? `${Number(numeric.toFixed(2))}%`
-      : text;
+    return Number.isFinite(numeric) ? `${Number(numeric.toFixed(2))}%` : text;
   };
 
   const forecastAccuracyBaseColumns = [
@@ -946,7 +858,7 @@ const SmartBin_Dashboard = () => {
                 60 +
                 forecastAccuracyBaseColumns.reduce(
                   (sum, column) => sum + column.width,
-                  0
+                  0,
                 ) +
                 accuracyMonths.length * 450
               }px`,
@@ -955,16 +867,14 @@ const SmartBin_Dashboard = () => {
             <colgroup>
               <col style={{ width: "60px" }} />
 
-              {forecastAccuracyBaseColumns.map(
-                (column) => (
-                  <col
-                    key={column.key}
-                    style={{
-                      width: `${column.width}px`,
-                    }}
-                  />
-                )
-              )}
+              {forecastAccuracyBaseColumns.map((column) => (
+                <col
+                  key={column.key}
+                  style={{
+                    width: `${column.width}px`,
+                  }}
+                />
+              ))}
 
               {accuracyMonths.map((month) => (
                 <React.Fragment key={month}>
@@ -985,17 +895,11 @@ const SmartBin_Dashboard = () => {
                     type="checkbox"
                     checked={
                       tableRows.length > 0 &&
-                      tableRows.every((row) =>
-                        selectedRows.includes(row.id)
-                      )
+                      tableRows.every((row) => selectedRows.includes(row.id))
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedRows(
-                          tableRows.map(
-                            (row) => row.id
-                          )
-                        );
+                        setSelectedRows(tableRows.map((row) => row.id));
                       } else {
                         setSelectedRows([]);
                       }
@@ -1004,21 +908,17 @@ const SmartBin_Dashboard = () => {
                   />
                 </th>
 
-                {forecastAccuracyBaseColumns.map(
-                  (column, index) => (
-                    <th
-                      key={column.key}
-                      rowSpan={2}
-                      className={`border-r border-slate-200 bg-slate-100 px-4 py-4 text-center text-[12px] font-black uppercase tracking-wide text-slate-700 whitespace-nowrap ${
-                        index === 0
-                          ? "md:sticky md:left-[60px] z-40"
-                          : ""
-                      }`}
-                    >
-                      {column.header}
-                    </th>
-                  )
-                )}
+                {forecastAccuracyBaseColumns.map((column, index) => (
+                  <th
+                    key={column.key}
+                    rowSpan={2}
+                    className={`border-r border-slate-200 bg-slate-100 px-4 py-4 text-center text-[12px] font-black uppercase tracking-wide text-slate-700 whitespace-nowrap ${
+                      index === 0 ? "md:sticky md:left-[60px] z-40" : ""
+                    }`}
+                  >
+                    {column.header}
+                  </th>
+                ))}
 
                 {accuracyMonths.map((month) => (
                   <th
@@ -1033,9 +933,7 @@ const SmartBin_Dashboard = () => {
 
               <tr className="bg-white border-b-2 border-slate-300">
                 {accuracyMonths.map((month) => (
-                  <React.Fragment
-                    key={`sub-${month}`}
-                  >
+                  <React.Fragment key={`sub-${month}`}>
                     <th className="border-r border-slate-200 bg-white px-4 py-3 text-center text-[11px] font-extrabold uppercase tracking-wide text-slate-500 whitespace-nowrap">
                       Consumption
                     </th>
@@ -1068,8 +966,7 @@ const SmartBin_Dashboard = () => {
 
               {!forecastLoading &&
                 tableRows.map((row, rowIndex) => {
-                  const isSelected =
-                    selectedRows.includes(row.id);
+                  const isSelected = selectedRows.includes(row.id);
 
                   return (
                     <tr
@@ -1078,8 +975,8 @@ const SmartBin_Dashboard = () => {
                         isSelected
                           ? "bg-blue-50"
                           : rowIndex % 2 === 0
-                          ? "bg-white"
-                          : "bg-slate-50/50"
+                            ? "bg-white"
+                            : "bg-slate-50/50"
                       } hover:bg-blue-50/70`}
                     >
                       <td className="md:sticky md:left-0 z-20 border-r border-slate-200 bg-inherit px-3 py-4 text-center">
@@ -1089,99 +986,61 @@ const SmartBin_Dashboard = () => {
                           onChange={() => {
                             setSelectedRows((prev) =>
                               prev.includes(row.id)
-                                ? prev.filter(
-                                    (id) =>
-                                      id !== row.id
-                                  )
-                                : [
-                                    ...prev,
-                                    row.id,
-                                  ]
+                                ? prev.filter((id) => id !== row.id)
+                                : [...prev, row.id],
                             );
                           }}
                           className="h-4 w-4 accent-[#0062a0]"
                         />
                       </td>
 
-                      {forecastAccuracyBaseColumns.map(
-                        (column, index) => (
-                          <td
-                            key={column.key}
-                            title={String(
-                              formatTableValue(
-                                row[column.key]
-                              )
-                            )}
-                            className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-semibold text-slate-700 whitespace-nowrap ${
-                              index === 0
-                                ? "md:sticky md:left-[60px] z-20 bg-inherit text-left"
-                                : ""
-                            }`}
-                          >
-                            {formatTableValue(
-                              row[column.key]
-                            )}
-                          </td>
-                        )
-                      )}
+                      {forecastAccuracyBaseColumns.map((column, index) => (
+                        <td
+                          key={column.key}
+                          title={String(formatTableValue(row[column.key]))}
+                          className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-semibold text-slate-700 whitespace-nowrap ${
+                            index === 0
+                              ? "md:sticky md:left-[60px] z-20 bg-inherit text-left"
+                              : ""
+                          }`}
+                        >
+                          {formatTableValue(row[column.key])}
+                        </td>
+                      ))}
 
                       {accuracyMonths.map((month) => {
-                        const actual =
-                          row[
-                            `accuracy_${month}_actual`
-                          ];
+                        const actual = row[`accuracy_${month}_actual`];
 
-                        const forecast =
-                          row[
-                            `accuracy_${month}_forecast`
-                          ];
+                        const forecast = row[`accuracy_${month}_forecast`];
 
-                        const accuracy =
-                          row[
-                            `accuracy_${month}_accuracy`
-                          ];
+                        const accuracy = row[`accuracy_${month}_accuracy`];
 
-                        const numericAccuracy =
-                          Number(
-                            String(
-                              accuracy
-                            ).replace("%", "")
-                          );
+                        const numericAccuracy = Number(
+                          String(accuracy).replace("%", ""),
+                        );
 
                         return (
-                          <React.Fragment
-                            key={`${row.id}-${month}`}
-                          >
+                          <React.Fragment key={`${row.id}-${month}`}>
                             <td className="border-r border-slate-200 px-4 py-4 text-center text-[13px] font-bold text-slate-700 whitespace-nowrap">
-                              {formatTableValue(
-                                actual
-                              )}
+                              {formatTableValue(actual)}
                             </td>
 
                             <td className="border-r border-slate-200 px-4 py-4 text-center text-[13px] font-bold text-slate-700 whitespace-nowrap">
-                              {formatTableValue(
-                                forecast
-                              )}
+                              {formatTableValue(forecast)}
                             </td>
 
                             <td
                               className={`border-r border-slate-200 px-4 py-4 text-center text-[13px] font-black whitespace-nowrap ${
-                                Number.isFinite(
-                                  numericAccuracy
-                                )
-                                  ? numericAccuracy >=
-                                    90
+                                Number.isFinite(numericAccuracy)
+                                  ? numericAccuracy >= 90
                                     ? "text-green-600"
-                                    : numericAccuracy >=
-                                      70
-                                    ? "text-orange-500"
-                                    : "text-red-600"
+                                    : numericAccuracy >= 70
+                                      ? "text-orange-500"
+                                      : "text-red-600"
                                   : "text-slate-500"
                               }`}
                             >
-                              {formatAccuracyValue(
-                                accuracy
-                              )}
+                              {formatAccuracyValue(accuracy)}
                             </td>
                           </React.Fragment>
                         );
@@ -1190,28 +1049,26 @@ const SmartBin_Dashboard = () => {
                   );
                 })}
 
-              {!forecastLoading &&
-                tableRows.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={
-                        1 +
-                        forecastAccuracyBaseColumns.length +
-                        accuracyMonths.length * 3
-                      }
-                      className="py-16 text-center"
-                    >
-                      <div className="text-sm font-bold text-slate-500">
-                        No forecast accuracy records found.
-                      </div>
+              {!forecastLoading && tableRows.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={
+                      1 +
+                      forecastAccuracyBaseColumns.length +
+                      accuracyMonths.length * 3
+                    }
+                    className="py-16 text-center"
+                  >
+                    <div className="text-sm font-bold text-slate-500">
+                      No forecast accuracy records found.
+                    </div>
 
-                      <div className="mt-1 text-xs text-slate-400">
-                        Check the API response or change
-                        the search filter.
-                      </div>
-                    </td>
-                  </tr>
-                )}
+                    <div className="mt-1 text-xs text-slate-400">
+                      Check the API response or change the search filter.
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -1220,18 +1077,11 @@ const SmartBin_Dashboard = () => {
           <div className="text-sm font-semibold text-slate-600">
             Showing{" "}
             <span className="font-black text-slate-800">
-              {tableRows.length
-                ? (currentPage - 1) *
-                    itemsPerPage +
-                  1
-                : 0}
+              {tableRows.length ? (currentPage - 1) * itemsPerPage + 1 : 0}
             </span>{" "}
             to{" "}
             <span className="font-black text-slate-800">
-              {Math.min(
-                currentPage * itemsPerPage,
-                filteredData.length
-              )}
+              {Math.min(currentPage * itemsPerPage, filteredData.length)}
             </span>{" "}
             of{" "}
             <span className="font-black text-slate-800">
@@ -1248,33 +1098,22 @@ const SmartBin_Dashboard = () => {
             <select
               value={itemsPerPage}
               onChange={(e) => {
-                setItemsPerPage(
-                  Number(e.target.value)
-                );
+                setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
               className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-[#0062a0]"
             >
-              {[10, 20, 50, 100].map(
-                (value) => (
-                  <option
-                    key={value}
-                    value={value}
-                  >
-                    {value}
-                  </option>
-                )
-              )}
+              {[10, 20, 50, 100].map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
             </select>
 
             <button
               type="button"
               disabled={currentPage <= 1}
-              onClick={() =>
-                setCurrentPage((page) =>
-                  Math.max(1, page - 1)
-                )
-              }
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-black text-slate-600 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-50"
             >
               Previous
@@ -1288,26 +1127,14 @@ const SmartBin_Dashboard = () => {
               type="button"
               disabled={
                 currentPage >=
-                Math.max(
-                  1,
-                  Math.ceil(
-                    filteredData.length /
-                      itemsPerPage
-                  )
-                )
+                Math.max(1, Math.ceil(filteredData.length / itemsPerPage))
               }
               onClick={() =>
                 setCurrentPage((page) =>
                   Math.min(
-                    Math.max(
-                      1,
-                      Math.ceil(
-                        filteredData.length /
-                          itemsPerPage
-                      )
-                    ),
-                    page + 1
-                  )
+                    Math.max(1, Math.ceil(filteredData.length / itemsPerPage)),
+                    page + 1,
+                  ),
                 )
               }
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-black text-slate-600 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-50"
@@ -1395,10 +1222,7 @@ const SmartBin_Dashboard = () => {
               Full View
             </Button>
 
-            <Download_Button
-              disabled={!canView}
-              onClick={handleDownload}
-            />
+            <Download_Button disabled={!canView} onClick={handleDownload} />
           </div>
         </motion.div>
 

@@ -1,11 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 
 const User_Permission_Main = () => {
   return (
     <div>
-      <Outlet/>
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default User_Permission_Main
+export default User_Permission_Main;

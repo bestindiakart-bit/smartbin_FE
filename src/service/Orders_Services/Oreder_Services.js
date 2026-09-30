@@ -23,7 +23,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 3. Add a Response Interceptor (Handles Global Errors)
@@ -55,60 +55,59 @@ api.interceptors.response.use(
 
     // Case 4: Forbidden or Page Not Found (Optional)
     // else if (status === 404) {
-      // You can choose to redirect to 404 here or handle it in the component
-      // window.location.href = "/404";
+    // You can choose to redirect to 404 here or handle it in the component
+    // window.location.href = "/404";
     // }
 
     return Promise.reject(error);
-  }
+  },
 );
 
-
 export const smart_dashboard_create = (data) => {
-  return api.post('/warehouse/', data);
+  return api.post("/warehouse/", data);
 };
 
-export const warehouse_create_edit = (id,data) => {
+export const warehouse_create_edit = (id, data) => {
   return api.put(`/warehouse/${id}`, data);
 };
-export const smart_dashboard_createId = (id,data) =>{
+export const smart_dashboard_createId = (id, data) => {
   return api.put(`/warehouse/${id}`, data);
-}
+};
 
 export const customer_Name = () => {
-    return api.get('/customer-master/')
-}
+  return api.get("/customer-master/");
+};
 
 export const Item_Name = () => {
-    return api.get('/item-master/')
-}
+  return api.get("/item-master/");
+};
 
 export const warehouse_get = (page = 1, limit = 10) => {
-    return api.get('/warehouse',{
-    params: { page, limit }
-  })
-}
+  return api.get("/warehouse", {
+    params: { page, limit },
+  });
+};
 
 export const warehouse_getId = (id) => {
-    return api.get(`/warehouse/${id}`)
-}
-
+  return api.get(`/warehouse/${id}`);
+};
 
 export const warehouse_delete = (id) => {
   // Assuming 0 or 'deleted' is your soft-delete status based on your backend logic
-  return api.put(`/warehouse/${id}`, { status: 0 }); 
+  return api.put(`/warehouse/${id}`, { status: 0 });
 };
-
 
 //////////////////////////////////////////////////////////////////////// oreder Processing////////////////////////////////////////////////////////////////////
 
 export const order_processing_allGet = (page = 1, limit = 10) => {
-  return api.get('/order/',{
-    params: { page, limit }
-  })
-}
+  return api.get("/order/", {
+    params: { page, limit },
+  });
+};
 
-
+export const calculateWarehouseStockLevels = (data) => {
+  return api.post("/warehouse/calculate-stock-levels", data);
+};
 
 ////////////////////////////////////////////////////////////////////Bin of Metarials ///////////////////////////////////////////////////////////////////////////
 
@@ -120,13 +119,13 @@ export const getAPIID = (endpoint, id) => {
   return api.get(`${endpoint}/${id}`);
 };
 
-export const postAPI = (endpoint,data) => {
-  return api.post(endpoint,data)
-}
+export const postAPI = (endpoint, data) => {
+  return api.post(endpoint, data);
+};
 
-export const putAPI = (endpoint,data) => {
-  return api.put(endpoint,data)
-}
-export const deleteAPI = (endpoint,id) => {
-  return api.delete(endpoint,id)
-}
+export const putAPI = (endpoint, data) => {
+  return api.put(endpoint, data);
+};
+export const deleteAPI = (endpoint, id) => {
+  return api.delete(endpoint, id);
+};

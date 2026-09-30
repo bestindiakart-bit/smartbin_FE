@@ -1,11 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from "react-router-dom";
 
 const SmartBin_Main = () => {
   return (
     <div>
-      <Outlet/>
+      <Outlet />
     </div>
-  )
-}
+  );
+};
 
-export default SmartBin_Main
+export default SmartBin_Main;

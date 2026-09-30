@@ -271,7 +271,7 @@ const IotCreate = () => {
     fieldName,
     label,
     componentProps,
-    editable = true // whether the field is currently editable
+    editable = true, // whether the field is currently editable
   ) => {
     if (fieldName === "weight") {
       // Weight never gets a clear icon
@@ -434,7 +434,7 @@ const IotCreate = () => {
                                 handleChildChange(parentIndex, childIndex, e),
                               disabled: isFetched, // disable if from fetched data
                             },
-                            !isFetched // editable only if not fetched
+                            !isFetched, // editable only if not fetched
                           )}
 
                           {/* Weight - always editable, no clear icon */}
@@ -468,7 +468,7 @@ const IotCreate = () => {
                               placeholder: "Online / Offline",
                               disabled: isFetched,
                             },
-                            !isFetched
+                            !isFetched,
                           )}
 
                           {/* Pieces Remaining - always disabled */}
@@ -519,7 +519,7 @@ const IotCreate = () => {
                                 onChange: (e) =>
                                   handleChildChange(parentIndex, childIndex, e),
                               },
-                              true // always editable when visible
+                              true, // always editable when visible
                             )}
 
                           {/* Checkbox for isReloaded - always editable, with clear icon */}
@@ -561,7 +561,7 @@ const IotCreate = () => {
                                     handleClearField(
                                       parentIndex,
                                       childIndex,
-                                      "isReloaded"
+                                      "isReloaded",
                                     )
                                   }
                                   className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm font-bold bg-white rounded-full w-5 h-5 flex items-center justify-center shadow"

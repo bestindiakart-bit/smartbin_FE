@@ -761,9 +761,7 @@ const StatusIndicator = ({ value, message }) => {
 
   if (typeof value === "boolean") {
     bgClass = value ? "bg-green-500" : "bg-red-500";
-    shadowColor = value
-      ? "rgba(34, 197, 94, 0.6)"
-      : "rgba(239, 68, 68, 0.6)";
+    shadowColor = value ? "rgba(34, 197, 94, 0.6)" : "rgba(239, 68, 68, 0.6)";
   } else if (typeof value === "string" && !isDanger) {
     const lower = value.toLowerCase();
     if (statusColorMap[lower]) {
@@ -862,7 +860,7 @@ const ReUsable_Table = ({
 
   const hasGroupedHeaders = useMemo(
     () => columns.some((col) => col.group),
-    [columns]
+    [columns],
   );
 
   useEffect(() => {
@@ -940,7 +938,9 @@ const ReUsable_Table = ({
       return Object.keys(searchQueries).every((key) => {
         const query = searchQueries[key]?.toLowerCase();
         if (!query) return true;
-        return String(row[key] ?? "").toLowerCase().includes(query);
+        return String(row[key] ?? "")
+          .toLowerCase()
+          .includes(query);
       });
     });
   }, [data, searchQueries]);
@@ -954,16 +954,16 @@ const ReUsable_Table = ({
     e.stopPropagation();
     const currentPageIds = filteredData.map((row) => row.id || row._id);
     const allOnPageSelected = currentPageIds.every((id) =>
-      selectedRows.includes(id)
+      selectedRows.includes(id),
     );
 
     if (allOnPageSelected) {
       onSelectionChange?.(
-        selectedRows.filter((id) => !currentPageIds.includes(id))
+        selectedRows.filter((id) => !currentPageIds.includes(id)),
       );
     } else {
       onSelectionChange?.(
-        Array.from(new Set([...selectedRows, ...currentPageIds]))
+        Array.from(new Set([...selectedRows, ...currentPageIds])),
       );
     }
   };
@@ -1033,10 +1033,7 @@ const ReUsable_Table = ({
       const groupName = col.group;
       const groupColumns = [];
 
-      while (
-        index < columns.length &&
-        columns[index].group === groupName
-      ) {
+      while (index < columns.length && columns[index].group === groupName) {
         groupColumns.push(columns[index]);
         index += 1;
       }
@@ -1140,8 +1137,8 @@ const ReUsable_Table = ({
               row[col.key] === 0
                 ? "bg-red-500"
                 : row[col.key] < 30
-                ? "bg-yellow-400"
-                : "bg-green-500"
+                  ? "bg-yellow-400"
+                  : "bg-green-500"
             }`}
           />
         </div>
@@ -1198,7 +1195,7 @@ const ReUsable_Table = ({
                         checked={
                           filteredData.length > 0 &&
                           filteredData.every((row) =>
-                            selectedRows.includes(row.id || row._id)
+                            selectedRows.includes(row.id || row._id),
                           )
                         }
                         onChange={handleSelectAll}
@@ -1259,7 +1256,7 @@ const ReUsable_Table = ({
                       checked={
                         filteredData.length > 0 &&
                         filteredData.every((row) =>
-                          selectedRows.includes(row.id || row._id)
+                          selectedRows.includes(row.id || row._id),
                         )
                       }
                       onChange={handleSelectAll}
@@ -1308,8 +1305,8 @@ const ReUsable_Table = ({
                     isSelected
                       ? "bg-[#f0f9ff]"
                       : isInactive
-                      ? "bg-slate-50/50 text-slate-400"
-                      : "bg-white hover:bg-slate-50/80"
+                        ? "bg-slate-50/50 text-slate-400"
+                        : "bg-white hover:bg-slate-50/80"
                   }`}
                 >
                   <td
@@ -1317,8 +1314,8 @@ const ReUsable_Table = ({
                       isSelected
                         ? "bg-[#f0f9ff]"
                         : isInactive
-                        ? "bg-[#fafafa]"
-                        : "bg-inherit group-hover:bg-[#f8fafc]"
+                          ? "bg-[#fafafa]"
+                          : "bg-inherit group-hover:bg-[#f8fafc]"
                     }`}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -1330,7 +1327,7 @@ const ReUsable_Table = ({
                           onSelectionChange?.(
                             isSelected
                               ? selectedRows.filter((id) => id !== rowId)
-                              : [...selectedRows, rowId]
+                              : [...selectedRows, rowId],
                           );
                         }}
                         className="w-4 h-4 rounded border-gray-300 text-[#0062a0] focus:ring-[#0062a0] cursor-pointer"
@@ -1380,8 +1377,8 @@ const ReUsable_Table = ({
                         isSelected
                           ? "bg-[#f0f9ff]"
                           : isInactive
-                          ? "bg-[#fafafa]"
-                          : "bg-inherit group-hover:bg-[#f8fafc]"
+                            ? "bg-[#fafafa]"
+                            : "bg-inherit group-hover:bg-[#f8fafc]"
                       }`}
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -1389,9 +1386,7 @@ const ReUsable_Table = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setOpenMenuId(
-                              openMenuId === rowId ? null : rowId
-                            );
+                            setOpenMenuId(openMenuId === rowId ? null : rowId);
                           }}
                           className="text-slate-400 hover:text-[#0062a0] hover:bg-blue-50 p-2 rounded-full transition-all"
                         >
@@ -1464,7 +1459,9 @@ const ReUsable_Table = ({
             <div className="w-16 h-16 mb-4 bg-slate-50 rounded-full flex items-center justify-center">
               <Search className="text-slate-300" size={24} />
             </div>
-            <h3 className="text-slate-700 font-semibold text-lg">No records found</h3>
+            <h3 className="text-slate-700 font-semibold text-lg">
+              No records found
+            </h3>
             <p className="text-slate-400 text-sm mt-1">
               Try adjusting your search criteria
             </p>
@@ -1474,14 +1471,17 @@ const ReUsable_Table = ({
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-4 select-none bg-slate-50/50 border-t border-slate-200">
         <div className="text-sm text-slate-600 font-medium">
-          Showing <span className="font-bold text-slate-800">{displayStart}</span> to{" "}
+          Showing{" "}
+          <span className="font-bold text-slate-800">{displayStart}</span> to{" "}
           <span className="font-bold text-slate-800">{displayEnd}</span> of{" "}
           <span className="font-bold text-slate-800">{totalItems}</span> results
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-500">Rows per page:</span>
+            <span className="text-sm font-medium text-slate-500">
+              Rows per page:
+            </span>
             <select
               value={itemsPerPage}
               onChange={(e) => onLimitChange?.(Number(e.target.value))}
@@ -1510,7 +1510,7 @@ const ReUsable_Table = ({
                   (p) =>
                     p === 1 ||
                     p === totalPages ||
-                    Math.abs(p - currentPage) <= 1
+                    Math.abs(p - currentPage) <= 1,
                 )
                 .map((page, idx, arr) => (
                   <div key={page} className="flex items-center">

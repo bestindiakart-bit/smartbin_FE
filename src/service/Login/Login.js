@@ -22,7 +22,7 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // 3️ Response Interceptor (API Errors Only — No Redirect)
@@ -47,11 +47,9 @@ api.interceptors.response.use(
       message: data?.message || "Something went wrong",
       status: status,
       data: data,
-    }); 
-  }
+    });
+  },
 );
-
-
 
 // --------------------
 //  API EXPORTS

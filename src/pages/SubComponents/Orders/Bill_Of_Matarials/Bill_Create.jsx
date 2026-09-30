@@ -6,13 +6,22 @@ import Button from "../../../../component/button/Buttons";
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import ReUsableInput_Fields from "../../../../component/ReUsableInput_Fields/ReUsableInput_Fields";
-import { getAPI, postAPI, putAPI } from "../../../../service/Orders_Services/Oreder_Services";
+import {
+  getAPI,
+  postAPI,
+  putAPI,
+} from "../../../../service/Orders_Services/Oreder_Services";
 
 const Bill_Create = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { mode, rowId, bomData: initialBomData, itemListData: initialItemListData } = location.state || {};
-  
+  const {
+    mode,
+    rowId,
+    bomData: initialBomData,
+    itemListData: initialItemListData,
+  } = location.state || {};
+
   const isEditMode = mode === "edit";
 
   // State for Customer and Item Data
@@ -20,12 +29,18 @@ const Bill_Create = () => {
   const [itemData, setItemData] = useState([]);
 
   // Dropdown Options States
-  const [customerOptions, setCustomerOptions] = useState([{ label: 'Loading...', value: '' }]);
-  const [projectOptions, setProjectOptions] = useState([{ label: 'Select Project', value: '' }]);
-  const [itemOptions, setItemOptions] = useState([{ label: 'Select Item', value: '' }]);
+  const [customerOptions, setCustomerOptions] = useState([
+    { label: "Loading...", value: "" },
+  ]);
+  const [projectOptions, setProjectOptions] = useState([
+    { label: "Select Project", value: "" },
+  ]);
+  const [itemOptions, setItemOptions] = useState([
+    { label: "Select Item", value: "" },
+  ]);
   const [successModel, setSuccessModel] = useState(false);
   const [confirmModel, setConfirmModel] = useState(false);
-  const [popupMessage, setPopupMessage] = useState('');
+  const [popupMessage, setPopupMessage] = useState("");
   const [apiResponse, setApiResponse] = useState(null);
 
   // Form State
@@ -33,7 +48,7 @@ const Bill_Create = () => {
     bomName: "",
     customerId: "",
     projectId: "",
-    itemId: ""
+    itemId: "",
   });
 
   // Table Data State
@@ -43,7 +58,7 @@ const Bill_Create = () => {
   const [editingCell, setEditingCell] = useState({
     rowId: null,
     field: null,
-    value: ''
+    value: "",
   });
 
   // Loading state
@@ -72,13 +87,15 @@ const Bill_Create = () => {
   useEffect(() => {
     if (isEditMode && initialBomData) {
       console.log("Loading edit data:", initialBomData);
-      
+
       // Set form data from initialBomData
       setFormData({
         bomName: initialBomData.bomName || initialBomData.name || "",
-        customerId: initialBomData.customerId?._id || initialBomData.customerId || "",
-        projectId: initialBomData.projectId?._id || initialBomData.projectId || "",
-        itemId: ""
+        customerId:
+          initialBomData.customerId?._id || initialBomData.customerId || "",
+        projectId:
+          initialBomData.projectId?._id || initialBomData.projectId || "",
+        itemId: "",
       });
 
       // Set table data from initialItemListData
@@ -109,19 +126,19 @@ const Bill_Create = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const res = await getAPI('/customer-master/get/all/');
+        const res = await getAPI("/customer-master/get/all/");
         const customers = res?.data?.data || res?.data || [];
 
         setCustomerOptions([
-          { label: 'Select Customer', value: '' },
-          ...customers.map(c => ({
+          { label: "Select Customer", value: "" },
+          ...customers.map((c) => ({
             label: c.companyName || c.name,
-            value: c._id
-          }))
+            value: c._id,
+          })),
         ]);
       } catch (err) {
         console.error("Failed to fetch customers", err);
-        setCustomerOptions([{ label: 'Error loading customers', value: '' }]);
+        setCustomerOptions([{ label: "Error loading customers", value: "" }]);
       }
     };
 
@@ -132,42 +149,39 @@ const Bill_Create = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       if (!formData.customerId) {
-        setProjectOptions([{ label: 'Select Project', value: '' }]);
-        setItemOptions([{ label: 'Select Item', value: '' }]);
+        setProjectOptions([{ label: "Select Project", value: "" }]);
+        setItemOptions([{ label: "Select Item", value: "" }]);
         return;
       }
 
       try {
-        setProjectOptions([{ label: 'Loading projects...', value: '' }]);
+        setProjectOptions([{ label: "Loading projects...", value: "" }]);
 
-        const res = await getAPI(
-          `/project/by-customer/${formData.customerId}`
-        );
+        const res = await getAPI(`/project/by-customer/${formData.customerId}`);
 
         const projects = res?.data?.data || res?.data || [];
 
         setProjectOptions([
-          { label: 'Select Project', value: '' },
-          ...projects.map(p => ({
+          { label: "Select Project", value: "" },
+          ...projects.map((p) => ({
             label: p.projectName,
-            value: p._id
-          }))
+            value: p._id,
+          })),
         ]);
 
         // Don't reset project if we're in edit mode and have a projectId
         if (!isEditMode || !formData.projectId) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            projectId: '',
-            itemId: ''
+            projectId: "",
+            itemId: "",
           }));
-          setItemOptions([{ label: 'Select Item', value: '' }]);
+          setItemOptions([{ label: "Select Item", value: "" }]);
           setTableData([]);
         }
-
       } catch (err) {
         console.error("Failed to fetch projects", err);
-        setProjectOptions([{ label: 'Error loading projects', value: '' }]);
+        setProjectOptions([{ label: "Error loading projects", value: "" }]);
       }
     };
 
@@ -179,23 +193,23 @@ const Bill_Create = () => {
     const fetchItems = async () => {
       if (!formData.projectId) {
         if (!isEditMode) {
-          setItemOptions([{ label: 'Select Item', value: '' }]);
+          setItemOptions([{ label: "Select Item", value: "" }]);
           setTableData([]);
         }
         return;
       }
 
       try {
-        setItemOptions([{ label: 'Loading items...', value: '' }]);
+        setItemOptions([{ label: "Loading items...", value: "" }]);
 
         const res = await getAPI(
-          `/bin/items/by-project?customerId=${formData.customerId}&projectId=${formData.projectId}`
+          `/bin/items/by-project?customerId=${formData.customerId}&projectId=${formData.projectId}`,
         );
 
         const items = res?.data?.data || res?.data || [];
-        
+
         setItemData(items);
-        
+
         // Only transform and set table data if we're not in edit mode or if tableData is empty
         if (!isEditMode || tableData.length === 0) {
           const transformedTableData = items.map((item, index) => ({
@@ -203,23 +217,22 @@ const Bill_Create = () => {
             _id: item._id,
             supplierItem: item.itemName || "N/A",
             customerItem: item.customerItemName || item.itemName || "N/A",
-            unit: 0 // Default unit value
+            unit: 0, // Default unit value
           }));
-          
+
           setTableData(transformedTableData);
         }
 
         setItemOptions([
-          { label: 'Select Item', value: '' },
-          ...items.map(i => ({
+          { label: "Select Item", value: "" },
+          ...items.map((i) => ({
             label: i.itemName,
-            value: i._id
-          }))
+            value: i._id,
+          })),
         ]);
-
       } catch (err) {
         console.error("Failed to fetch items", err);
-        setItemOptions([{ label: 'Error loading items', value: '' }]);
+        setItemOptions([{ label: "Error loading items", value: "" }]);
         if (!isEditMode) {
           setTableData([]);
         }
@@ -239,7 +252,7 @@ const Bill_Create = () => {
     setEditingCell({
       rowId,
       field,
-      value: currentValue.toString()
+      value: currentValue.toString(),
     });
   };
 
@@ -247,10 +260,10 @@ const Bill_Create = () => {
   const handleEditChange = (e) => {
     const value = e.target.value;
     // Allow only numbers
-    if (value === '' || /^\d+$/.test(value)) {
-      setEditingCell(prev => ({
+    if (value === "" || /^\d+$/.test(value)) {
+      setEditingCell((prev) => ({
         ...prev,
-        value
+        value,
       }));
     }
   };
@@ -258,29 +271,32 @@ const Bill_Create = () => {
   // Handle edit save
   const handleEditSave = () => {
     if (editingCell.rowId && editingCell.field) {
-      setTableData(prev => prev.map(item => {
-        if (item.id === editingCell.rowId) {
-          return {
-            ...item,
-            [editingCell.field]: editingCell.value === '' ? 0 : parseInt(editingCell.value, 10)
-          };
-        }
-        return item;
-      }));
+      setTableData((prev) =>
+        prev.map((item) => {
+          if (item.id === editingCell.rowId) {
+            return {
+              ...item,
+              [editingCell.field]:
+                editingCell.value === "" ? 0 : parseInt(editingCell.value, 10),
+            };
+          }
+          return item;
+        }),
+      );
     }
-    setEditingCell({ rowId: null, field: null, value: '' });
+    setEditingCell({ rowId: null, field: null, value: "" });
   };
 
   // Handle edit cancel
   const handleEditCancel = () => {
-    setEditingCell({ rowId: null, field: null, value: '' });
+    setEditingCell({ rowId: null, field: null, value: "" });
   };
 
   // Handle key press (Enter to save, Escape to cancel)
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleEditSave();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       handleEditCancel();
     }
   };
@@ -301,16 +317,16 @@ const Bill_Create = () => {
       projectId: formData.projectId,
       overallQuantity: calculateTotalUnits(),
       items: tableData
-        .filter(item => item.unit > 0)
-        .map(item => ({
+        .filter((item) => item.unit > 0)
+        .map((item) => ({
           itemId: item._id,
-          quantity: item.unit
-        }))
+          quantity: item.unit,
+        })),
     };
 
     try {
       let res;
-      
+
       if (isEditMode && rowId) {
         // PUT request for edit mode
         res = await putAPI(`/bom/${rowId}`, submissionData);
@@ -318,30 +334,36 @@ const Bill_Create = () => {
         // POST request for create mode
         res = await postAPI("/bom/", submissionData);
       }
-      
+
       // Store the API response
       setApiResponse(res.data);
-      
+
       // Extract message from API response
-      const message = res?.data?.message || 
-                      res?.data?.msg || 
-                      res?.message || 
-                      (isEditMode ? "BOM updated successfully!" : "BOM created successfully!");
-      
+      const message =
+        res?.data?.message ||
+        res?.data?.msg ||
+        res?.message ||
+        (isEditMode
+          ? "BOM updated successfully!"
+          : "BOM created successfully!");
+
       setPopupMessage(message);
       setSuccessModel(true);
-      
+
       console.log(isEditMode ? "BOM updated:" : "BOM created:", res.data);
-      
     } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} BOM:`, error);
-      
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} BOM:`,
+        error,
+      );
+
       // Extract error message from API response
-      const errorMessage = error?.response?.data?.message || 
-                           error?.response?.data?.msg || 
-                           error?.message || 
-                           `Failed to ${isEditMode ? 'update' : 'create'} BOM. Please try again.`;
-      
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.msg ||
+        error?.message ||
+        `Failed to ${isEditMode ? "update" : "create"} BOM. Please try again.`;
+
       setPopupMessage(errorMessage);
       setSuccessModel(true);
     } finally {
@@ -382,7 +404,6 @@ const Bill_Create = () => {
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
       <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
-
         {/* --- HEADER SECTION --- */}
         <motion.div
           variants={itemVariants}
@@ -397,7 +418,11 @@ const Bill_Create = () => {
             </button>
             <h1 className="text-2xl md:text-3xl font-semibold text-slate-800 tracking-tight">
               <span>{isEditMode ? "Edit" : "Create"}</span> Bill Of Materials
-              {isEditMode && rowId && <span className="text-sm ml-2 text-slate-500">(ID: {rowId})</span>}
+              {isEditMode && rowId && (
+                <span className="text-sm ml-2 text-slate-500">
+                  (ID: {rowId})
+                </span>
+              )}
             </h1>
           </div>
         </motion.div>
@@ -413,7 +438,7 @@ const Bill_Create = () => {
               required
             />
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="Customer Name"
@@ -426,7 +451,7 @@ const Bill_Create = () => {
               disabled={isEditMode} // Disable in edit mode
             />
           </motion.div>
-          
+
           <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="Project Name"
@@ -439,7 +464,7 @@ const Bill_Create = () => {
               required
             />
           </motion.div>
-          
+
           {/* <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="Item Name"
@@ -456,7 +481,7 @@ const Bill_Create = () => {
         {/* --- ITEM LIST TABLE --- */}
         <motion.div variants={itemVariants} className="mb-10">
           <h2 className="text-3xl font-bold text-slate-900 mb-8">Item List</h2>
-          
+
           {tableData.length > 0 ? (
             <div className="overflow-hidden border border-slate-300 rounded-sm shadow-sm overflow-x-auto">
               <table className="w-full border-collapse bg-white">
@@ -492,7 +517,7 @@ const Bill_Create = () => {
                         {item.customerItem}
                       </td>
                       <td className="py-6 px-4 text-center text-sm font-bold text-slate-900">
-                        {isEditing(item.id, 'unit') ? (
+                        {isEditing(item.id, "unit") ? (
                           <div className="flex items-center justify-center gap-2">
                             <input
                               type="text"
@@ -519,7 +544,9 @@ const Bill_Create = () => {
                           <div className="flex items-center justify-center gap-3">
                             {item.unit}
                             <button
-                              onClick={() => handleEditStart(item.id, 'unit', item.unit)}
+                              onClick={() =>
+                                handleEditStart(item.id, "unit", item.unit)
+                              }
                               className="p-1 hover:bg-slate-100 rounded transition-colors"
                             >
                               <Pencil
@@ -532,7 +559,7 @@ const Bill_Create = () => {
                       </td>
                     </tr>
                   ))}
-                  
+
                   {/* TABLE FOOTER / TOTAL ROW */}
                   {tableData.length > 0 && (
                     <tr className="bg-white font-bold text-slate-900">
@@ -556,8 +583,8 @@ const Bill_Create = () => {
           ) : (
             <div className="text-center py-12 border border-slate-200 rounded-lg bg-slate-50">
               <p className="text-slate-500 text-lg">
-                {formData.projectId 
-                  ? "No items found for this project" 
+                {formData.projectId
+                  ? "No items found for this project"
                   : "Select a project to view items"}
               </p>
             </div>
@@ -566,9 +593,15 @@ const Bill_Create = () => {
 
         {/* Display total overall quantity for confirmation */}
         {tableData.length > 0 && (
-          <motion.div variants={itemVariants} className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <motion.div
+            variants={itemVariants}
+            className="mb-6 p-4 bg-blue-50 rounded-lg"
+          >
             <p className="text-blue-800 font-medium">
-              Total Overall Quantity: <span className="font-bold">{calculateTotalUnits().toLocaleString()}</span>
+              Total Overall Quantity:{" "}
+              <span className="font-bold">
+                {calculateTotalUnits().toLocaleString()}
+              </span>
             </p>
           </motion.div>
         )}
@@ -578,16 +611,30 @@ const Bill_Create = () => {
           variants={itemVariants}
           className="flex items-center gap-6 justify-end mt-6 mb-4"
         >
-          <Button 
-            onClick={() => setConfirmModel(true)} 
+          <Button
+            onClick={() => setConfirmModel(true)}
             variant="primary"
-            disabled={!formData.bomName || !formData.customerId || !formData.projectId || tableData.length === 0 || isSubmitting}
+            disabled={
+              !formData.bomName ||
+              !formData.customerId ||
+              !formData.projectId ||
+              tableData.length === 0 ||
+              isSubmitting
+            }
           >
-            {isSubmitting 
-              ? (isEditMode ? 'Updating...' : 'Creating...') 
-              : (isEditMode ? 'Update BOM' : 'Create BOM')}
+            {isSubmitting
+              ? isEditMode
+                ? "Updating..."
+                : "Creating..."
+              : isEditMode
+                ? "Update BOM"
+                : "Create BOM"}
           </Button>
-          <Button variant="secondary" onClick={() => navigate(-1)} disabled={isSubmitting}>
+          <Button
+            variant="secondary"
+            onClick={() => navigate(-1)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         </motion.div>
@@ -597,7 +644,7 @@ const Bill_Create = () => {
           isOpen={confirmModel}
           onClose={() => setConfirmModel(false)}
           onConfirm={handleConfirmSubmit}
-          message={`Are you sure you want to ${isEditMode ? 'update' : 'create'} this Bill of Materials?`}
+          message={`Are you sure you want to ${isEditMode ? "update" : "create"} this Bill of Materials?`}
           title={isEditMode ? "Confirm Update" : "Confirm Creation"}
         />
 

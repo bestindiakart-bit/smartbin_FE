@@ -25,8 +25,7 @@ export const ForeCast_Route = [
       monthLabel: "Forecast Month",
       quantityLabel: "Production Quantity",
       updateLabel: "Update Forecast",
-      searchPlaceholder:
-        "Search by Forecast ID, Customer, Project, or BOM...",
+      searchPlaceholder: "Search by Forecast ID, Customer, Project, or BOM...",
     },
     children: [
       {

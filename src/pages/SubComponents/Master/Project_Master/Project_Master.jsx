@@ -1,5 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, Loader2, SquareKanban, Users, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Loader2,
+  SquareKanban,
+  Users,
+  XCircle,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Project_Master_View from "./Project_Master_View";
@@ -26,18 +32,17 @@ import { useDispatch, useSelector } from "react-redux";
 
 const Project_Master = () => {
   const navigate = useNavigate();
-      const { permissions } = useSelector((state) => state.permissions);
+  const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[3] || {};
   console.log("Permissions in User Master:", userPermissions);
-  
+
   // Define permission checks
-  const canView = userPermissions?.view ||  false;
+  const canView = userPermissions?.view || false;
   const canEdit = userPermissions?.edit || false;
   const canDelete = userPermissions?.delete || false;
   const canCreate = userPermissions?.create || false;
-  
-  
+
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
@@ -45,11 +50,11 @@ const Project_Master = () => {
   // UI States
   const [succesModel, setSuccessModel] = useState(false);
   const [confirmModel, setConfirmModel] = useState(false);
-  const[deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [errorPopup, setErrorPopup] = useState({ open: false, message: "" });
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const[isOpenViewPage, setIsOpenViewPage] = useState(false);
+  const [isOpenViewPage, setIsOpenViewPage] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [exportLoading, setExportLoading] = useState(false);
 
@@ -58,7 +63,12 @@ const Project_Master = () => {
   const [projectData, setProjectData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [stats, setStats] = useState({ total: 0, customers: 0, active: 0, inactive: 0 });
+  const [stats, setStats] = useState({
+    total: 0,
+    customers: 0,
+    active: 0,
+    inactive: 0,
+  });
 
   // --- PAGINATION STATE ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,14 +81,14 @@ const Project_Master = () => {
     return date.toLocaleDateString("en-GB");
   };
 
-  useEffect(()=>{
-    if(deleteSuccess){
+  useEffect(() => {
+    if (deleteSuccess) {
       const timer = setTimeout(() => {
         setDeleteSuccess(false);
       }, 2000);
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  })
+  });
 
   // --- 1. FETCH DATA (Dynamic Pagination & Flattening) ---
   const fetchProjects = useCallback(async () => {
@@ -86,15 +96,16 @@ const Project_Master = () => {
       setLoading(true);
       // Passing page and limit to the API service
       const res = await project_master_get(currentPage, itemsPerPage);
-      
-      const rawArray = res?.data?.data?.projects ||[];
-      const totalCountFromServer = res?.data?.data?.totalCount || rawArray.length;
+
+      const rawArray = res?.data?.data?.projects || [];
+      const totalCountFromServer =
+        res?.data?.data?.totalCount || rawArray.length;
 
       const formattedData = rawArray.map((item) => ({
         ...item,
-        id: item._id, 
-        customerName: item.projectName || "N/A", 
-        companyName: item.slug || "No slug", 
+        id: item._id,
+        customerName: item.projectName || "N/A",
+        companyName: item.slug || "No slug",
         customerDisplayName: item.customerId?.companyName || "N/A",
         status: item.status === 1 || item.status === true,
         formattedCreatedDate: formatDate(item.createdAt),
@@ -102,7 +113,7 @@ const Project_Master = () => {
 
       setProjectData(formattedData);
       setTotalItems(totalCountFromServer);
-      
+
       // Calculate Stats (Based on current page data or full data if provided by API)
       calculateStats(formattedData, totalCountFromServer);
     } catch (err) {
@@ -114,27 +125,30 @@ const Project_Master = () => {
   }, [currentPage, itemsPerPage]);
 
   const calculateStats = (data, totalCount) => {
-    const uniqueCustomers =[...new Set(data.map(item => item?.customerId?._id))].filter(Boolean).length;
+    const uniqueCustomers = [
+      ...new Set(data.map((item) => item?.customerId?._id)),
+    ].filter(Boolean).length;
     setStats({
       total: totalCount,
       customers: uniqueCustomers,
-      active: data.filter(i => i.status === true).length,
-      inactive: data.filter(i => i.status === false).length,
+      active: data.filter((i) => i.status === true).length,
+      inactive: data.filter((i) => i.status === false).length,
     });
   };
 
-  useEffect(() => { 
-    fetchProjects(); 
+  useEffect(() => {
+    fetchProjects();
   }, [fetchProjects]);
 
   // --- 2. SEARCH & FILTER ---
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return projectData;
     const query = searchQuery.toLowerCase();
-    return projectData.filter((item) => 
-      item.projectName?.toLowerCase().includes(query) ||
-      item.projectId?.toLowerCase().includes(query) ||
-      item.customerDisplayName?.toLowerCase().includes(query)
+    return projectData.filter(
+      (item) =>
+        item.projectName?.toLowerCase().includes(query) ||
+        item.projectId?.toLowerCase().includes(query) ||
+        item.customerDisplayName?.toLowerCase().includes(query),
     );
   }, [searchQuery, projectData]);
 
@@ -146,15 +160,17 @@ const Project_Master = () => {
   // --- 3. STATUS TOGGLE ---
   const handleToggleStatus = async (selectedRow) => {
     const newStatusBool = !selectedRow.status;
-    const apiValue = newStatusBool ? 1 : 0; 
+    const apiValue = newStatusBool ? 1 : 0;
     const patchPayload = { status: apiValue };
 
     try {
       const res = await project_patch_row(selectedRow.id, patchPayload);
       if (res?.data?.success || res?.status === 200) {
-        setProjectData(prev => prev.map(row => 
-          row.id === selectedRow.id ? { ...row, status: newStatusBool } : row
-        ));
+        setProjectData((prev) =>
+          prev.map((row) =>
+            row.id === selectedRow.id ? { ...row, status: newStatusBool } : row,
+          ),
+        );
       }
     } catch (err) {
       const errMsg = err.response?.data?.data?.message || "Update Failed";
@@ -167,12 +183,14 @@ const Project_Master = () => {
     try {
       setExportLoading(true);
       const response = await project_export(format);
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      const fileName = `project_export_${new Date().toISOString().split('T')[0]}.${format}`;
-      link.setAttribute('download', fileName);
+      const fileName = `project_export_${new Date().toISOString().split("T")[0]}.${format}`;
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -211,41 +229,89 @@ const Project_Master = () => {
     }
   };
 
-  const handleView = (row) => { setSelectedRowId(row.id); setIsOpenViewPage(true); };
-  const handleEdit = (row) => navigate('project-create', { state: { rowId: row.id, mode: 'edit' } });
+  const handleView = (row) => {
+    setSelectedRowId(row.id);
+    setIsOpenViewPage(true);
+  };
+  const handleEdit = (row) =>
+    navigate("project-create", { state: { rowId: row.id, mode: "edit" } });
 
-  const StatsData =[
-    { title: "Total Project", count: stats.total, footerText: "OverAll", icon: <SquareKanban /> },
-    { title: "Total Customers", count: stats.customers, footerText: "Current Page", icon: <Users /> },
-    { title: "Total Active", count: stats.active, footerText: "Current Page", icon: <CheckCircle2 /> },
-    { title: "Total Inactive", count: stats.inactive, footerText: "Current Page", icon: <XCircle /> },
+  const StatsData = [
+    {
+      title: "Total Project",
+      count: stats.total,
+      footerText: "OverAll",
+      icon: <SquareKanban />,
+    },
+    {
+      title: "Total Customers",
+      count: stats.customers,
+      footerText: "Current Page",
+      icon: <Users />,
+    },
+    {
+      title: "Total Active",
+      count: stats.active,
+      footerText: "Current Page",
+      icon: <CheckCircle2 />,
+    },
+    {
+      title: "Total Inactive",
+      count: stats.inactive,
+      footerText: "Current Page",
+      icon: <XCircle />,
+    },
   ];
-  
-  const columns =[
-    { header: 'Project ID', key: 'projectId' },
-    { header: 'Project Name', key: 'customerName', isCustomer: true }, 
-    { header: 'Customer', key: 'customerDisplayName' }, 
-    { header: 'Created', key: 'formattedCreatedDate' },
+
+  const columns = [
+    { header: "Project ID", key: "projectId" },
+    { header: "Project Name", key: "customerName", isCustomer: true },
+    { header: "Customer", key: "customerDisplayName" },
+    { header: "Created", key: "formattedCreatedDate" },
     { header: "Status", key: "status", isToggle: true },
   ];
 
   return (
-    <motion.div initial="hidden" animate="visible" className="bg-[#fcfdfe] min-h-screen">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      className="bg-[#fcfdfe] min-h-screen"
+    >
       <div className="max-w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Project <span className="text-[#0062a0]">Master</span></h1>
-            <p className="text-[#0062a0] font-medium mt-1">Directory Management</p>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              Project <span className="text-[#0062a0]">Master</span>
+            </h1>
+            <p className="text-[#0062a0] font-medium mt-1">
+              Directory Management
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button disabled ={!canCreate} onClick={() => navigate('project-create')} variant="primary">+ Create Project</Button>
-            <Download_Button disabled={!canView} onSelect={handleExport} tooltipText={exportLoading ? "Generating..." : "Export Data"} />
+            <Button
+              disabled={!canCreate}
+              onClick={() => navigate("project-create")}
+              variant="primary"
+            >
+              + Create Project
+            </Button>
+            <Download_Button
+              disabled={!canView}
+              onSelect={handleExport}
+              tooltipText={exportLoading ? "Generating..." : "Export Data"}
+            />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {StatsData.map((item, index) => (
-            <StatsCard key={index} title={item.title} count={item.count} footerText={item.footerText} icon={item.icon} />
+            <StatsCard
+              key={index}
+              title={item.title}
+              count={item.count}
+              footerText={item.footerText}
+              icon={item.icon}
+            />
           ))}
         </div>
 
@@ -253,16 +319,28 @@ const Project_Master = () => {
           {/* SEARCH & BULK DELETE ACTION BAR */}
           <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="max-w-md w-full">
-              <SearchBar value={searchQuery} onChange={handleSearchChange} placeholder="Search projects..." />
+              <SearchBar
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search projects..."
+              />
             </div>
 
             <AnimatePresence>
               {selectedRows.length > 0 && (
-                <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="flex items-center gap-4">
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className="flex items-center gap-4"
+                >
                   <span className="text-sm font-semibold text-[#0062a0] bg-blue-50 px-4 py-2 rounded-full">
                     {selectedRows.length} Selected
                   </span>
-                  <button onClick={() => setConfirmModel(true)} className="text-red-500 hover:text-red-700 text-sm font-bold transition-colors">
+                  <button
+                    onClick={() => setConfirmModel(true)}
+                    className="text-red-500 hover:text-red-700 text-sm font-bold transition-colors"
+                  >
                     Delete
                   </button>
                 </motion.div>
@@ -272,10 +350,15 @@ const Project_Master = () => {
 
           <div className="p-2">
             {loading && projectData.length === 0 ? (
-              <div className="p-20 text-center"><Loader2 className="animate-spin inline text-[#0062a0]" size={32} /></div>
+              <div className="p-20 text-center">
+                <Loader2
+                  className="animate-spin inline text-[#0062a0]"
+                  size={32}
+                />
+              </div>
             ) : (
               <ReUsable_Table
-                columns={columns} 
+                columns={columns}
                 data={filteredData}
                 loading={loading}
                 showToggle={true}
@@ -305,11 +388,40 @@ const Project_Master = () => {
         </div>
       </div>
 
-      <Success_Popup isOpen={succesModel} onClose={() => setSuccessModel(false)} message="File Downloaded Successfully!" />
-      <Confirmation_Popup isOpen={confirmModel} onClose={() => { setConfirmModel(false); setDeleteTarget(null); }} onConfirm={executeDelete} message={actionLoading ? "Processing..." : "Are you sure you want to delete?"} />
-      <ErrorMessage_Popup isOpen={errorPopup.open} onClose={() => setErrorPopup({ ...errorPopup, open: false })} message={errorPopup.message} />
-      <Project_Master_View isOpen={isOpenViewPage} onClose={() => { setIsOpenViewPage(false); setSelectedRowId(null); }} rowId={selectedRowId} />
-      <Success_Popup isOpen={deleteSuccess} onClose={() => setDeleteSuccess(false)} message="Deleted Successfully!" />
+      <Success_Popup
+        isOpen={succesModel}
+        onClose={() => setSuccessModel(false)}
+        message="File Downloaded Successfully!"
+      />
+      <Confirmation_Popup
+        isOpen={confirmModel}
+        onClose={() => {
+          setConfirmModel(false);
+          setDeleteTarget(null);
+        }}
+        onConfirm={executeDelete}
+        message={
+          actionLoading ? "Processing..." : "Are you sure you want to delete?"
+        }
+      />
+      <ErrorMessage_Popup
+        isOpen={errorPopup.open}
+        onClose={() => setErrorPopup({ ...errorPopup, open: false })}
+        message={errorPopup.message}
+      />
+      <Project_Master_View
+        isOpen={isOpenViewPage}
+        onClose={() => {
+          setIsOpenViewPage(false);
+          setSelectedRowId(null);
+        }}
+        rowId={selectedRowId}
+      />
+      <Success_Popup
+        isOpen={deleteSuccess}
+        onClose={() => setDeleteSuccess(false)}
+        message="Deleted Successfully!"
+      />
     </motion.div>
   );
 };

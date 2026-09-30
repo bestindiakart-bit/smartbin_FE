@@ -21,106 +21,106 @@ import User_Permission_Main from "../../pages/SubComponents/Master/User_Permissi
 import User_Permission_Master from "../../pages/SubComponents/Master/User_Permission_Master/User_Permission_Master";
 import User_ViewPage from "../../pages/SubComponents/Master/User_Permission_Master/User_ViewPage";
 
-
 export const Master_Route = [
-    {
-        path:"customer-master",
-        Component:Main_Customer,
-        children:[
-            {
-        index:true,
-        Component:Customer_Master
-    },
-    {
-        path:"create-customer",
-        Component:Customer_Master_Create,
-    },
-    {
-        path:"customer-view",
-        Component:View_Page,
-    }
-        ]
-    },
-    {
-        path:"user-master",
-        Component:User_Master_Main,
-        children:[
-            {
-        index:true,
-        Component:User_Master
-    },
-    {
-        path:"user-create",
-        Component:UserMaster_Create
-    },
-    {
-        path:"user-view",
-        Component:UserMaster_View
-    }
-        ]
-    },
-    {
-        path:"user-permission-master",
-        Component:User_Permission_Main,
-        children:[
-            {
-        index:true,
-        Component:User_Permission_Master,
-    },
-    {
-        path:"user-view",
-        Component:User_ViewPage,
-    },
-    {
-        path:"user-create",
-        Component:User_Create,
-    }
-        ]
-    },
-    
-    {
-        path:"project-master",
-        Component:Project_Master_Main,
-        children:[
-            {
-                index:true,
-                Component:Project_Master,
-            },
-            {
-                path:"project-create",
-                Component:Project_Master_Create,
-            }
-        ]
-    },{
-        path:"item-master",
-        Component:Item_Master_Main,
-        children:[
-            {
-                index:true,
-                Component:Item_Master,
-            },
-            {
-                path:"item-view",
-                Component:Item_View_Page,
-            },
-            {
-                path:"item-create",
-                Component:Item_Create,
-            }
-        ]
-    },
-    {
-        path:"create-setting",
-        Component:CreateSettingMain,
-        children:[
-            {
-                index:true,
-                Component:CreateSetting,
-            },
-            {
-                path:"iot-create",
-                Component:IotCreate,
-            }
-        ]
-    }
-]
+  {
+    path: "customer-master",
+    Component: Main_Customer,
+    children: [
+      {
+        index: true,
+        Component: Customer_Master,
+      },
+      {
+        path: "create-customer",
+        Component: Customer_Master_Create,
+      },
+      {
+        path: "customer-view",
+        Component: View_Page,
+      },
+    ],
+  },
+  {
+    path: "user-master",
+    Component: User_Master_Main,
+    children: [
+      {
+        index: true,
+        Component: User_Master,
+      },
+      {
+        path: "user-create",
+        Component: UserMaster_Create,
+      },
+      {
+        path: "user-view",
+        Component: UserMaster_View,
+      },
+    ],
+  },
+  {
+    path: "user-permission-master",
+    Component: User_Permission_Main,
+    children: [
+      {
+        index: true,
+        Component: User_Permission_Master,
+      },
+      {
+        path: "user-view",
+        Component: User_ViewPage,
+      },
+      {
+        path: "user-create",
+        Component: User_Create,
+      },
+    ],
+  },
+
+  {
+    path: "project-master",
+    Component: Project_Master_Main,
+    children: [
+      {
+        index: true,
+        Component: Project_Master,
+      },
+      {
+        path: "project-create",
+        Component: Project_Master_Create,
+      },
+    ],
+  },
+  {
+    path: "item-master",
+    Component: Item_Master_Main,
+    children: [
+      {
+        index: true,
+        Component: Item_Master,
+      },
+      {
+        path: "item-view",
+        Component: Item_View_Page,
+      },
+      {
+        path: "item-create",
+        Component: Item_Create,
+      },
+    ],
+  },
+  {
+    path: "create-setting",
+    Component: CreateSettingMain,
+    children: [
+      {
+        index: true,
+        Component: CreateSetting,
+      },
+      {
+        path: "iot-create",
+        Component: IotCreate,
+      },
+    ],
+  },
+];
