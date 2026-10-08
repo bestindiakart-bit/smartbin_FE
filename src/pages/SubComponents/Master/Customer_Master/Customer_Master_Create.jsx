@@ -10,16 +10,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 // Phone Input Package
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-
 // Map Packages (Leaflet)
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
-
 // Components
 import Button from "../../../../component/button/Buttons";
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
@@ -27,7 +25,6 @@ import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import ReUsableInput_Fields from "../../../../component/ReUsableInput_Fields/ReUsableInput_Fields";
 import Overall_Permissions from "../../Overall_Permissions/OverAll_Permissions/Overall_Permissions";
-
 // API Services
 import {
   customer_create,
@@ -36,13 +33,11 @@ import {
   customer_post_Type,
   customer_view,
 } from "../../../../service/Master_Services/Master_Services";
-
 // --- CONSTANTS ---
 const SMARTBIN_OPTIONS = [
   { label: "active", value: true },
   { label: "inactive", value: false },
 ];
-
 // --- Fix for Leaflet Icons in React ---
 const mapIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -54,7 +49,6 @@ const mapIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41],
 });
-
 // --- Map Click Handler Component ---
 const MapClickHandler = ({ position, setPosition }) => {
   useMapEvents({
@@ -64,7 +58,6 @@ const MapClickHandler = ({ position, setPosition }) => {
   });
   return position ? <Marker position={position} icon={mapIcon} /> : null;
 };
-
 // ==========================================
 // COMPONENT: Customer Details Section
 // ==========================================
@@ -86,7 +79,6 @@ const CustomerDetails = ({
         </span>
         <div className="h-[1px] flex-1 bg-slate-100"></div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
         <ReUsableInput_Fields
           label="Admin Email"
@@ -95,7 +87,6 @@ const CustomerDetails = ({
           value={formData.adminEmail}
           onChange={handleChange}
         />
-
         {/* Password Input with Generate Button */}
         {!isEditMode && (
           <div className="flex flex-col relative">
@@ -120,7 +111,6 @@ const CustomerDetails = ({
             </span>
           </div>
         )}
-
         {/* Position & Department */}
         <ReUsableInput_Fields
           label="Position"
@@ -136,7 +126,6 @@ const CustomerDetails = ({
           onChange={handleChange}
           placeholder="e.g. Logistics"
         />
-
         {/* Primary Phone Number with Country Flag */}
         <div className="flex flex-col gap-1 w-full relative z-10">
           <label className="text-[13px] font-semibold text-slate-700">
@@ -161,7 +150,6 @@ const CustomerDetails = ({
             }}
           />
         </div>
-
         {/* Secondary Phone Number with Country Flag */}
         <div className="flex flex-col gap-1 w-full relative z-0">
           <label className="text-[13px] font-semibold text-slate-700">
@@ -190,94 +178,46 @@ const CustomerDetails = ({
     </div>
   );
 };
-
-// --- DEFAULT PERMISSIONS TEMPLATE ---
-const defaultPermissionsList = [
-  { module: "dashboard", create: true, view: true, edit: true, delete: true },
-  {
-    module: "customer_master",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  { module: "user_master", create: true, view: true, edit: true, delete: true },
-  {
-    module: "project_master",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  { module: "item_master", create: true, view: true, edit: true, delete: true },
-  {
-    module: "user_type_permission_master",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "warehouse_creation",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "warehouse_order_details",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "bin_configuration",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "bill_of_materials",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "forecast_viewer",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "smart_bin_dashboard",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-  {
-    module: "overall_report",
-    create: true,
-    view: true,
-    edit: true,
-    delete: true,
-  },
-];
-
+// Permission modules come from the already-initialized Redux store.
+const emptyPermission = (module) => ({
+  module,
+  create: false,
+  view: false,
+  edit: false,
+  delete: false,
+});
+const mergeCustomerPermissions = (available, saved = []) => {
+  const savedMap = new Map(
+    saved.filter((p) => p?.module).map((p) => [p.module, p]),
+  );
+  // Preserve saved modules missing from Redux so editing cannot silently revoke them.
+  const moduleNames = [...new Set([
+    ...available.map((p) => p.module),
+    ...saved.filter((p) => p?.module).map((p) => p.module),
+  ])];
+  return moduleNames.map((module) => {
+    const previous = savedMap.get(module);
+    return {
+      module,
+      create: previous?.create === true,
+      view: previous?.view === true,
+      edit: previous?.edit === true,
+      delete: previous?.delete === true,
+    };
+  });
+};
 // ==========================================
 // MAIN COMPONENT: Customer Master Create
 // ==========================================
 const Customer_Master_Create = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { mode, rowId } = location.state || {};
   const isEditMode = mode === "edit";
-
+  // Centralized Redux permissions loaded by the authenticated app.
+  const reduxPermissions = useSelector((state) => state.permissions?.permissions ?? []);
+  const reduxLoading = useSelector((state) => state.permissions?.loading ?? false);
+  const reduxInitialized = useSelector((state) => state.permissions?.initialized);
   // --- POPUP STATES ---
   const [successPopup, setSuccessPopup] = useState({
     open: false,
@@ -288,23 +228,20 @@ const Customer_Master_Create = () => {
     open: false,
     message: "",
   });
-
   const [customType, setCustomType] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
-
   // Modal States
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [isAddingType, setIsAddingType] = useState(false);
-
   // Map States
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [mapPosition, setMapPosition] = useState([20.5937, 78.9629]); // Default: Center of India
-
   // --- 1. PERMISSIONS STATE ---
-  const [permissions, setPermissions] = useState(defaultPermissionsList);
-
+  const [permissions, setPermissions] = useState([]);
+  const [permissionLoading, setPermissionLoading] = useState(true);
+  const [permissionError, setPermissionError] = useState("");
   // --- 2. FORM STATE ---
   const [formData, setFormData] = useState({
     companyName: "",
@@ -326,18 +263,31 @@ const Customer_Master_Create = () => {
     billingAddress: "",
     localityMap: "",
   });
-
   // --- 3. FETCH INITIAL DATA ---
   useEffect(() => {
     const initializePage = async () => {
       await fetchTypes();
-
+      // Use the centralized Redux module list, without re-fetching /me.
+      const availablePermissions = Array.isArray(reduxPermissions)
+        ? reduxPermissions.filter(
+            (p) => typeof p?.module === "string" && p.module.trim(),
+          )
+        : [];
+      if (availablePermissions.length === 0) {
+        const message = "No permission modules found in Redux. Initialize permissions after login.";
+        setPermissionError(message);
+        setErrorPopup({ open: true, message });
+        setPermissionLoading(false);
+        return;
+      }
+      setPermissionError("");
+      setPermissions(availablePermissions.map((p) => emptyPermission(p.module)));
+      setPermissionLoading(false);
       if (isEditMode && rowId) {
         try {
           setFetchingData(true);
           const res = await customer_view(rowId);
           const data = res?.data?.data;
-
           if (data) {
             setFormData({
               companyName: data.companyName || "",
@@ -366,7 +316,6 @@ const Customer_Master_Create = () => {
                 ? `${data.geoLocation.coordinates[0]}, ${data.geoLocation.coordinates[1]}`
                 : "",
             });
-
             // Update Map Position if data exists
             if (data.geoLocation?.coordinates) {
               setMapPosition([
@@ -374,30 +323,16 @@ const Customer_Master_Create = () => {
                 data.geoLocation.coordinates[0],
               ]); // Leaflet uses [Lat, Lng]
             }
-
-            // -> Updated here to map permissions from data.superAdmin.permissions fallback to data.permissions
-            const fetchedPermissions =
-              data.superAdmin?.permissions || data.permissions;
-            if (fetchedPermissions && fetchedPermissions.length > 0) {
-              const updatedPermissions = defaultPermissionsList.map(
-                (defaultPerm) => {
-                  const fetchedPerm = fetchedPermissions.find(
-                    (p) => p.module === defaultPerm.module,
-                  );
-                  return fetchedPerm
-                    ? { ...defaultPerm, ...fetchedPerm }
-                    : defaultPerm;
-                },
+              const fetchedPermissions =
+                data.superAdmin?.permissions || data.permissions || [];
+              setPermissions(
+                mergeCustomerPermissions(availablePermissions, fetchedPermissions),
               );
-              setPermissions(updatedPermissions);
-            }
           }
         } catch (err) {
           // In the edit mode data fetch (around line 200)
           console.error("Error fetching customer details:", err);
-
           let errMsg = "Error fetching customer details";
-
           if (err.response?.data) {
             if (err.response.data.data?.message) {
               errMsg = err.response.data.data.message;
@@ -409,17 +344,15 @@ const Customer_Master_Create = () => {
           } else if (err.message) {
             errMsg = err.message;
           }
-
           setErrorPopup({ open: true, message: errMsg });
         } finally {
           setFetchingData(false);
         }
       }
     };
-
+    if (reduxLoading || reduxInitialized === false) return;
     initializePage();
-  }, [isEditMode, rowId]);
-
+  }, [isEditMode, rowId, reduxPermissions, reduxLoading, reduxInitialized]);
   // In fetchTypes function (around line 250)
   const fetchTypes = async () => {
     try {
@@ -432,9 +365,7 @@ const Customer_Master_Create = () => {
       setCustomType(formattedData);
     } catch (err) {
       console.error("Error fetching customer types:", err);
-
       let errMsg = "Failed to fetch customer types";
-
       if (err.response?.data) {
         if (err.response.data.data?.message) {
           errMsg = err.response.data.data.message;
@@ -446,11 +377,9 @@ const Customer_Master_Create = () => {
       } else if (err.message) {
         errMsg = err.message;
       }
-
       setErrorPopup({ open: true, message: errMsg });
     }
   };
-
   useEffect(() => {
     let timer;
     if (successPopup.open) {
@@ -467,10 +396,8 @@ const Customer_Master_Create = () => {
     }
     return () => clearTimeout(timer);
   }, [successPopup.open, navigate, successPopup.message]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "ishavesmartbin") {
       setFormData((prev) => ({
         ...prev,
@@ -480,7 +407,6 @@ const Customer_Master_Create = () => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
   // Dedicated handler for PhoneInput package
   const handlePhoneChange = (name, value, country) => {
     const dialCode = country.dialCode;
@@ -490,14 +416,12 @@ const Customer_Master_Create = () => {
     }
     // Remove any formatting characters (spaces, dashes) to get exact digits
     nationalNumber = nationalNumber.replace(/\D/g, "");
-
     setFormData((prev) => ({
       ...prev,
       [`${name}Full`]: value,
       [name]: nationalNumber,
     }));
   };
-
   // Password Generator Handler
   const handleGeneratePassword = () => {
     const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -505,24 +429,20 @@ const Customer_Master_Create = () => {
     const numbers = "0123456789";
     const special = "@$!%*?&";
     const all = upper + lower + numbers + special;
-
     let pass = "";
     pass += upper[Math.floor(Math.random() * upper.length)];
     pass += lower[Math.floor(Math.random() * lower.length)];
     pass += numbers[Math.floor(Math.random() * numbers.length)];
     pass += special[Math.floor(Math.random() * special.length)];
-
     for (let i = 0; i < 6; i++) {
       pass += all[Math.floor(Math.random() * all.length)];
     }
-
     pass = pass
       .split("")
       .sort(() => 0.5 - Math.random())
       .join("");
     setFormData((prev) => ({ ...prev, adminPassword: pass }));
   };
-
   // Get Geolocation Coordinates Handler (Browser Native)
   const handleGetLocation = () => {
     if ("geolocation" in navigator) {
@@ -552,7 +472,6 @@ const Customer_Master_Create = () => {
       });
     }
   };
-
   const handleConfirmMapLocation = () => {
     if (mapPosition) {
       // Format: Lng, Lat
@@ -563,29 +482,24 @@ const Customer_Master_Create = () => {
     }
     setIsMapModalOpen(false);
   };
-
   // In handleAddCustomerType function
   const handleAddCustomerType = async () => {
     if (!newTypeName.trim()) return;
     try {
       setIsAddingType(true);
       const res = await customer_post_Type({ customerTypeName: newTypeName });
-
       // Get message from API response
       const successMessage =
         res?.data?.message ||
         res?.data?.msg ||
         "Customer type added successfully!";
-
       setSuccessPopup({ open: true, message: successMessage });
       setNewTypeName("");
       setIsTypeModalOpen(false);
       await fetchTypes();
     } catch (err) {
       console.error("Error adding customer type:", err);
-
       let errMsg = "Error adding customer type";
-
       if (err.response?.data) {
         if (err.response.data.data?.message) {
           errMsg = err.response.data.data.message;
@@ -597,15 +511,20 @@ const Customer_Master_Create = () => {
       } else if (err.message) {
         errMsg = err.message;
       }
-
       setErrorPopup({ open: true, message: errMsg });
     } finally {
       setIsAddingType(false);
     }
   };
-
   // Validation rules before Submitting
   const triggerSubmitConfirm = () => {
+    if (permissionLoading || reduxLoading || reduxInitialized === false || permissionError || !permissions.length) {
+      setErrorPopup({
+        open: true,
+        message: permissionError || "Permission modules are not ready.",
+      });
+      return;
+    }
     if (!formData.companyName || !formData.customerName) {
       setErrorPopup({
         open: true,
@@ -613,7 +532,6 @@ const Customer_Master_Create = () => {
       });
       return;
     }
-
     if (formData.adminPassword) {
       const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -626,7 +544,6 @@ const Customer_Master_Create = () => {
         return;
       }
     }
-
     if (formData.primaryNumber && formData.primaryNumber.length > 10) {
       setErrorPopup({
         open: true,
@@ -634,7 +551,6 @@ const Customer_Master_Create = () => {
       });
       return;
     }
-
     if (formData.secondaryNumber && formData.secondaryNumber.length > 10) {
       setErrorPopup({
         open: true,
@@ -642,25 +558,22 @@ const Customer_Master_Create = () => {
       });
       return;
     }
-
     setConfirmPopup({
       open: true,
       message: `Are you sure you want to ${isEditMode ? "update" : "create"} this customer?`,
     });
   };
-
   // --- 4. FINAL SUBMISSION ---
   // --- 4. FINAL SUBMISSION ---
   const handleFinalSubmit = async () => {
+    if (loading || permissionLoading || reduxLoading || reduxInitialized === false || permissionError || !permissions.length) return;
     setConfirmPopup({ ...confirmPopup, open: false });
     try {
       setLoading(true);
-
       const coords = formData.localityMap
         .split(",")
         .map((num) => parseFloat(num.trim()))
         .filter((num) => !isNaN(num));
-
       const mobileNumberArray = [];
       if (formData.primaryNumber && formData.primaryNumber.trim() !== "") {
         mobileNumberArray.push(formData.primaryNumber);
@@ -668,7 +581,6 @@ const Customer_Master_Create = () => {
       if (formData.secondaryNumber && formData.secondaryNumber.trim() !== "") {
         mobileNumberArray.push(formData.secondaryNumber);
       }
-
       const finalPayload = {
         companyName: formData.companyName,
         customerName: formData.customerName,
@@ -688,16 +600,20 @@ const Customer_Master_Create = () => {
           type: "Point",
           coordinates: coords.length === 2 ? coords : [80.2707, 13.0827], // Default coordinates if empty
         },
-        permissions: permissions,
+        permissions: permissions.map(({ module, create, view, edit, delete: canDelete }) => ({
+          module,
+          create: create === true,
+          view: view === true,
+          edit: edit === true,
+          delete: canDelete === true,
+        })),
       };
-
       let res;
       if (isEditMode) {
         res = await customer_create_edit(rowId, finalPayload);
       } else {
         res = await customer_create(finalPayload);
       }
-
       // Get message from API response
       const successMessage =
         res?.data?.message ||
@@ -705,22 +621,18 @@ const Customer_Master_Create = () => {
         (isEditMode
           ? "Customer updated successfully!"
           : "Customer created successfully!");
-
       setSuccessPopup({
         open: true,
         message: successMessage,
       });
     } catch (error) {
       console.error("Submission error:", error);
-
       // Extract error message from the 409 response structure
       let errMsg = "An unexpected error occurred";
-
       if (error.response) {
         // The request was made and the server responded with a status code
         console.log("Error response data:", error.response.data);
         console.log("Error response status:", error.response.status);
-
         // Handle the specific error structure: { success: false, data: { message: "..." }, statusCode: 409 }
         if (error.response.data) {
           // Check if data has the structure with success and data.message
@@ -747,18 +659,15 @@ const Customer_Master_Create = () => {
         // Something happened in setting up the request
         errMsg = error.message || "Failed to process request";
       }
-
       // Add status code information if available and relevant
       if (error.response?.status === 409) {
         errMsg = errMsg || "Duplicate entry: Company name already exists";
       }
-
       setErrorPopup({ open: true, message: errMsg });
     } finally {
       setLoading(false);
     }
   };
-
   if (fetchingData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -766,7 +675,6 @@ const Customer_Master_Create = () => {
       </div>
     );
   }
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -786,7 +694,6 @@ const Customer_Master_Create = () => {
             {isEditMode ? "Edit Customer" : "Create Customer"}
           </h1>
         </div>
-
         {/* Main Form Grid */}
         <div className="mt-8">
           <div className="flex items-center gap-4 mb-6">
@@ -809,7 +716,6 @@ const Customer_Master_Create = () => {
               value={formData.customerName}
               onChange={handleChange}
             />
-
             <div className="relative">
               <button
                 type="button"
@@ -827,7 +733,6 @@ const Customer_Master_Create = () => {
                 onChange={handleChange}
               />
             </div>
-
             <ReUsableInput_Fields
               label="Has SmartBin"
               name="ishavesmartbin"
@@ -836,7 +741,6 @@ const Customer_Master_Create = () => {
               value={formData.ishavesmartbin}
               onChange={handleChange}
             />
-
             <ReUsableInput_Fields
               label="Transit Days"
               name="transitDays"
@@ -850,7 +754,6 @@ const Customer_Master_Create = () => {
               value={formData.gstNumber}
               onChange={handleChange}
             />
-
             <div className="relative">
               <div className="absolute right-0 top-0 z-20 flex items-center gap-3">
                 <button
@@ -879,7 +782,6 @@ const Customer_Master_Create = () => {
             </div>
           </div>
         </div>
-
         {/* Render Extracted Customer Details Component */}
         <CustomerDetails
           formData={formData}
@@ -887,7 +789,6 @@ const Customer_Master_Create = () => {
           handlePhoneChange={handlePhoneChange}
           handleGeneratePassword={handleGeneratePassword}
         />
-
         {/* Address Section */}
         <div className="mt-8">
           <div className="flex items-center gap-4 mb-6">
@@ -918,7 +819,6 @@ const Customer_Master_Create = () => {
             />
           </div>
         </div>
-
         {/* Permissions Component */}
         <div className="mt-16">
           <div className="flex items-center gap-4 mb-8">
@@ -928,12 +828,16 @@ const Customer_Master_Create = () => {
             </span>
             <div className="h-[1px] flex-1 bg-slate-100"></div>
           </div>
-
+          {(permissionLoading || reduxLoading || reduxInitialized === false) && (
+            <p className="text-sm text-slate-500">Loading available permissions...</p>
+          )}
+          {permissionError && (
+            <p className="text-sm text-red-600">{permissionError}</p>
+          )}
           <Overall_Permissions
             permissions={permissions}
             setPermissions={setPermissions}
           />
-
           <div className="flex items-center gap-4 justify-end mt-10">
             <Button variant="secondary" onClick={() => navigate(-1)}>
               Cancel
@@ -941,7 +845,7 @@ const Customer_Master_Create = () => {
             <Button
               variant="primary"
               onClick={triggerSubmitConfirm}
-              disabled={loading}
+              disabled={loading || permissionLoading || reduxLoading || reduxInitialized === false || Boolean(permissionError) || !permissions.length}
             >
               {loading ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -954,7 +858,6 @@ const Customer_Master_Create = () => {
           </div>
         </div>
       </div>
-
       {/* Map Interactive Modal */}
       <AnimatePresence>
         {isMapModalOpen && (
@@ -979,7 +882,6 @@ const Customer_Master_Create = () => {
               <p className="text-sm text-slate-500 mb-4">
                 Click anywhere on the map to drop a pin and capture coordinates.
               </p>
-
               <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-slate-200">
                 <MapContainer
                   center={mapPosition}
@@ -996,7 +898,6 @@ const Customer_Master_Create = () => {
                   />
                 </MapContainer>
               </div>
-
               <div className="flex justify-between items-center mt-6">
                 <div className="text-sm font-semibold text-slate-700 bg-slate-100 px-4 py-2 rounded-lg">
                   Selected:{" "}
@@ -1022,7 +923,6 @@ const Customer_Master_Create = () => {
           </div>
         )}
       </AnimatePresence>
-
       {/* Type Modal */}
       <AnimatePresence>
         {isTypeModalOpen && (
@@ -1062,7 +962,6 @@ const Customer_Master_Create = () => {
           </div>
         )}
       </AnimatePresence>
-
       {/* Popups */}
       <Confirmation_Popup
         isOpen={confirmPopup.open}
@@ -1070,7 +969,6 @@ const Customer_Master_Create = () => {
         onConfirm={handleFinalSubmit}
         message={confirmPopup.message}
       />
-
       <Success_Popup
         isOpen={successPopup.open}
         onClose={() => {
@@ -1078,7 +976,6 @@ const Customer_Master_Create = () => {
         }}
         message={successPopup.message}
       />
-
       <ErrorMessage_Popup
         isOpen={errorPopup.open}
         onClose={() => setErrorPopup({ ...errorPopup, open: false })}
@@ -1087,5 +984,4 @@ const Customer_Master_Create = () => {
     </motion.div>
   );
 };
-
 export default Customer_Master_Create;

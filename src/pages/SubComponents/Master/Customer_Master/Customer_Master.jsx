@@ -32,6 +32,7 @@ import { fetchPermissions } from "../../../../store/Permission_Store/Permission_
 const Customer_Master = () => {
   const navigate = useNavigate();
   const { permissions } = useSelector((state) => state.permissions);
+  // console.log("permissions in customer master", permissions);
   const dispatch = useDispatch();
   const userPermissions = permissions[1] || {};
 

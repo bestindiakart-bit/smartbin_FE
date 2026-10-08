@@ -2,11 +2,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Loader2, Wand2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 // Phone Input Package
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-
 // Components
 import Button from "../../../../component/button/Buttons";
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
@@ -14,7 +13,6 @@ import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 import ReUsableInput_Fields from "../../../../component/ReUsableInput_Fields/ReUsableInput_Fields";
 import Overall_Permissions from "../../Overall_Permissions/OverAll_Permissions/Overall_Permissions";
-
 // API Services
 import {
   customer_id,
@@ -24,109 +22,33 @@ import {
   user_type_get,
   user_type_post,
 } from "../../../../service/Master_Services/Master_Services";
-
-// Default template in case a user type has no permissions set
-const defaultPermissionsList = [
-  {
-    module: "dashboard",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "customer_master",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "user_master",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "project_master",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "item_master",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "user_type_permission_master",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "warehouse_creation",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "warehouse_order_details",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "bin_configuration",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "bill_of_materials",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "forecast_viewer",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "smart_bin_dashboard",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    module: "overall_report",
-    create: false,
-    view: false,
-    edit: false,
-    delete: false,
-  },
-];
-
+// Redux supplies the available modules; assigned values come from the user type/user.
+const normalizeModule = (value) => String(value ?? "").trim().toLowerCase();
+const ACTIONS = ["create", "view", "edit", "delete"];
+const mergePermissions = (available = [], assigned = []) => {
+  const validAvailable = Array.isArray(available) ? available : [];
+  const validAssigned = Array.isArray(assigned) ? assigned : [];
+  const assignedMap = new Map(validAssigned.filter(p => p?.module).map(p => [normalizeModule(p.module), p]));
+  const modules = new Map();
+  validAvailable.concat(validAssigned).forEach(item => {
+    if (typeof item?.module === "string" && item.module.trim()) {
+      const key = normalizeModule(item.module);
+      if (!modules.has(key)) modules.set(key, item.module);
+    }
+  });
+  return [...modules].map(([key, module]) => {
+    const saved = assignedMap.get(key);
+    return { module, ...Object.fromEntries(ACTIONS.map(action => [action, saved?.[action] === true])) };
+  });
+};
 const UserMaster_Create = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { mode, rowId } = location.state || {};
   const isEditMode = mode === "edit";
-
+  const reduxPermissions = useSelector(state => state.permissions?.permissions ?? []);
+  const reduxLoading = useSelector(state => state.permissions?.loading ?? false);
+  const reduxInitialized = useSelector(state => state.permissions?.initialized);
   // --- POPUP STATES ---
   const [successPopup, setSuccessPopup] = useState({
     open: false,
@@ -138,12 +60,10 @@ const UserMaster_Create = () => {
     open: false,
     message: "",
   });
-
   // --- MODAL STATES ---
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
   const [isAddingType, setIsAddingType] = useState(false);
-
   // --- UI STATES ---
   const [userTypes, setUserTypes] = useState([
     { label: "Loading...", value: "", permissions: [] },
@@ -153,7 +73,6 @@ const UserMaster_Create = () => {
   ]);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(false);
-
   // Helper to extract nested backend messages
   const getErrorMessage = (err) => {
     return (
@@ -163,12 +82,8 @@ const UserMaster_Create = () => {
       "Operation failed."
     );
   };
-
   // --- PERMISSIONS STATE ---
-  const [permissions, setPermissions] = useState(
-    JSON.parse(JSON.stringify(defaultPermissionsList)),
-  );
-
+  const [permissions, setPermissions] = useState([]);
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
     userName: "",
@@ -181,7 +96,6 @@ const UserMaster_Create = () => {
     mobileNumber: "",
     mobileNumberFull: "", // State for react-phone-input-2
   });
-
   // --- 1. FETCH CUSTOMERS ---
   const fetchcustomerID = useCallback(async () => {
     try {
@@ -192,12 +106,10 @@ const UserMaster_Create = () => {
         : rawData
           ? [rawData]
           : [];
-
       const formattedData = customerArray.map((item) => ({
         label: item.companyName || item.customerName || item.customerId,
         value: item._id,
       }));
-
       setCustomerOptions(formattedData);
       return formattedData;
     } catch (err) {
@@ -206,7 +118,6 @@ const UserMaster_Create = () => {
       return [];
     }
   }, []);
-
   // --- 2. FETCH USER TYPES (Including Permissions) ---
   const fetchUserTypes = useCallback(async () => {
     try {
@@ -217,7 +128,6 @@ const UserMaster_Create = () => {
         value: item._id,
         permissions: item.permissions || [], // Capture the template permissions here
       }));
-
       setUserTypes(formattedData);
       return formattedData;
     } catch (err) {
@@ -228,7 +138,6 @@ const UserMaster_Create = () => {
       return [];
     }
   }, []);
-
   // --- FETCH INITIAL DATA ON MOUNT ---
   useEffect(() => {
     const initializePage = async () => {
@@ -238,10 +147,8 @@ const UserMaster_Create = () => {
           fetchUserTypes(),
           fetchcustomerID(),
         ]);
-
         let initialData = {};
-        let initialPerms = defaultPermissionsList;
-
+        let initialPerms = [];
         // Auto-select if there is exactly one user type and extract its base permissions
         if (fetchedTypes?.length === 1) {
           initialData.userType = fetchedTypes[0].value;
@@ -249,17 +156,14 @@ const UserMaster_Create = () => {
             initialPerms = fetchedTypes[0].permissions;
           }
         }
-
         // Auto-select if there is exactly one customer
         if (fetchedCustomers?.length === 1) {
           initialData.customerId = fetchedCustomers[0].value;
         }
-
         // If in edit mode, fetch user data and override permissions with user's saved permissions
         if (isEditMode && rowId) {
           const res = await user_master_getID(rowId);
           const data = res?.data?.data?.users || res?.data?.data;
-
           if (data) {
             initialData = {
               ...initialData,
@@ -281,17 +185,15 @@ const UserMaster_Create = () => {
               mobileNumber: data.mobile || "",
               mobileNumberFull: data.mobile ? `91${data.mobile}` : "",
             };
-
             // Use explicitly saved user permissions if available
             if (data.permissions?.length > 0) {
               initialPerms = data.permissions;
             }
           }
         }
-
         setFormData((prev) => ({ ...prev, ...initialData }));
         // Deep clone the array to prevent accidental mutations across components
-        setPermissions(JSON.parse(JSON.stringify(initialPerms)));
+        setPermissions(mergePermissions(reduxPermissions, initialPerms));
       } catch (err) {
         setErrorPopup({ open: true, message: getErrorMessage(err) });
       } finally {
@@ -300,7 +202,6 @@ const UserMaster_Create = () => {
     };
     initializePage();
   }, [isEditMode, rowId, fetchUserTypes, fetchcustomerID]);
-
   // Success Redirect Logic
   useEffect(() => {
     let timer;
@@ -312,7 +213,6 @@ const UserMaster_Create = () => {
     }
     return () => clearTimeout(timer);
   }, [successPopup.open, successPopup.shouldNavigate, navigate]);
-
   const handleAddUserType = async () => {
     if (!newTypeName.trim()) return;
     try {
@@ -326,12 +226,11 @@ const UserMaster_Create = () => {
         setNewTypeName("");
         setIsTypeModalOpen(false);
         const fetched = await fetchUserTypes();
-
         // If there's exactly one after adding, auto-select it and populate permissions
         if (fetched.length === 1) {
           setFormData((prev) => ({ ...prev, userType: fetched[0].value }));
           if (fetched[0].permissions?.length > 0) {
-            setPermissions(JSON.parse(JSON.stringify(fetched[0].permissions)));
+            setPermissions(mergePermissions(reduxPermissions, fetched[0].permissions));
           }
         }
         setSuccessPopup({ open: true, message: msg, shouldNavigate: false });
@@ -342,24 +241,21 @@ const UserMaster_Create = () => {
       setIsAddingType(false);
     }
   };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     // If the User Type changes dynamically, map its permissions into the grid
     if (name === "userType") {
       const selectedType = userTypes.find((type) => type.value === value);
       if (selectedType && selectedType.permissions?.length > 0) {
         // Deep copy the template so modifications only affect this user
-        setPermissions(JSON.parse(JSON.stringify(selectedType.permissions)));
+        setPermissions(mergePermissions(reduxPermissions, selectedType.permissions));
       } else {
         // Reset to default empty template if no permissions found
-        setPermissions(JSON.parse(JSON.stringify(defaultPermissionsList)));
+        setPermissions(mergePermissions(reduxPermissions));
       }
     }
   };
-
   // Phone Change Handler
   const handlePhoneChange = (value, country) => {
     const dialCode = country.dialCode;
@@ -368,14 +264,12 @@ const UserMaster_Create = () => {
       nationalNumber = value.slice(dialCode.length);
     }
     nationalNumber = nationalNumber.replace(/\D/g, ""); // Extract exact numbers
-
     setFormData((prev) => ({
       ...prev,
       mobileNumberFull: value,
       mobileNumber: nationalNumber,
     }));
   };
-
   // Password Generator Handler
   const handleGeneratePassword = () => {
     const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -383,26 +277,26 @@ const UserMaster_Create = () => {
     const numbers = "0123456789";
     const special = "@$!%*?&";
     const all = upper + lower + numbers + special;
-
     let pass = "";
     pass += upper[Math.floor(Math.random() * upper.length)];
     pass += lower[Math.floor(Math.random() * lower.length)];
     pass += numbers[Math.floor(Math.random() * numbers.length)];
     pass += special[Math.floor(Math.random() * special.length)];
-
     for (let i = 0; i < 6; i++) {
       pass += all[Math.floor(Math.random() * all.length)];
     }
-
     pass = pass
       .split("")
       .sort(() => 0.5 - Math.random())
       .join("");
     setFormData((prev) => ({ ...prev, password: pass }));
   };
-
   // Pre-Submission Validations
   const triggerSubmitConfirm = () => {
+    if (reduxLoading || reduxInitialized === false || !reduxPermissions.length || !permissions.length) {
+      setErrorPopup({ open: true, message: "Permission modules are not ready in Redux." });
+      return;
+    }
     if (
       !formData.userName ||
       !formData.loginEmail ||
@@ -416,7 +310,6 @@ const UserMaster_Create = () => {
       });
       return;
     }
-
     // Password Validation
     if (formData.password) {
       const passwordRegex =
@@ -430,7 +323,6 @@ const UserMaster_Create = () => {
         return;
       }
     }
-
     // Mobile validation
     if (formData.mobileNumber && formData.mobileNumber.length > 10) {
       setErrorPopup({
@@ -439,19 +331,17 @@ const UserMaster_Create = () => {
       });
       return;
     }
-
     setConfirmPopup({
       open: true,
       message: `Are you sure you want to ${isEditMode ? "update" : "create"} this user?`,
     });
   };
-
   // --- FINAL SUBMISSION ---
   const handleFinalSubmit = async () => {
+    if (loading || reduxLoading || reduxInitialized === false || !permissions.length) return;
     setConfirmPopup((prev) => ({ ...prev, open: false }));
     try {
       setLoading(true);
-
       const finalPayload = {
         userName: formData.userName,
         loginEmail: formData.loginEmail,
@@ -460,13 +350,14 @@ const UserMaster_Create = () => {
         position: formData.position,
         department: formData.department,
         mobile: formData.mobileNumber,
-        permissions: permissions, // Saves the customized permissions layout
+        permissions: permissions.map(({ module, create, view, edit, delete: canDelete }) => ({
+          module, create: create === true, view: view === true,
+          edit: edit === true, delete: canDelete === true,
+        })),
       };
-
       if (formData.password) {
         finalPayload.loginPassword = formData.password;
       }
-
       let res;
       if (isEditMode) {
         res = await user_create_edit(rowId, finalPayload);
@@ -481,7 +372,6 @@ const UserMaster_Create = () => {
         }
         res = await user_create(finalPayload);
       }
-
       if (res?.data?.success) {
         const msg =
           res.data?.data?.message ||
@@ -495,7 +385,6 @@ const UserMaster_Create = () => {
       setLoading(false);
     }
   };
-
   const itemVariants = {
     hidden: { opacity: 0, y: 15 },
     visible: {
@@ -504,15 +393,13 @@ const UserMaster_Create = () => {
       transition: { type: "spring", stiffness: 100, damping: 15 },
     },
   };
-
-  if (fetchingData) {
+  if (fetchingData || reduxLoading || reduxInitialized === false) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <Loader2 className="animate-spin text-[#0062a0]" size={40} />
       </div>
     );
   }
-
   return (
     <motion.div
       initial="hidden"
@@ -535,7 +422,6 @@ const UserMaster_Create = () => {
             {isEditMode ? "Edit User" : "Create User"}
           </h1>
         </motion.div>
-
         {/* Form Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
           <motion.div variants={itemVariants}>
@@ -558,7 +444,6 @@ const UserMaster_Create = () => {
               />
             )}
           </motion.div>
-
           <motion.div variants={itemVariants} className="relative">
             {/* Only show ADD TYPE and Select if we have more than 1 option */}
             {userTypes.length === 1 && userTypes[0].value !== "" ? (
@@ -582,7 +467,6 @@ const UserMaster_Create = () => {
               </>
             )}
           </motion.div>
-
           <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="User Name"
@@ -592,7 +476,6 @@ const UserMaster_Create = () => {
               required
             />
           </motion.div>
-
           <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="Login Email"
@@ -603,7 +486,6 @@ const UserMaster_Create = () => {
               required
             />
           </motion.div>
-
           {/* Password Input with Generate Button */}
           {!isEditMode && (
             <motion.div
@@ -632,7 +514,6 @@ const UserMaster_Create = () => {
               </span>
             </motion.div>
           )}
-
           <motion.div
             variants={itemVariants}
             className={!isEditMode ? "mt-2" : ""}
@@ -644,7 +525,6 @@ const UserMaster_Create = () => {
               onChange={handleChange}
             />
           </motion.div>
-
           <motion.div variants={itemVariants}>
             <ReUsableInput_Fields
               label="Department"
@@ -653,7 +533,6 @@ const UserMaster_Create = () => {
               onChange={handleChange}
             />
           </motion.div>
-
           {/* Primary Phone Number with Country Flag */}
           <motion.div
             variants={itemVariants}
@@ -680,7 +559,6 @@ const UserMaster_Create = () => {
             />
           </motion.div>
         </div>
-
         {/* Permissions Table */}
         <motion.div variants={itemVariants} className="mt-16">
           <div className="flex items-center gap-4 mb-8">
@@ -690,12 +568,10 @@ const UserMaster_Create = () => {
             </span>
             <div className="h-[1px] flex-1 bg-slate-100"></div>
           </div>
-
           <Overall_Permissions
             permissions={permissions}
             setPermissions={setPermissions}
           />
-
           <div className="flex items-center gap-4 justify-end mt-10 pb-4">
             <Button variant="secondary" onClick={() => navigate(-1)}>
               Cancel
@@ -716,7 +592,6 @@ const UserMaster_Create = () => {
           </div>
         </motion.div>
       </div>
-
       {/* --- ADD USER TYPE MODAL --- */}
       <AnimatePresence>
         {isTypeModalOpen && (
@@ -756,7 +631,6 @@ const UserMaster_Create = () => {
           </div>
         )}
       </AnimatePresence>
-
       {/* Popups */}
       <Confirmation_Popup
         isOpen={confirmPopup.open}
@@ -764,13 +638,11 @@ const UserMaster_Create = () => {
         onConfirm={handleFinalSubmit}
         message={confirmPopup.message}
       />
-
       <Success_Popup
         isOpen={successPopup.open}
         onClose={() => setSuccessPopup((prev) => ({ ...prev, open: false }))}
         message={successPopup.message}
       />
-
       <ErrorMessage_Popup
         isOpen={errorPopup.open}
         onClose={() => setErrorPopup((prev) => ({ ...prev, open: false }))}
@@ -779,5 +651,4 @@ const UserMaster_Create = () => {
     </motion.div>
   );
 };
-
 export default UserMaster_Create;
