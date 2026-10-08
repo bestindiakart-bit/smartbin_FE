@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  ShieldCheck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import ErrorMessage_Popup from "../../component/Popup_Models/ErrorMessage_Popup";
 import Success_Popup from "../../component/Popup_Models/Success_Popup";
 import ReUsableInput_Fields from "../../component/ReUsableInput_Fields/ReUsableInput_Fields";
@@ -16,6 +21,7 @@ const Forgot_PasswordSet = () => {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const [popup, setPopup] = useState({
@@ -24,9 +30,13 @@ const Forgot_PasswordSet = () => {
     message: "",
   });
 
+  /**
+   * Get email from localStorage when page loads.
+   */
   useEffect(() => {
     const savedEmail =
-      localStorage.getItem("email") || localStorage.getItem("temp_login_email");
+      localStorage.getItem("email") ||
+      localStorage.getItem("temp_login_email");
 
     if (savedEmail) {
       setEmail(savedEmail);
@@ -34,38 +44,84 @@ const Forgot_PasswordSet = () => {
       setPopup({
         success: false,
         error: true,
-        message: "Session expired. Please enter your email again.",
+        message:
+          "Session expired. Please enter your email again.",
       });
-      setTimeout(() => navigate("/forgot-password"), 2000);
+
+      const timer = setTimeout(() => {
+        navigate("/forgot-password");
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
   }, [navigate]);
 
+  /**
+   * After successful password reset,
+   * redirect to login.
+   */
   useEffect(() => {
-    if (popup.success) {
-      const timer = setTimeout(() => {
-        setPopup((prev) => ({ ...prev, success: false }));
-        localStorage.removeItem("email");
-        localStorage.removeItem("temp_login_email");
-        navigate("/login");
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
+    if (!popup.success) return;
+
+    const timer = setTimeout(() => {
+      // Remove only forgot-password related data.
+      // Do NOT use localStorage.clear().
+      localStorage.removeItem("email");
+      localStorage.removeItem("temp_login_email");
+
+      navigate("/login");
+    }, 2500);
+
+    return () => clearTimeout(timer);
   }, [popup.success, navigate]);
 
+  /**
+   * Handle password reset
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!otp) {
-      setPopup({ success: false, error: true, message: "Please enter OTP." });
+    // Validate OTP
+    if (!otp.trim()) {
+      setPopup({
+        success: false,
+        error: true,
+        message: "Please enter OTP.",
+      });
+
       return;
     }
 
+    // Validate password
+    if (!newPassword.trim()) {
+      setPopup({
+        success: false,
+        error: true,
+        message: "Please enter your new password.",
+      });
+
+      return;
+    }
+
+    // Validate confirm password
+    if (!confirmPassword.trim()) {
+      setPopup({
+        success: false,
+        error: true,
+        message: "Please confirm your new password.",
+      });
+
+      return;
+    }
+
+    // Check password match
     if (newPassword !== confirmPassword) {
       setPopup({
         success: false,
         error: true,
         message: "Passwords do not match!",
       });
+
       return;
     }
 
@@ -74,9 +130,14 @@ const Forgot_PasswordSet = () => {
     try {
       const payload = {
         loginEmail: email,
-        otp: otp,
+        otp: otp.trim(),
         newPassword: newPassword,
       };
+
+      console.log("Reset Password Payload:", {
+        ...payload,
+        newPassword: "********",
+      });
 
       const response = await Forgot_Change_Password(payload);
 
@@ -115,15 +176,27 @@ const Forgot_PasswordSet = () => {
   return (
     <AuthLayout
       title="Set New Password"
-      subtitle={`Verify the OTP sent to ${email}`}
+      subtitle={
+        email
+          ? `Verify the OTP sent to ${email}`
+          : "Verify the OTP sent to your email"
+      }
     >
-      <motion.form onSubmit={handleSubmit} className="flex flex-col">
+      <motion.form
+        onSubmit={handleSubmit}
+        className="flex flex-col"
+      >
+        {/* Icon */}
         <div className="flex justify-center mb-8">
           <div className="p-4 bg-green-50 rounded-2xl text-[#0062a0]">
-            <ShieldCheck size={40} strokeWidth={1.5} />
+            <ShieldCheck
+              size={40}
+              strokeWidth={1.5}
+            />
           </div>
         </div>
 
+        {/* Email */}
         <ReUsableInput_Fields
           label="Email Address"
           type="email"
@@ -132,33 +205,48 @@ const Forgot_PasswordSet = () => {
           className="bg-slate-50 cursor-not-allowed"
         />
 
+        {/* OTP */}
         <ReUsableInput_Fields
           label="Verification Code (OTP)"
           type="text"
           placeholder="Enter 6-digit code"
           value={otp}
-          onChange={(e) => setOtp(e.target.value)}
+          onChange={(e) => {
+            // Allow only numbers
+            const value = e.target.value
+              .replace(/\D/g, "")
+              .slice(0, 6);
+
+            setOtp(value);
+          }}
           required
         />
 
+        {/* New Password */}
         <ReUsableInput_Fields
           label="New Password"
           type="password"
           placeholder="••••••••"
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          onChange={(e) =>
+            setNewPassword(e.target.value)
+          }
           required
         />
 
+        {/* Confirm Password */}
         <ReUsableInput_Fields
           label="Confirm New Password"
           type="password"
           placeholder="••••••••"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e) =>
+            setConfirmPassword(e.target.value)
+          }
           required
         />
 
+        {/* Reset Password Button */}
         <Button
           variant="primary"
           className="w-full py-4 mt-8 rounded-xl text-lg font-bold shadow-lg shadow-blue-900/20"
@@ -167,7 +255,11 @@ const Forgot_PasswordSet = () => {
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
-              <Loader2 className="animate-spin" size={20} />
+              <Loader2
+                className="animate-spin"
+                size={20}
+              />
+
               <span>Updating...</span>
             </div>
           ) : (
@@ -175,6 +267,7 @@ const Forgot_PasswordSet = () => {
           )}
         </Button>
 
+        {/* Back to Login */}
         <button
           type="button"
           onClick={() => navigate("/login")}
@@ -184,24 +277,35 @@ const Forgot_PasswordSet = () => {
             size={18}
             className="group-hover:-translate-x-1 transition-transform"
           />
+
           Back to Login
         </button>
       </motion.form>
 
-      {/* Popups */}
+      {/* Success Popup */}
       <Success_Popup
         isOpen={popup.success}
         onClose={() => {
-          localStorage.clear();
+          localStorage.removeItem("email");
+          localStorage.removeItem("temp_login_email");
+
           navigate("/login");
         }}
         message={popup.message}
       />
 
+      {/* Error Popup */}
       <ErrorMessage_Popup
         isOpen={popup.error}
-        onClose={() => setPopup({ ...popup, error: false })}
+        onClose={() =>
+          setPopup((prev) => ({
+            ...prev,
+            error: false,
+          }))
+        }
+        title="Reset Failed"
         message={popup.message}
+        btnText="Close"
       />
     </AuthLayout>
   );

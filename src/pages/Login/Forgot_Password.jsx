@@ -2,59 +2,85 @@ import { motion } from "framer-motion";
 import { ArrowLeft, KeyRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import ReUsableInput_Fields from "../../component/ReUsableInput_Fields/ReUsableInput_Fields";
 import Button from "../../component/button/Buttons";
 import { Forgot_password } from "../../service/Login/Login";
 import AuthLayout from "./AuthLayout";
-// Import Popups
+
+// Popups
 import ErrorMessage_Popup from "../../component/Popup_Models/ErrorMessage_Popup";
 import Success_Popup from "../../component/Popup_Models/Success_Popup";
 
 const Forgot_Password = () => {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // --- POPUP STATE ---
+  // Popup states
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Auto-navigate after showing success confirmation
+  // Navigate to OTP/password page after success popup
   useEffect(() => {
-    if (showSuccess) {
-      const timer = setTimeout(() => {
-        setShowSuccess(false);
-        navigate("../forgot-change-password");
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    if (!showSuccess) return;
+
+    const timer = setTimeout(() => {
+      setShowSuccess(false);
+      navigate("../forgot-change-password");
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, [showSuccess, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent empty email
+    if (!email.trim()) {
+      setErrorMsg("Please enter your email address.");
+      setShowError(true);
+      return;
+    }
+
     setLoading(true);
 
     try {
       // Backend expects loginEmail
-      const payload = { loginEmail: email };
+      const payload = {
+        loginEmail: email.trim(),
+      };
+
       const response = await Forgot_password(payload);
 
-      // --- EXTRACT SUCCESS MESSAGE ---
+      // Extract success message
       const successMessage =
         response?.data?.data?.message ||
         response?.data?.message ||
         response?.message ||
         "Reset link sent successfully!";
 
+      /**
+       * IMPORTANT FIX
+       *
+       * Store email before navigating to
+       * /forgot-change-password.
+       *
+       * Forgot_PasswordSet reads this value
+       * from localStorage.
+       */
+      localStorage.setItem("email", email.trim());
+
       setSuccessMsg(successMessage);
       setShowSuccess(true);
     } catch (error) {
       console.error("Forgot Password Error:", error);
 
-      // --- EXTRACT NESTED ERROR MESSAGE ---
-      // Checks for Axios format AND direct Fetch/JSON throw format
+      // Extract nested error message
       const errorMessage =
         error?.response?.data?.data?.message ||
         error?.response?.data?.message ||
@@ -63,7 +89,6 @@ const Forgot_Password = () => {
         error?.message ||
         "Email not found or server error";
 
-      // --- SHOW POPUP ---
       setErrorMsg(errorMessage);
       setShowError(true);
     } finally {
@@ -76,13 +101,21 @@ const Forgot_Password = () => {
       title="Reset Password"
       subtitle="No worries! Enter your email and we'll send you a link to reset your password."
     >
-      <motion.form onSubmit={handleSubmit} className="flex flex-col">
+      <motion.form
+        onSubmit={handleSubmit}
+        className="flex flex-col"
+      >
+        {/* Icon */}
         <div className="flex justify-center mb-8">
           <div className="p-4 bg-blue-50 rounded-2xl text-[#0062a0]">
-            <KeyRound size={40} strokeWidth={1.5} />
+            <KeyRound
+              size={40}
+              strokeWidth={1.5}
+            />
           </div>
         </div>
 
+        {/* Email */}
         <ReUsableInput_Fields
           label="Email Address"
           type="email"
@@ -92,6 +125,7 @@ const Forgot_Password = () => {
           required
         />
 
+        {/* Submit */}
         <Button
           variant="primary"
           className="w-full py-4 mt-8 rounded-xl text-lg font-bold shadow-lg shadow-blue-900/20"
@@ -101,6 +135,7 @@ const Forgot_Password = () => {
           {loading ? "Sending..." : "Send Reset Link"}
         </Button>
 
+        {/* Back to Login */}
         <button
           type="button"
           onClick={() => navigate("/login")}
@@ -110,21 +145,26 @@ const Forgot_Password = () => {
             size={18}
             className="group-hover:-translate-x-1 transition-transform"
           />
+
           Back to Login
         </button>
       </motion.form>
 
-      {/* --- SUCCESS POPUP COMPONENT --- */}
+      {/* Success Popup */}
       <Success_Popup
         isOpen={showSuccess}
-        onClose={() => setShowSuccess(false)}
+        onClose={() => {
+          setShowSuccess(false);
+        }}
         message={successMsg}
       />
 
-      {/* --- ERROR POPUP COMPONENT --- */}
+      {/* Error Popup */}
       <ErrorMessage_Popup
         isOpen={showError}
-        onClose={() => setShowError(false)}
+        onClose={() => {
+          setShowError(false);
+        }}
         title="Reset Failed"
         message={errorMsg}
         btnText="Close"
