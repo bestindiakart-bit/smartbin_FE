@@ -212,6 +212,9 @@ const Warehouse_View = ({ isOpen, onClose, id }) => {
                                 Reorder Level
                               </th>
                               <th className="px-4 py-3 font-semibold text-gray-600">
+                                Current Stock
+                              </th>
+                              <th className="px-4 py-3 font-semibold text-gray-600">
                                 Supplier Name
                               </th>
                               {/* <th className="px-4 py-3 font-semibold text-gray-600">Last Trans. Qty</th>
@@ -251,6 +254,10 @@ const Warehouse_View = ({ isOpen, onClose, id }) => {
                                   </td>
                                   <td className="px-4 py-3 text-slate-700 font-medium">
                                     {item.warehouseReorderLevel?.toLocaleString() ||
+                                      "0"}
+                                  </td>
+                                  <td className="px-4 py-3 text-slate-700 font-medium">
+                                    {item.currentStock?.toLocaleString() ||
                                       "0"}
                                   </td>
                                   <td className="px-4 py-3 text-slate-700">

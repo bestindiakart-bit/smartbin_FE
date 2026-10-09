@@ -97,7 +97,9 @@ export const warehouse_delete = (id) => {
   return api.put(`/warehouse/${id}`, { status: 0 });
 };
 
-//////////////////////////////////////////////////////////////////////// oreder Processing////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// ORDER PROCESSING
+////////////////////////////////////////////////////////////////////////
 
 export const order_processing_allGet = (page = 1, limit = 10) => {
   return api.get("/order/", {
@@ -105,9 +107,28 @@ export const order_processing_allGet = (page = 1, limit = 10) => {
   });
 };
 
+export const order_processing_create = (data) => {
+  return api.post("/order/", data);
+};
+
+export const order_processing_getById = (id) => {
+  return api.get(`/order/${encodeURIComponent(id)}`);
+};
+
+export const order_processing_edit = (id, data) => {
+  return api.put(`/order/${encodeURIComponent(id)}`, data);
+};
+
 export const calculateWarehouseStockLevels = (data) => {
   return api.post("/warehouse/calculate-stock-levels", data);
 };
+
+export const order_processing_statuses = () => {
+  return api.get("/order/statuses");
+};
+
+export const order_processing_updateStatus = (id, data) =>
+  api.patch(`/order/${encodeURIComponent(id)}/status`, data);
 
 ////////////////////////////////////////////////////////////////////Bin of Metarials ///////////////////////////////////////////////////////////////////////////
 

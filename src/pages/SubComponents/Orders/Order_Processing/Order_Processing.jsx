@@ -1,304 +1,463 @@
-import { AnimatePresence, motion } from "framer-motion"; // Added Framer Motion
-import { ShoppingCart, SquareKanban, UserRoundX, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { order_processing_allGet } from "../../../../service/Orders_Services/Oreder_Services";
-import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
+// import { motion } from "framer-motion";
+// import { ClipboardList, Plus, RefreshCw, Search, PackageCheck } from "lucide-react";
+// import { useCallback, useEffect, useMemo, useState } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import { useNavigate } from "react-router-dom";
 
-// Project Components
-import Button from "../../../../component/button/Buttons";
-import Download_Button from "../../../../component/button/Download_Button";
-import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
-import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
-import SearchBar from "../../../../component/SearchBar/SearchBar";
-import StatsCard from "../../../../component/stats/StatsCard";
-import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+// import Button from "../../../../component/button/Buttons";
+// import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+// import StatsCard from "../../../../component/stats/StatsCard";
+// import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
+// import { order_processing_allGet } from "../../../../service/Orders_Services/Oreder_Services";
+
+// const CREATE_ROUTE = "order-prcessing-create"; // Preserve existing route spelling.
+// const VIEW_ROUTE = "order-Processing-view";
+// const pickId = (value) =>
+//   value && typeof value === "object" ? String(value._id ?? value.id ?? "") : String(value ?? "");
+// const getErrorMessage = (error) =>
+//   error?.response?.data?.message || error?.message || "Unable to load orders.";
+// const statusName = (value) => {
+//   const map = { 0: "Pending", 1: "Confirmed", 2: "Processing", 3: "Shipped", 4: "Delivered", 5: "Cancelled" };
+//   return map[value] ?? (typeof value === "string" ? value : "Pending");
+// };
+// const normalizeOrder = (order, index) => ({
+//   id: pickId(order?._id ?? order?.id),
+//   orderId: String(order?.orderId ?? order?.orderNumber ?? `Order ${index + 1}`),
+//   customerName:
+//     order?.customerId?.companyName || order?.customerId?.customerName ||
+//     order?.customerName || "-",
+//   warehouseName:
+//     order?.warehouseId?.warehouseName || order?.warehouseName || "-",
+//   status: statusName(order?.orderStatus ?? order?.status),
+//   payment: order?.paymentStatus === 1 || order?.paymentStatus === "paid" ? "Paid" : "Unpaid",
+//   qtyValue: Array.isArray(order?.items) ? order.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0) : 0,
+//   itemsCount: Array.isArray(order?.items) ? order.items.length : 0,
+//   expectedDate: order?.expectedDate ? String(order.expectedDate).slice(0, 10) : "-",
+// });
+
+// export default function Order_Processing() {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const { permissions = [] } = useSelector((state) => state.permissions || {});
+//   // Preserve current module permissions index from the existing page.
+//   const access = permissions?.[7] || {};
+//   const canView = Boolean(access.view);
+//   const canCreate = Boolean(access.create);
+//   const canEdit = Boolean(access.edit);
+
+//   const [orders, setOrders] = useState([]);
+//   const [query, setQuery] = useState("");
+//   const [page, setPage] = useState(1);
+//   const [limit, setLimit] = useState(10);
+//   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+//   const [reloadKey, setReloadKey] = useState(0);
+
+//   useEffect(() => { dispatch(fetchPermissions()); }, [dispatch]);
+
+//   useEffect(() => {
+//     let active = true;
+//     const fetchOrders = async () => {
+//       setLoading(true);
+//       setError("");
+//       try {
+//         const response = await order_processing_allGet(page, limit);
+//         const body = response?.data || {};
+//         const data = body.data || {};
+//         const raw = Array.isArray(data.orders) ? data.orders :
+//           Array.isArray(data.records) ? data.records :
+//           Array.isArray(data) ? data :
+//           Array.isArray(body.orders) ? body.orders : [];
+//         if (!active) return;
+//         setOrders(raw.map(normalizeOrder));
+//         const total = Number(data.total ?? data.totalCount ?? data.pagination?.total ?? body.total);
+//         const pages = Number(data.totalPages ?? data.pagination?.totalPages ?? body.totalPages);
+//         // Do not invent a total count if API doesn't return one.
+//         setPagination({
+//           page,
+//           total: Number.isFinite(total) ? total : null,
+//           totalPages: Number.isFinite(pages) && pages > 0 ? pages : null,
+//         });
+//       } catch (err) {
+//         if (active) { setError(getErrorMessage(err)); setOrders([]); }
+//       } finally { if (active) setLoading(false); }
+//     };
+//     fetchOrders();
+//     return () => { active = false; };
+//   }, [page, limit, reloadKey]);
+
+//   const filteredOrders = useMemo(() => {
+//     const q = query.trim().toLowerCase();
+//     return q ? orders.filter((row) => [row.orderId, row.customerName, row.status, row.warehouseName]
+//       .some((value) => String(value).toLowerCase().includes(q))) : orders;
+//   }, [query, orders]);
+
+//   const goEdit = useCallback((row) => {
+//     if (row?.id && canEdit) navigate(CREATE_ROUTE, { state: { mode: "edit", rowId: row.id } });
+//   }, [navigate, canEdit]);
+//   const goView = useCallback((row) => {
+//     if (row?.id && canView) navigate(VIEW_ROUTE, { state: { rowId: row.id } });
+//   }, [navigate, canView]);
+
+//   const columns = [
+//     { header: "Order Number", key: "orderId" },
+//     { header: "Customer", key: "customerName", isCustomer: true },
+//     { header: "Warehouse", key: "warehouseName" },
+//     { header: "Status", key: "status", isStatus: true },
+//     { header: "Payment Status", key: "payment", isPaid: true },
+//     { header: "Item Quantity", key: "qtyValue" },
+//     { header: "Expected Date", key: "expectedDate" },
+//   ];
+
+//   const stats = [
+//     { title: "Orders on this page", count: orders.length, footerText: "Current API page", icon: <ClipboardList /> },
+//     { title: "Items on this page", count: orders.reduce((sum, o) => sum + o.itemsCount, 0), footerText: "Order lines", icon: <PackageCheck /> },
+//   ];
+//   const canNext = pagination.totalPages != null ? page < pagination.totalPages : orders.length === limit;
+
+//   return (
+//     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#fcfdfe] p-4 md:p-8">
+//       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+//         <div>
+//           <h1 className="text-2xl font-bold text-slate-800">Order <span className="text-[#0062a0]">Processing</span></h1>
+//           <p className="text-[#0062a0] font-medium mt-1">Order Management System</p>
+//         </div>
+//         <div className="flex gap-3">
+//           <button type="button" aria-label="Refresh orders" onClick={() => setReloadKey((v) => v + 1)}
+//             className="rounded-xl border p-3 hover:bg-slate-100 disabled:opacity-50" disabled={loading}>
+//             <RefreshCw size={18} className={loading ? "animate-spin" : ""}/>
+//           </button>
+//           <Button variant="primary" disabled={!canCreate} onClick={() => navigate(CREATE_ROUTE, { state: { mode: "create" } })}>
+//             <Plus size={16}/> Order Processing
+//           </Button>
+//         </div>
+//       </div>
+
+//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+//         {stats.map((item) => <StatsCard key={item.title} {...item}/>)}
+//       </div>
+
+//       <div className="bg-white border border-slate-100 rounded-[28px] shadow-sm overflow-hidden">
+//         <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+//           <div className="flex items-center gap-2 border rounded-xl px-3 w-full sm:max-w-md">
+//             <Search size={18} className="text-slate-400" />
+//             <input className="w-full py-3 outline-none text-sm" value={query} onChange={(e) => setQuery(e.target.value)}
+//               placeholder="Search orders on this page" aria-label="Search orders" />
+//           </div>
+//           <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+//             className="border rounded-xl p-3 text-sm" aria-label="Rows per page">
+//             {[10, 20, 50].map((n) => <option key={n} value={n}>{n} per page</option>)}
+//           </select>
+//         </div>
+//         {error && <p role="alert" className="p-4 text-red-600">{error}</p>}
+//         {loading ? <p className="p-8 text-slate-500">Loading orders...</p> :
+//           filteredOrders.length ? (
+//             <ReUsable_Table columns={columns} data={filteredOrders} showActions={true}
+//               showStatusBadge={true} showPaidBadge={true} showToggle={false} showQtyStatus={false}
+//               onView={canView ? goView : undefined} onEdit={canEdit ? goEdit : undefined}
+//               onRowClick={canView ? goView : undefined} />
+//           ) : <p className="p-8 text-slate-500">No orders found.</p>
+//         }
+//         <div className="border-t p-4 flex items-center justify-between gap-3">
+//           <span className="text-sm text-slate-500">Page {page}{pagination.totalPages ? ` of ${pagination.totalPages}` : ""}
+//             {pagination.total != null ? ` · ${pagination.total} total orders` : ""}</span>
+//           <div className="flex gap-2">
+//             <button className="border px-4 py-2 rounded-lg disabled:opacity-40" disabled={page <= 1 || loading}
+//               onClick={() => setPage((p) => Math.max(1, p - 1))}>Previous</button>
+//             <button className="border px-4 py-2 rounded-lg disabled:opacity-40" disabled={!canNext || loading}
+//               onClick={() => setPage((p) => p + 1)}>Next</button>
+//           </div>
+//         </div>
+//       </div>
+//     </motion.div>
+//   );
+// }
+
+
+import { motion } from "framer-motion";
+import { ClipboardList, Plus, RefreshCw, Search, PackageCheck } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import Button from "../../../../component/button/Buttons";
+import ReUsable_Table from "../../../../component/Table/ReUsable_Table";
+import StatsCard from "../../../../component/stats/StatsCard";
+import { fetchPermissions } from "../../../../store/Permission_Store/Permission_Slice";
+import { order_processing_allGet } from "../../../../service/Orders_Services/Oreder_Services";
 
-const Order_Processing = () => {
+const CREATE_ROUTE = "order-prcessing-create";
+const VIEW_ROUTE = "order-Processing-view";
+
+const getId = (value) => {
+  if (!value) return "";
+  if (typeof value === "object") {
+    return String(value._id ?? value.id ?? value.rowId ?? value.rowID ?? "");
+  }
+  return String(value);
+};
+
+const getErrorMessage = (error) =>
+  error?.response?.data?.message || error?.message || "Unable to load orders.";
+
+const STATUS_MAP = {
+  1: "New",
+  2: "Purchase Order Sent",
+  3: "Sale Order Confirmation",
+  4: "Delivered",
+  5: "GRN Booked",
+  6: "Cancelled",
+};
+
+const normalizeOrder = (order, index) => ({
+  id: getId(order?._id ?? order?.id),
+  _id: getId(order?._id ?? order?.id),
+  orderId: String(order?.orderId ?? order?.orderNumber ?? `Order ${index + 1}`),
+  customerName: order?.customerId?.companyName || order?.customerId?.customerName || order?.customerName || "-",
+  warehouseName: order?.warehouseId?.warehouseName || order?.warehouseName || "-",
+  status: STATUS_MAP[order?.orderStatus ?? order?.status] || order?.orderStatusLabel || "-",
+  payment: [1, "1", "paid", "PAID"].includes(order?.paymentStatus) ? "Paid" : "Unpaid",
+  qtyValue: Array.isArray(order?.items)
+    ? order.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)
+    : 0,
+  itemsCount: Array.isArray(order?.items) ? order.items.length : 0,
+  expectedDate: order?.expectedDate ? String(order.expectedDate).slice(0, 10) : "-",
+});
+
+export default function Order_Processing() {
   const navigate = useNavigate();
-  const [succesModel, setSuccessModel] = useState(false);
-  const [confirmModel, setConfirmModel] = useState(false);
-  const [DeleteSuccess, setDeleteSuccess] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [tabledata, setTableData] = useState([]);
-  console.log(tabledata, "tabledata");
-
-  const { permissions } = useSelector((state) => state.permissions);
   const dispatch = useDispatch();
-  const userPermissions = permissions[7] || {};
-  console.log("Permissions in User Master:", userPermissions);
+  const { permissions = [] } = useSelector((state) => state.permissions || {});
+  const access = permissions?.[7] || {};
+  const canView = Boolean(access.view);
+  const canCreate = Boolean(access.create);
+  const canEdit = Boolean(access.edit);
 
-  // Define permission checks
-  const canView = userPermissions?.view || false;
-  const canEdit = userPermissions?.edit || false;
-  const canDelete = userPermissions?.delete || false;
-  const canCreate = userPermissions?.create || false;
+  const [orders, setOrders] = useState([]);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pagination, setPagination] = useState({ total: null, totalPages: null });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
 
-  // --- SMOOTHNESS VARIANTS (Matched with Editor style) ---
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.06, delayChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: "spring", stiffness: 100, damping: 15 },
-    },
-  };
-
   useEffect(() => {
-    if (DeleteSuccess) {
-      setConfirmModel(false);
-      const time = setTimeout(() => {
-        setDeleteSuccess(false);
-      }, 2000);
-      return () => clearTimeout(time);
-    }
-  }, [DeleteSuccess]);
+    let active = true;
+    const loadOrders = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const response = await order_processing_allGet(page, limit);
+        const body = response?.data || {};
+        const data = body.data || {};
+        const raw = Array.isArray(data.orders) ? data.orders
+          : Array.isArray(data.records) ? data.records
+          : Array.isArray(data) ? data
+          : Array.isArray(body.orders) ? body.orders : [];
 
-  const handleSelectionChange = (selectedIds) => {
-    setSelectedRows(selectedIds);
-  };
+        if (!active) return;
+        setOrders(raw.map(normalizeOrder));
 
-  const handleToggleStatus = (selectedRow) => {
-    setData((prev) =>
-      prev.map((row) =>
-        row.id === selectedRow.id ? { ...row, isActive: !row.isActive } : row,
-      ),
+        const totalRaw = data.total ?? data.totalCount ?? data.pagination?.total ?? body.total;
+        const pagesRaw = data.totalPages ?? data.pagination?.totalPages ?? body.totalPages;
+        const total = totalRaw != null ? Number(totalRaw) : null;
+        const pages = pagesRaw != null ? Number(pagesRaw) : null;
+        setPagination({
+          total: Number.isFinite(total) ? total : null,
+          totalPages: Number.isFinite(pages) && pages > 0
+            ? pages : Number.isFinite(total) ? Math.max(1, Math.ceil(total / limit)) : null,
+        });
+      } catch (err) {
+        if (active) {
+          setOrders([]);
+          setError(getErrorMessage(err));
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    loadOrders();
+    return () => { active = false; };
+  }, [page, limit, reloadKey]);
+
+  const filteredOrders = useMemo(() => {
+    const text = query.trim().toLowerCase();
+    if (!text) return orders;
+    return orders.filter((row) =>
+      [row.orderId, row.customerName, row.warehouseName, row.status]
+        .some((value) => String(value).toLowerCase().includes(text)),
     );
-  };
+  }, [query, orders]);
 
-  const handleEdit = (row) =>
-    navigate("order-prcessing-create", { state: { rowID: row.id } });
-  const handleDelete = () => setConfirmModel(true);
-  const handleView = (row) =>
-    navigate("order-Processing-view", { state: { rowId: row.id } });
-
-  useEffect(() => {
-    if (succesModel) {
-      const timer = setTimeout(() => setSuccessModel(false), 2000);
-      return () => clearTimeout(timer);
+  const resolveOrderId = useCallback((row) => {
+    if (typeof row === "string") {
+      return orders.find((item) => item.id === row || item.orderId === row)?.id || row;
     }
-  }, [succesModel]);
+    if (typeof row === "number") return orders[row]?.id || "";
+    return getId(row?._id ?? row?.id ?? row?.rowId ?? row?.original?._id);
+  }, [orders]);
 
-  const StatsData = [
-    {
-      title: "Total Order Processing",
-      count: "500",
-      footerText: "OverAll",
-      icon: <Users />,
-    },
-    {
-      title: "Total Bin",
-      count: "600",
-      footerText: "OverAll",
-      icon: <ShoppingCart />,
-    },
-    {
-      title: "Total Project",
-      count: "400",
-      footerText: "OverAll",
-      icon: <SquareKanban />,
-    },
-    {
-      title: "Reorder Stock",
-      count: "500",
-      footerText: "OverAll",
-      icon: <UserRoundX />,
-    },
-  ];
+  const goView = useCallback((row) => {
+    if (!canView) return;
+    const rowId = resolveOrderId(row);
+    if (!rowId) return;
+    navigate(VIEW_ROUTE, {
+      state: { rowId },
+    });
+  }, [navigate, canView, resolveOrderId]);
+
+  const goEdit = useCallback((row) => {
+    if (!canEdit) return;
+    const rowId = resolveOrderId(row);
+    if (!rowId) return;
+    navigate(CREATE_ROUTE, {
+      state: { mode: "edit", rowId },
+    });
+  }, [navigate, canEdit, resolveOrderId]);
 
   const columns = [
     { header: "Order Number", key: "orderId" },
     { header: "Customer", key: "customerName", isCustomer: true },
-    // { header: 'Total Amount', key: 'amount' },
+    { header: "Warehouse", key: "warehouseName" },
     { header: "Status", key: "status", isStatus: true },
     { header: "Payment Status", key: "payment", isPaid: true },
-    { header: "Bin Status", key: "qtyValue", isQtyIndicator: true },
+    { header: "Item Quantity", key: "qtyValue" },
+    { header: "Expected Date", key: "expectedDate" },
   ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await order_processing_allGet();
-        const orders = res?.data?.data?.orders || [];
+  const stats = [
+    {
+      title: "Orders on this page",
+      count: orders.length,
+      footerText: "Current API page",
+      icon: <ClipboardList />,
+    },
+    {
+      title: "Items on this page",
+      count: orders.reduce((sum, order) => sum + order.itemsCount, 0),
+      footerText: "Order lines",
+      icon: <PackageCheck />,
+    },
+  ];
 
-        const processedOrders = orders.map((order, index) => {
-          const totalAmount = order?.items?.reduce(
-            (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
-            0,
-          );
-
-          return {
-            id: order._id,
-            orderId: order.orderId,
-            customerName: order?.customerId?.companyName || "-",
-            amount: `₹ ${totalAmount.toLocaleString()}`,
-
-            status:
-              order.orderStatus === 1
-                ? "Confirmed"
-                : order.orderStatus === 2
-                  ? "Processing"
-                  : order.orderStatus === 3
-                    ? "Shipped"
-                    : "Pending",
-
-            payment: order.paymentStatus === 1 ? "Paid" : "Unpaid",
-
-            qtyValue: order?.items?.length || 0,
-          };
-        });
-
-        setTableData(processedOrders);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchData();
-  }, []);
+  const canNext = pagination.totalPages != null
+    ? page < pagination.totalPages
+    : orders.length === limit;
 
   return (
     <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="bg-[#fcfdfe] min-h-screen" // Changed to premium clean background
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
-      <div className="">
-        {/* 1. Page Header Section */}
-        <motion.div
-          variants={itemVariants}
-          className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"
-        >
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-              Order <span className="text-[#0062a0]">Processing</span>{" "}
-            </h1>
-            <p className="text-[#0062a0] font-medium mt-1">
-              Order Management System
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                disabled={!canCreate}
-                onClick={() => navigate("order-prcessing-create")}
-                variant="primary"
-              >
-                + Order Processing
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Download_Button
-                disabled={!canView}
-                onClick={() => setSuccessModel(true)}
-              />
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* 2. Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {StatsData.map((item, index) => (
-            <motion.div key={index} variants={itemVariants}>
-              <StatsCard
-                title={item.title}
-                count={item.count}
-                footerText={item.footerText}
-                icon={item.icon}
-              />
-            </motion.div>
-          ))}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Order <span className="text-[#0062a0]">Processing</span>
+          </h1>
+          <p className="text-[#0062a0] font-medium mt-1">
+            Order Management System
+          </p>
         </div>
-
-        {/* 3. Search and Table Container */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden"
-        >
-          {/* Search Bar Wrapper */}
-          <div className="p-6 border-b border-slate-50 bg-white flex justify-between items-center">
-            <div className="max-w-md w-full">
-              <SearchBar />
-            </div>
-
-            <AnimatePresence>
-              {selectedRows.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="bg-blue-50 px-4 py-2 rounded-full"
-                >
-                  <span className="text-sm font-semibold text-[#0062a0]">
-                    {selectedRows.length} Items Selected
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Table Wrapper */}
-          <div className="p-2">
-            <ReUsable_Table
-              columns={columns}
-              data={tabledata}
-              showStatusBadge={true}
-              showPaidBadge={true}
-              showToggle={false}
-              showQtyStatus={false}
-              showActions={true}
-              selectedRows={selectedRows}
-              onSelectionChange={handleSelectionChange}
-              onEdit={canEdit ? handleEdit : undefined}
-              onDelete={canDelete ? handleDelete : undefined}
-              onView={canView ? handleView : undefined}
-              onStatusToggle={handleToggleStatus}
-              onRowClick={
-                canView
-                  ? (row) =>
-                      navigate("order-Processing-view", {
-                        state: { rowId: row.id },
-                      })
-                  : undefined
-              }
-            />
-          </div>
-        </motion.div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            aria-label="Refresh orders"
+            onClick={() => setReloadKey((value) => value + 1)}
+            disabled={loading}
+            className="rounded-xl border p-3 hover:bg-slate-100 disabled:opacity-50"
+          >
+            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
+          </button>
+          <Button
+            variant="primary"
+            disabled={!canCreate}
+            onClick={() => navigate(CREATE_ROUTE, { state: { mode: "create" } })}
+          >
+            <Plus size={16} /> Order Processing
+          </Button>
+        </div>
       </div>
 
-      {/* Popups */}
-      <Success_Popup
-        isOpen={succesModel}
-        onClose={() => setSuccessModel(false)}
-        message="File Downloaded Successfully!"
-      />
-      <Confirmation_Popup
-        isOpen={confirmModel}
-        onClose={() => setConfirmModel(false)}
-        onConfirm={() => setDeleteSuccess(true)}
-        message="Are you sure you want to delete this row?"
-      />
-      <Success_Popup
-        isOpen={DeleteSuccess}
-        onClose={() => setDeleteSuccess(false)}
-        message="Row Deleted Successfully!"
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        {stats.map((item) => <StatsCard key={item.title} {...item} />)}
+      </div>
+
+      <div className="bg-white border border-slate-100 rounded-[28px] shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 border rounded-xl px-3 w-full sm:max-w-md">
+            <Search size={18} className="text-slate-400" />
+            <input
+              className="w-full py-3 outline-none text-sm"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search orders on this page"
+              aria-label="Search orders"
+            />
+          </div>
+          <select
+            value={limit}
+            onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+            className="border rounded-xl p-3 text-sm"
+            aria-label="Rows per page"
+          >
+            {[10, 20, 50].map((size) => (
+              <option key={size} value={size}>{size} per page</option>
+            ))}
+          </select>
+        </div>
+
+        {error && <p role="alert" className="p-4 text-red-600">{error}</p>}
+        {loading ? (
+          <p className="p-8 text-slate-500">Loading orders...</p>
+        ) : filteredOrders.length ? (
+          <ReUsable_Table
+            columns={columns}
+            data={filteredOrders}
+            showActions={true}
+            showStatusBadge={true}
+            showPaidBadge={true}
+            showToggle={false}
+            showQtyStatus={false}
+            onView={canView ? goView : undefined}
+            onEdit={canEdit ? goEdit : undefined}
+            onRowClick={canView ? goView : undefined}
+          />
+        ) : (
+          <p className="p-8 text-slate-500">No orders found.</p>
+        )}
+
+        <div className="border-t p-4 flex items-center justify-between gap-3">
+          <span className="text-sm text-slate-500">
+            Page {page}
+            {pagination.totalPages ? ` of ${pagination.totalPages}` : ""}
+            {pagination.total != null ? ` · ${pagination.total} total orders` : ""}
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="border px-4 py-2 rounded-lg disabled:opacity-40"
+              disabled={page <= 1 || loading}
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              className="border px-4 py-2 rounded-lg disabled:opacity-40"
+              disabled={!canNext || loading}
+              onClick={() => setPage((value) => value + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
-};
-
-export default Order_Processing;
+}
