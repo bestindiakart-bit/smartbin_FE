@@ -1,269 +1,169 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Bell,
-  CheckCircle,
-  Info,
-  LogOut,
-  Menu,
-  Settings,
-  User,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import LogoSmartBin from "../../assets/LogoSmartBin.svg";
+import { Bell, LogOut, Menu, User, Info } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LogoSmartBin from "../../assets/LogoSmartBin.svg";
+import { loginMeAPI } from "../../service/Login/Login";
+
+const dropdownVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 400, damping: 30 } },
+  exit: { opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.15 } },
+};
+
+const firstText = (...values) => {
+  const value = values.find((item) => typeof item === "string" && item.trim());
+  return value?.trim() || "";
+};
+
+const readableRole = (value) => {
+  if (typeof value === "string") return value.replace(/_/g, " ").trim();
+  if (value && typeof value === "object") {
+    return firstText(value.userTypeName, value.roleName, value.name, value.type);
+  }
+  return "";
+};
+
+const formatProfile = (response) => {
+  const data = response?.data?.data ?? response?.data ?? {};
+  // /me may return a user directly or nested under user/superAdmin/customer.
+  const account = data.user ?? data.superAdmin ?? data.admin ?? data.customer ?? data;
+  const name = firstText(
+    account.userName, account.name, account.fullName, account.customerName,
+    account.companyName, data.userName, data.name, data.customerName
+  );
+  const email = firstText(
+    account.loginEmail, account.adminEmail, account.email,
+    data.loginEmail, data.adminEmail, data.email
+  );
+  const role = firstText(
+    readableRole(account.userTypeId), readableRole(account.userType),
+    readableRole(account.role), readableRole(data.userType), readableRole(data.role),
+    account.position, data.position
+  );
+  const avatar = firstText(account.profileImage, account.avatar, account.image, data.profileImage);
+  return { name: name || (email ? email.split("@")[0] : "My Account"), email, role, avatar };
+};
+
+const getInitials = (name) =>
+  (name || "U").split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 
 const TopHeader = ({ toggleMobileSidebar, isCollapsed, isLoading }) => {
-  const [activeDropdown, setActiveDropdown] = useState(null); // 'notification' | 'profile' | null
-  const dropdownContainerRef = useRef(null);
   const navigate = useNavigate();
+  const dropdownContainerRef = useRef(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
 
-  // Close dropdown when clicking outside
+  const fetchProfile = useCallback(async () => {
+    setProfileLoading(true);
+    setProfileError("");
+    try {
+      const response = await loginMeAPI();
+      if (response?.data?.success === false) throw new Error("Unable to load account details");
+      setProfile(formatProfile(response));
+    } catch (error) {
+      setProfileError(error?.message || "Unable to load account details");
+    } finally {
+      setProfileLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownContainerRef.current &&
-        !dropdownContainerRef.current.contains(event.target)
-      ) {
+      if (dropdownContainerRef.current && !dropdownContainerRef.current.contains(event.target)) {
         setActiveDropdown(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleDropdown = (dropdownName) => {
-    setActiveDropdown((prev) => (prev === dropdownName ? null : dropdownName));
+  const toggleDropdown = (name) => setActiveDropdown((current) => current === name ? null : name);
+  const signOut = () => {
+    localStorage.removeItem("accessToken");
+    setActiveDropdown(null);
+    // If your app has Redux authentication/permission state, clear it in the logout action too.
+    navigate("/login", { replace: true });
   };
 
-  // Modern spring animation for dropdowns
-  const dropdownVariants = {
-    hidden: {
-      opacity: 0,
-      y: 15,
-      scale: 0.95,
-      transformOrigin: "top right",
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 30,
-      },
-    },
-    exit: {
-      opacity: 0,
-      y: 10,
-      scale: 0.95,
-      transition: { duration: 0.2 },
-    },
-  };
+  const loading = isLoading || profileLoading;
+  const displayName = profile?.name || "My Account";
+  const displayEmail = profile?.email || "Email unavailable";
+  const displayRole = profile?.role || "Account";
 
   return (
-    <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100 shadow-sm z-30">
+    <header className="relative z-30 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-4 shadow-sm sm:px-8 sm:py-5">
       <div className="flex items-center gap-6">
-        {/* Mobile Hamburger Menu */}
-        <button
-          onClick={toggleMobileSidebar}
-          className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-        >
+        <button type="button" onClick={toggleMobileSidebar} aria-label="Open navigation" className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 lg:hidden">
           <Menu size={24} />
         </button>
-
-        {/* Logo shows here ONLY when Sidebar is collapsed */}
         <AnimatePresence>
           {isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="hidden lg:flex items-center"
-            >
-              {isLoading ? (
-                <div className="w-32 h-8 bg-gray-200 rounded-md animate-pulse" />
-              ) : (
-                <img src={LogoSmartBin} alt="SmartBin" className="w-32" />
-              )}
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="hidden items-center lg:flex">
+              {isLoading ? <div className="h-8 w-32 animate-pulse rounded-md bg-gray-200" /> : <img src={LogoSmartBin} alt="SmartBin" className="w-32" />}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Right Side Icons & Profile */}
-      <div className="flex items-center gap-5" ref={dropdownContainerRef}>
-        {isLoading ? (
-          // Skeleton for Right Side (Bell + User Profile)
-          <>
-            <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
-            <div className="flex items-center gap-3 pl-3 border-l border-gray-100">
-              <div className="hidden sm:flex flex-col gap-1 items-end">
-                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
-              </div>
-              <div className="w-11 h-11 bg-gray-200 rounded-full animate-pulse" />
+      <div className="flex items-center gap-3 sm:gap-5" ref={dropdownContainerRef}>
+        <div className="relative">
+          <button type="button" aria-label="Notifications" aria-expanded={activeDropdown === "notification"} onClick={() => toggleDropdown("notification")}
+            className={`rounded-full p-2.5 transition-colors ${activeDropdown === "notification" ? "bg-blue-100 text-[#004e80]" : "bg-blue-50 text-[#0062a0] hover:bg-blue-100"}`}>
+            <Bell size={22} />
+          </button>
+          <AnimatePresence>
+            {activeDropdown === "notification" && (
+              <motion.div variants={dropdownVariants} initial="hidden" animate="visible" exit="exit" className="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl sm:w-80">
+                <div className="border-b border-gray-100 px-5 py-4 font-bold text-gray-800">Notifications</div>
+                <div className="flex items-center gap-3 px-5 py-6 text-sm text-gray-500"><Info size={18} /> No notifications available.</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="relative border-l border-gray-100 pl-3">
+          <button type="button" onClick={() => toggleDropdown("profile")} aria-expanded={activeDropdown === "profile"}
+            className={`flex items-center gap-3 rounded-xl p-1.5 transition-colors ${activeDropdown === "profile" ? "bg-gray-100" : "hover:bg-gray-50"}`}>
+            <div className="hidden text-right sm:block">
+              {loading ? <><div className="mb-1 h-4 w-24 animate-pulse rounded bg-gray-200" /><div className="ml-auto h-3 w-16 animate-pulse rounded bg-gray-200" /></> : <>
+                <p className="max-w-40 truncate text-sm font-bold leading-tight text-gray-800">{displayName}</p>
+                <p className="max-w-40 truncate text-xs font-medium text-gray-400">{displayRole}</p>
+              </>}
             </div>
-          </>
-        ) : (
-          <>
-            {/* --- NOTIFICATION DROPDOWN --- */}
-            <div className="relative">
-              <div
-                onClick={() => toggleDropdown("notification")}
-                className={`relative p-2.5 rounded-full cursor-pointer transition-colors ${
-                  activeDropdown === "notification"
-                    ? "bg-blue-100 text-[#004e80]"
-                    : "bg-blue-50 text-[#0062a0] hover:bg-blue-100"
-                }`}
-              >
-                <Bell size={22} />
-                {/* Red dot indicator */}
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-              </div>
-
-              <AnimatePresence>
-                {activeDropdown === "notification" && (
-                  <motion.div
-                    variants={dropdownVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 overflow-hidden z-50"
-                  >
-                    <div className="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                      <span className="font-bold text-gray-800">
-                        Notifications
-                      </span>
-                      <span className="text-xs text-blue-600 cursor-pointer hover:underline font-semibold">
-                        Mark all as read
-                      </span>
-                    </div>
-
-                    <div className="max-h-[320px] overflow-y-auto no-scrollbar">
-                      {/* Notification Item 1 */}
-                      <div className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer flex gap-4">
-                        <div className="mt-0.5 bg-green-100 p-2 rounded-full h-fit text-green-600">
-                          <CheckCircle size={18} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-800">
-                            Order #1234 Processed
-                          </p>
-                          <p className="text-sm text-gray-500 mt-0.5 leading-snug">
-                            Warehouse order has been successfully processed and
-                            updated.
-                          </p>
-                          <p className="text-[11px] font-medium text-gray-400 mt-1.5">
-                            Just now
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Notification Item 2 */}
-                      <div className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer flex gap-4">
-                        <div className="mt-0.5 bg-blue-100 p-2 rounded-full h-fit text-blue-600">
-                          <Info size={18} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-800">
-                            System Update Completed
-                          </p>
-                          <p className="text-sm text-gray-500 mt-0.5 leading-snug">
-                            Smart Bin forecast module has been updated to v2.4.
-                          </p>
-                          <p className="text-[11px] font-medium text-gray-400 mt-1.5">
-                            2 hours ago
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 text-center border-t border-gray-50 bg-gray-50/30">
-                      <button className="text-sm text-blue-600 font-bold hover:text-blue-800 transition-colors">
-                        View All Activity
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 border-blue-50 bg-[#0062a0] text-sm font-semibold text-white shadow-sm">
+              {loading ? <div className="h-full w-full animate-pulse bg-gray-200" /> : profile?.avatar ? <img src={profile.avatar} alt="Profile" className="h-full w-full object-cover" /> : getInitials(displayName)}
             </div>
+          </button>
 
-            {/* --- PROFILE DROPDOWN --- */}
-            <div className="relative border-l border-gray-100 pl-3">
-              <div
-                onClick={() => toggleDropdown("profile")}
-                className={`flex items-center gap-3 cursor-pointer p-1.5 rounded-xl transition-all ${
-                  activeDropdown === "profile"
-                    ? "bg-gray-100"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-gray-800 leading-tight">
-                    Smart Bin
-                  </p>
-                  <p className="text-xs text-gray-400 font-medium">
-                    Administrator
-                  </p>
+          <AnimatePresence>
+            {activeDropdown === "profile" && (
+              <motion.div variants={dropdownVariants} initial="hidden" animate="visible" exit="exit" className="absolute right-0 z-50 mt-3 w-64 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
+                <div className="border-b border-gray-100 bg-gray-50/50 p-5">
+                  <p className="truncate text-base font-bold text-gray-800">{loading ? "Loading profile..." : displayName}</p>
+                  <p className="mt-0.5 truncate text-xs font-medium text-gray-500">{loading ? "" : displayEmail}</p>
+                  {profileError && <button type="button" onClick={fetchProfile} className="mt-2 text-xs font-semibold text-blue-600 hover:underline">Retry profile loading</button>}
                 </div>
-                <div className="w-11 h-11 rounded-full border-2 border-blue-50 p-0.5 overflow-hidden bg-white shadow-sm">
-                  <img
-                    src="https://ui-avatars.com/api/?name=Smart+Bin&background=0062a0&color=fff"
-                    alt="User"
-                    className="w-full h-full rounded-full object-cover"
-                  />
+                <div className="p-2">
+                  <button type="button" onClick={() => { setActiveDropdown(null); navigate("/profile"); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-700">
+                    <User size={18} /> My Profile
+                  </button>
                 </div>
-              </div>
-
-              <AnimatePresence>
-                {activeDropdown === "profile" && (
-                  <motion.div
-                    variants={dropdownVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="absolute right-0 mt-3 w-60 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 overflow-hidden z-50"
-                  >
-                    {/* Header profile details */}
-                    <div className="p-5 border-b border-gray-50 bg-gray-50/50">
-                      <p className="text-base font-bold text-gray-800">
-                        Smart Bin Admin
-                      </p>
-                      <p className="text-xs text-gray-500 truncate mt-0.5 font-medium">
-                        admin@smartbin.com
-                      </p>
-                    </div>
-
-                    {/* Menu links */}
-                    <div className="p-2 flex flex-col gap-1">
-                      <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors font-semibold text-left w-full">
-                        <User size={18} /> My Profile
-                      </button>
-                      <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors font-semibold text-left w-full">
-                        <Settings size={18} /> Account Settings
-                      </button>
-                    </div>
-
-                    {/* Logout */}
-                    <div
-                      onClick={() => {
-                        (navigate("/login"),
-                          localStorage.removeItem("accessToken"));
-                      }}
-                      className="p-2 border-t border-gray-50"
-                    >
-                      <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors font-semibold text-left w-full">
-                        <LogOut size={18} /> Sign Out
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </>
-        )}
+                <div className="border-t border-gray-100 p-2">
+                  <button type="button" onClick={signOut} className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm font-semibold text-red-600 transition-colors hover:bg-red-50">
+                    <LogOut size={18} /> Sign Out
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </header>
   );

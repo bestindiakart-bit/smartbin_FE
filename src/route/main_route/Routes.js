@@ -44,6 +44,7 @@ import { Orders_Route } from "../Orders/Orders_Route";
 
 // Import the ErrorPage component
 import ErrorPage from "../../component/NotFoundPage/ErrorPag";
+import Profile from "../../pages/SubComponents/Profile/Profile";
 
 // 1. Create wrapper components to avoid using JSX syntax < />
 const Page404 = () => ErrorPage({ type: "404" });
@@ -104,6 +105,11 @@ export const router = createBrowserRouter([
         path: "overall-report",
         Component: OverAll_Report,
       },
+
+  {
+    path: "/profile",
+    Component: Profile
+  },
     ],
   },
 
