@@ -257,8 +257,7 @@ const Warehouse_View = ({ isOpen, onClose, id }) => {
                                       "0"}
                                   </td>
                                   <td className="px-4 py-3 text-slate-700 font-medium">
-                                    {item.currentStock?.toLocaleString() ||
-                                      "0"}
+                                    {item.currentStock?.toLocaleString() || "0"}
                                   </td>
                                   <td className="px-4 py-3 text-slate-700">
                                     {item.supplerName ||

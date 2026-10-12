@@ -1,13 +1,19 @@
 import { AnimatePresence, motion } from "framer-motion";
+
 import { Plus, Trash2, Package, Loader, ArrowLeft } from "lucide-react";
+
 import { useEffect, useState } from "react";
 
 import { useLocation, useNavigate, useMatches } from "react-router-dom";
 
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
+
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
+
 import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_Popup";
+
 import ReUsableInput_Fields from "../../../../component/ReUsableInput_Fields/ReUsableInput_Fields";
+
 import Button from "../../../../component/button/Buttons";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -33,14 +39,17 @@ import {
 } from "../../../../store/Api_slice/Forecast_Slice";
 
 /* =========================================================
+
    VIEWER CONFIG
-========================================================= */
+
+\========================================================= */
 
 const VIEWER_CONFIG = {
   forecast: {
     viewerType: "forecast",
 
     title: "Forecast",
+
     description: "Manage and monitor forecasts",
 
     apiEndpoint: "/forecast/",
@@ -48,10 +57,13 @@ const VIEWER_CONFIG = {
     idLabel: "Forecast Id",
 
     createLabel: "Create Forecast",
+
     editorTitle: "Forecast Editor",
+
     editTitle: "Edit Forecast",
 
     monthLabel: "Forecast Month",
+
     quantityLabel: "Production Quantity",
 
     updateLabel: "Update Forecast",
@@ -63,6 +75,7 @@ const VIEWER_CONFIG = {
     viewerType: "consumption",
 
     title: "Consumption",
+
     description: "Manage and monitor consumption",
 
     apiEndpoint: "/project-consumption/",
@@ -70,10 +83,13 @@ const VIEWER_CONFIG = {
     idLabel: "Consumption Id",
 
     createLabel: "Create Consumption",
+
     editorTitle: "Consumption Editor",
+
     editTitle: "Edit Consumption",
 
     monthLabel: "Consumption Month",
+
     quantityLabel: "Consumption Quantity",
 
     updateLabel: "Update Consumption",
@@ -83,13 +99,18 @@ const VIEWER_CONFIG = {
 };
 
 /* =========================================================
+
    GET VIEWER TYPE
-========================================================= */
+
+\========================================================= */
 
 const getViewerType = (matches, pathname) => {
   // First preference: route handle
+
   const routeViewerType = matches
+
     .map((match) => match.handle?.viewerType)
+
     .find(Boolean);
 
   if (routeViewerType && VIEWER_CONFIG[routeViewerType]) {
@@ -97,6 +118,7 @@ const getViewerType = (matches, pathname) => {
   }
 
   // Fallback
+
   if (
     pathname.startsWith("/consumption-viewer") ||
     pathname.includes("/consumption-viewer")
@@ -108,23 +130,54 @@ const getViewerType = (matches, pathname) => {
 };
 
 /* =========================================================
+
    MONTH NAME HELPERS
-========================================================= */
+
+\========================================================= */
 
 const MONTH_NAMES = [
   "Jan",
+
   "Feb",
+
   "Mar",
+
   "Apr",
+
   "May",
+
   "Jun",
+
   "Jul",
+
   "Aug",
+
   "Sep",
+
   "Oct",
+
   "Nov",
+
   "Dec",
 ];
+
+const getCurrentMonth = () => {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+};
+
+const getPreviousMonth = () => {
+  const date = new Date();
+  date.setDate(1);
+  date.setMonth(date.getMonth() - 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+};
+
+const isAllowedMonth = (value, isConsumption) => {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) return false;
+  const current = getCurrentMonth();
+  return isConsumption ? value < current : value >= current;
+};
 
 const formatMonth = (rawMonth) => {
   if (!rawMonth) return "";
@@ -159,17 +212,24 @@ const convertMonthToInputValue = (monthString) => {
 };
 
 /* =========================================================
+
    COMPONENT
-========================================================= */
+
+\========================================================= */
 
 const ForCast_Editor = () => {
   const navigate = useNavigate();
+
   const location = useLocation();
+
   const matches = useMatches();
+
   const dispatch = useDispatch();
 
   /* =========================================================
+
      DYNAMIC VIEWER CONFIG
+
   ========================================================= */
 
   const viewerType = getViewerType(matches, location.pathname);
@@ -181,7 +241,9 @@ const ForCast_Editor = () => {
   const isForecast = viewerType === "forecast";
 
   /* =========================================================
+
      ROUTE STATE
+
   ========================================================= */
 
   const { rowId, mode, edit, _id } = location.state || {};
@@ -191,7 +253,9 @@ const ForCast_Editor = () => {
   const isEdit = mode === "edit" || edit === true || !!recordId;
 
   /* =========================================================
+
      MODAL STATES
+
   ========================================================= */
 
   const [confirm, setConfirm] = useState(false);
@@ -205,23 +269,31 @@ const ForCast_Editor = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   /* =========================================================
+
      REDUX STATES
+
   ========================================================= */
 
   const {
     forcastEdit,
+
     bomData,
+
     projectData,
+
     singleBomData,
 
     postLoading,
+
     updateLoading,
 
     forecastGet,
   } = useSelector((state) => state.forecast);
 
   /* =========================================================
+
      DATA
+
   ========================================================= */
 
   const forcastData = forcastEdit?.data || [];
@@ -237,11 +309,15 @@ const ForCast_Editor = () => {
   const bomDetails = singleBomData?.data || singleBomData?.bom || null;
 
   /* =========================================================
+
      LOCAL EDIT DATA
-     
+
      Consumption is fetched separately because the existing
+
      forecast Redux state is not guaranteed to contain
+
      consumption records.
+
   ========================================================= */
 
   const [consumptionEditData, setConsumptionEditData] = useState(null);
@@ -249,31 +325,43 @@ const ForCast_Editor = () => {
   const [consumptionLoading, setConsumptionLoading] = useState(false);
 
   /* =========================================================
+
      LOADING
+
   ========================================================= */
 
   const isLoading = postLoading || updateLoading || consumptionLoading;
 
   /* =========================================================
+
      FORM STATE
+
   ========================================================= */
 
   const [formData, setFormData] = useState({
     customerId: "",
+
     projectId: "",
+
     bomId: "",
   });
 
   /* =========================================================
+
      MONTH ROWS
+
   ========================================================= */
 
   const [forecastRows, setForecastRows] = useState([
     {
       id: Date.now(),
+
       month: "",
+
       quantity: "",
+
       rawMonth: "",
+
       itemId: "",
     },
   ]);
@@ -281,7 +369,9 @@ const ForCast_Editor = () => {
   console.log(forecastRows);
 
   /* =========================================================
+
      INITIAL FETCH
+
   ========================================================= */
 
   useEffect(() => {
@@ -289,7 +379,9 @@ const ForCast_Editor = () => {
   }, [dispatch, isConsumption]);
 
   /* =========================================================
+
      FETCH EDIT DATA
+
   ========================================================= */
 
   useEffect(() => {
@@ -298,7 +390,9 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        FORECAST EDIT
+
     ------------------------------------------------------- */
 
     if (isForecast) {
@@ -314,7 +408,9 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        CONSUMPTION EDIT
+
     ------------------------------------------------------- */
 
     if (isConsumption) {
@@ -335,6 +431,7 @@ const ForCast_Editor = () => {
             : Array.isArray(response)
               ? response
               : [];
+
           console.log("consumption list", list);
 
           const found = list.find((item) => item?._id === recordId);
@@ -363,16 +460,24 @@ const ForCast_Editor = () => {
     }
   }, [
     dispatch,
+
     isEdit,
+
     recordId,
+
     isForecast,
+
     isConsumption,
+
     forecastGet,
+
     viewerConfig.apiEndpoint,
   ]);
 
   /* =========================================================
+
      GET FORECAST EDIT DATA
+
   ========================================================= */
 
   useEffect(() => {
@@ -387,7 +492,9 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        FORM DATA
+
     ------------------------------------------------------- */
 
     setFormData({
@@ -399,7 +506,9 @@ const ForCast_Editor = () => {
     });
 
     /* -------------------------------------------------------
+
        PROJECT
+
     ------------------------------------------------------- */
 
     const customerId = editData.customerId?._id || editData.customerId;
@@ -413,20 +522,25 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        BOM
+
     ------------------------------------------------------- */
 
     if (customerId && projectId) {
       dispatch(
         fetchBomApi({
           customerId,
+
           projectId,
         }),
       );
     }
 
     /* -------------------------------------------------------
+
        SINGLE BOM
+
     ------------------------------------------------------- */
 
     if (bomId) {
@@ -434,7 +548,9 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        FORECAST MONTH DATA
+
     ------------------------------------------------------- */
 
     if (
@@ -460,7 +576,9 @@ const ForCast_Editor = () => {
   }, [isEdit, recordId, isForecast, forecastGet, dispatch]);
 
   /* =========================================================
+
      GET CONSUMPTION EDIT DATA
+
   ========================================================= */
 
   useEffect(() => {
@@ -471,7 +589,9 @@ const ForCast_Editor = () => {
     const editData = consumptionEditData;
 
     /* -------------------------------------------------------
+
        FORM DATA
+
     ------------------------------------------------------- */
 
     const customerId = editData.customerId?._id || editData.customerId || "";
@@ -482,12 +602,16 @@ const ForCast_Editor = () => {
 
     setFormData({
       customerId,
+
       projectId,
+
       bomId,
     });
 
     /* -------------------------------------------------------
+
        PROJECT
+
     ------------------------------------------------------- */
 
     if (customerId) {
@@ -495,20 +619,25 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        BOM
+
     ------------------------------------------------------- */
 
     if (customerId && projectId) {
       dispatch(
         fetchBomApi({
           customerId,
+
           projectId,
         }),
       );
     }
 
     /* -------------------------------------------------------
+
        SINGLE BOM
+
     ------------------------------------------------------- */
 
     if (bomId) {
@@ -516,17 +645,24 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        CONSUMPTION MONTH DATA
-       
+
        Supports:
+
        projectConsumption
+
        consumption
+
        consumptionEntries
+
     ------------------------------------------------------- */
 
     /* =========================================================
+
    CONSUMPTION MONTH DATA
-========================================================= */
+
+\========================================================= */
 
     const consumptionRows =
       editData.projectConsumption ||
@@ -541,17 +677,25 @@ const ForCast_Editor = () => {
         const month = item?.consumptionMonth || item?.month || "";
 
         /*
+
          * API already returns YYYY-MM.
+
          * Do NOT call convertMonthToInputValue()
+
          * because that function expects "Aug 2026".
+
          */
+
         const rawMonth = /^\d{4}-\d{2}$/.test(month)
           ? month
           : convertMonthToInputValue(month);
 
         /*
+
          * Consumption API uses productionQuantity
+
          */
+
         const quantity =
           item?.productionQuantity ??
           item?.consumptionQuantity ??
@@ -576,7 +720,9 @@ const ForCast_Editor = () => {
   }, [isEdit, isConsumption, consumptionEditData, dispatch]);
 
   /* =========================================================
+
      SUCCESS MODAL
+
   ========================================================= */
 
   useEffect(() => {
@@ -598,22 +744,30 @@ const ForCast_Editor = () => {
   }, [successModel, isEdit, navigate]);
 
   /* =========================================================
+
      RESET FORM
+
   ========================================================= */
 
   const resetForm = () => {
     setFormData({
       customerId: "",
+
       projectId: "",
+
       bomId: "",
     });
 
     setForecastRows([
       {
         id: Date.now(),
+
         month: "",
+
         quantity: "",
+
         rawMonth: "",
+
         itemId: "",
       },
     ]);
@@ -628,7 +782,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      FORM CHANGE
+
   ========================================================= */
 
   const handleChange = (e) => {
@@ -641,6 +797,7 @@ const ForCast_Editor = () => {
 
       ...(name === "customerId" && {
         projectId: "",
+
         bomId: "",
       }),
 
@@ -650,7 +807,9 @@ const ForCast_Editor = () => {
     }));
 
     /* -------------------------------------------------------
+
        CUSTOMER
+
     ------------------------------------------------------- */
 
     if (name === "customerId" && value) {
@@ -662,7 +821,9 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        PROJECT
+
     ------------------------------------------------------- */
 
     if (name === "projectId" && value && formData.customerId) {
@@ -678,7 +839,9 @@ const ForCast_Editor = () => {
     }
 
     /* -------------------------------------------------------
+
        BOM
+
     ------------------------------------------------------- */
 
     if (name === "bomId" && value) {
@@ -687,10 +850,37 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      MONTH CHANGE
+
   ========================================================= */
 
   const handleMonthChange = (id, value) => {
+    if (value && !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
+      setErrorMessage("Select a valid month.");
+      setErrorModel(true);
+      return;
+    }
+    if (
+      value &&
+      forecastRows.some((row) => row.id !== id && row.rawMonth === value)
+    ) {
+      setErrorMessage(
+        "This month is already selected. Choose a different month.",
+      );
+      setErrorModel(true);
+      return;
+    }
+    if (value && !isAllowedMonth(value, isConsumption)) {
+      setErrorMessage(
+        isConsumption
+          ? "Consumption allows past months only (before the current month)."
+          : "Forecast allows the current month and future months only.",
+      );
+      setErrorModel(true);
+      return;
+    }
+
     if (value) {
       const formattedMonth = formatMonth(value);
 
@@ -705,19 +895,25 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      ADD ROW
+
   ========================================================= */
 
   const handleAddRow = () => {
-    if (forecastRows.length < 6) {
-      setForecastRows([
-        ...forecastRows,
+    if (forecastRows.length < 6 && !isLoading) {
+      setForecastRows((previousRows) => [
+        ...previousRows,
 
         {
-          id: Date.now(),
+          id: Date.now() + Math.random(),
+
           month: "",
+
           quantity: "",
+
           rawMonth: "",
+
           itemId: "",
         },
       ]);
@@ -725,7 +921,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      REMOVE ROW
+
   ========================================================= */
 
   const handleRemoveRow = (id) => {
@@ -735,7 +933,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      ROW CHANGE
+
   ========================================================= */
 
   const handleRowChange = (id, field, value) => {
@@ -744,6 +944,7 @@ const ForCast_Editor = () => {
         row.id === id
           ? {
               ...row,
+
               [field]: value,
             }
           : row,
@@ -752,12 +953,16 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      PREPARE FORECAST PAYLOAD
+
   ========================================================= */
 
   const prepareForecastPayload = () => {
     const projectForecast = forecastRows
+
       .filter((row) => row.rawMonth && row.quantity && Number(row.quantity) > 0)
+
       .map((row) => {
         const date = new Date(`${row.rawMonth}-01`);
 
@@ -782,14 +987,19 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      PREPARE CONSUMPTION PAYLOAD
-     
+
      NOTE:
+
      These property names must match the backend API:
-     
+
      projectConsumption
+
      consumptionMonth
+
      consumptionMonth
+
   ========================================================= */
 
   const prepareConsumptionPayload = () => {
@@ -800,22 +1010,32 @@ const ForCast_Editor = () => {
 
       productionQuantity: Number(row.quantity),
     }));
+
     //    "projectConsumption": [
+
     //   { "consumptionMonth": "2026-06", "productionQuantity": 200 },
+
     //   { "consumptionMonth": "2026-07", "productionQuantity": 140 },
+
     //   { "consumptionMonth": "2026-08", "productionQuantity": 180 }
+
     // ]
 
     return {
       customerId: formData.customerId || undefined,
+
       projectId: formData.projectId,
+
       bomId: formData.bomId,
+
       projectConsumption,
     };
   };
 
   /* =========================================================
+
      PREPARE PAYLOAD
+
   ========================================================= */
 
   const preparePayload = () => {
@@ -827,28 +1047,82 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      VALIDATE FORM
+
   ========================================================= */
 
   const handleSubmitInit = () => {
+    if (
+      forecastRows.some(
+        (row) => !row.rawMonth || String(row.quantity).trim() === "",
+      )
+    ) {
+      setErrorMessage(
+        `Select a ${viewerConfig.entityName} month and enter quantity for every row.`,
+      );
+      setErrorModel(true);
+      return;
+    }
+    if (
+      forecastRows.some(
+        (row) =>
+          !Number.isSafeInteger(Number(row.quantity)) ||
+          Number(row.quantity) <= 0,
+      )
+    ) {
+      setErrorMessage(
+        `${viewerConfig.quantityLabel} must be a positive whole number.`,
+      );
+      setErrorModel(true);
+      return;
+    }
+    if (
+      new Set(forecastRows.map((row) => row.rawMonth)).size !==
+      forecastRows.length
+    ) {
+      setErrorMessage("Duplicate months are not allowed.");
+      setErrorModel(true);
+      return;
+    }
+    if (
+      forecastRows.some((row) => !isAllowedMonth(row.rawMonth, isConsumption))
+    ) {
+      setErrorMessage(
+        isConsumption
+          ? "Consumption can only be submitted for past months."
+          : "Forecast can only be submitted for the current or future months.",
+      );
+      setErrorModel(true);
+      return;
+    }
+
     /* =========================================================
+
        COMMON VALIDATION
+
     ========================================================= */
 
     if (!formData.projectId) {
       setErrorMessage("Please select a project");
+
       setErrorModel(true);
+
       return;
     }
 
     if (!formData.bomId) {
       setErrorMessage("Please select a BOM");
+
       setErrorModel(true);
+
       return;
     }
 
     /* =========================================================
+
        CONSUMPTION VALIDATION
+
     ========================================================= */
 
     if (isConsumption) {
@@ -856,7 +1130,9 @@ const ForCast_Editor = () => {
 
       if (enteredRows.length === 0) {
         setErrorMessage("Please add at least one consumption month");
+
         setErrorModel(true);
+
         return;
       }
 
@@ -866,16 +1142,21 @@ const ForCast_Editor = () => {
         setErrorMessage(
           "Duplicate consumption months found. Please select unique months.",
         );
+
         setErrorModel(true);
+
         return;
       }
 
       setConfirm(true);
+
       return;
     }
 
     /* =========================================================
+
        FORECAST VALIDATION
+
     ========================================================= */
 
     const hasValidRows = forecastRows.some(
@@ -886,25 +1167,33 @@ const ForCast_Editor = () => {
       setErrorMessage(
         `Please add at least one ${viewerConfig.entityName} month with quantity`,
       );
+
       setErrorModel(true);
+
       return;
     }
 
     const months = forecastRows
+
       .filter((row) => row.month)
+
       .map((row) => row.month);
 
     if (new Set(months).size !== months.length) {
       setErrorMessage(
         `Duplicate months found. Please select unique months for each ${viewerConfig.entityName} row.`,
       );
+
       setErrorModel(true);
+
       return;
     }
 
     if (forecastRows.some((row) => row.quantity && Number(row.quantity) <= 0)) {
       setErrorMessage(`${viewerConfig.quantityLabel} must be greater than 0`);
+
       setErrorModel(true);
+
       return;
     }
 
@@ -912,7 +1201,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      FORECAST CREATE
+
   ========================================================= */
 
   const createForecast = async () => {
@@ -932,7 +1223,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      FORECAST UPDATE
+
   ========================================================= */
 
   const updateForecast = async () => {
@@ -942,6 +1235,7 @@ const ForCast_Editor = () => {
       const res = await dispatch(
         ForcastUpdate({
           id: recordId,
+
           payload,
         }),
       ).unwrap();
@@ -957,7 +1251,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      CONSUMPTION CREATE
+
   ========================================================= */
 
   const createConsumption = async () => {
@@ -977,12 +1273,15 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      CONSUMPTION UPDATE
-     
+
      API:
+
      PUT /project-consumption/:id/entry
-     
+
      We send the complete selected entries.
+
   ========================================================= */
 
   const updateConsumption = async () => {
@@ -992,6 +1291,7 @@ const ForCast_Editor = () => {
       const res = await dispatch(
         ProjectConsumptionEntryUpdate({
           id: recordId,
+
           payload,
         }),
       ).unwrap();
@@ -1007,24 +1307,32 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      CONFIRM ACTION
-     
+
      IMPORTANT:
+
      This is where the old code was hardcoded to Forecast.
-     
+
      Now:
-     
+
      Forecast Create    -> ForcastPost
+
      Forecast Update    -> ForcastUpdate
+
      Consumption Create -> ProjectConsumptionPost
+
      Consumption Update -> ProjectConsumptionEntryUpdate
+
   ========================================================= */
 
   const handleConfirmAction = async () => {
     setConfirm(false);
 
     /* =======================================================
+
        CONSUMPTION
+
     ======================================================= */
 
     if (isConsumption) {
@@ -1038,7 +1346,9 @@ const ForCast_Editor = () => {
     }
 
     /* =======================================================
+
        FORECAST
+
     ======================================================= */
 
     if (isForecast) {
@@ -1053,7 +1363,9 @@ const ForCast_Editor = () => {
   };
 
   /* =========================================================
+
      FRAMER MOTION
+
   ========================================================= */
 
   const containerVariants = {
@@ -1066,6 +1378,7 @@ const ForCast_Editor = () => {
 
       transition: {
         staggerChildren: 0.06,
+
         delayChildren: 0.1,
       },
     },
@@ -1074,45 +1387,58 @@ const ForCast_Editor = () => {
   const itemVariants = {
     hidden: {
       opacity: 0,
+
       y: 20,
     },
 
     visible: {
       opacity: 1,
+
       y: 0,
 
       transition: {
         type: "spring",
+
         stiffness: 100,
+
         damping: 15,
       },
     },
   };
 
   /* =========================================================
+
      UI
+
   ========================================================= */
 
   return (
     <motion.div
       initial="hidden"
+
       animate="visible"
+
       variants={containerVariants}
+
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
       <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
         {/* =================================================
+
             HEADER
+
         ================================================= */}
 
         <motion.div
           variants={itemVariants}
+
           className="flex items-center justify-between mb-8"
         >
           <div className="flex flex-col">
             <div className="flex items-center gap-5">
               <button
                 onClick={() => navigate(-1)}
+
                 className="p-3 text-[#0062a0] hover:bg-blue-50 rounded-2xl transition-all cursor-pointer"
               >
                 <ArrowLeft size={24} />
@@ -1126,7 +1452,9 @@ const ForCast_Editor = () => {
         </motion.div>
 
         {/* =================================================
+
             MAIN FORM
+
         ================================================= */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
@@ -1143,6 +1471,7 @@ const ForCast_Editor = () => {
               options={[
                 {
                   label: "Select Customer",
+
                   value: "",
                 },
 
@@ -1178,6 +1507,7 @@ const ForCast_Editor = () => {
               options={[
                 {
                   label: "Select Project",
+
                   value: "",
                 },
 
@@ -1209,6 +1539,7 @@ const ForCast_Editor = () => {
               options={[
                 {
                   label: "Select Bom",
+
                   value: "",
                 },
 
@@ -1229,20 +1560,27 @@ const ForCast_Editor = () => {
         </div>
 
         {/* =================================================
+
             BOM DETAILS
+
         ================================================= */}
 
         {bomDetails && bomDetails.items && bomDetails.items.length > 0 && (
           <motion.div
             variants={itemVariants}
+
             initial={{
               opacity: 0,
+
               y: 20,
             }}
+
             animate={{
               opacity: 1,
+
               y: 0,
             }}
+
             className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100"
           >
             <div className="flex items-center gap-2 mb-4">
@@ -1271,6 +1609,7 @@ const ForCast_Editor = () => {
                   {bomDetails.items.map((item, index) => (
                     <tr
                       key={index}
+
                       className="hover:bg-gray-50 transition-colors"
                     >
                       <td className="px-4 py-3 text-sm text-gray-800">
@@ -1292,20 +1631,30 @@ const ForCast_Editor = () => {
           </motion.div>
         )}
 
-        {/* =================================================
-            MONTH SECTION
-        ================================================= */}
-
+        {/* MONTH SECTION */}
         <motion.div variants={itemVariants} className="mt-12">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-[#0062a0]">
-              {viewerConfig.title} Month
-            </h2>
-
-            <div className="text-sm text-gray-500">
-              {forecastRows.filter((row) => row.month && row.quantity).length}/
-              {forecastRows.length} Months filled
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-bold text-[#0062a0]">
+                {viewerConfig.title} Month
+              </h2>
+              <span className="text-sm text-slate-500">
+                {
+                  forecastRows.filter((row) => row.rawMonth && row.quantity)
+                    .length
+                }
+                /{forecastRows.length} Months filled
+              </span>
             </div>
+            <button
+              type="button"
+              onClick={handleAddRow}
+              disabled={forecastRows.length >= 6 || isLoading}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-semibold text-[#0062a0] transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40"
+              title="Add another month (maximum 6)"
+            >
+              <Plus size={18} /> Add Month
+            </button>
           </div>
 
           <div className="space-y-4">
@@ -1314,97 +1663,66 @@ const ForCast_Editor = () => {
                 <motion.div
                   key={row.id}
                   layout
-                  initial={{
-                    opacity: 0,
-                    x: -20,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.95,
-                  }}
-                  className="flex flex-col md:flex-row items-end md:items-center gap-4 w-full"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="grid w-full grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_48px] md:items-end"
                 >
-                  {/* MONTH */}
-
-                  <div className="flex-1 w-full">
-                    <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 pb-2">
-                        {viewerConfig.monthLabel} {index + 1}
-                      </label>
-
-                      <input
-                        type="month"
-
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#0062a0] focus:border-transparent transition-all"
-
-                        value={row.rawMonth || ""}
-
-                        onChange={(e) =>
-                          handleMonthChange(row.id, e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* QUANTITY */}
-
-                  <div className="flex-1 w-full">
-                    <ReUsableInput_Fields
-                      label={viewerConfig.quantityLabel}
-
-                      type="number"
-
-                      placeholder="Enter quantity"
-
-                      value={row.quantity}
-
-                      onChange={(e) =>
-                        handleRowChange(row.id, "quantity", e.target.value)
+                  <div className="min-w-0">
+                    <label
+                      htmlFor={`month-${row.id}`}
+                      className="mb-2 block text-sm font-medium text-gray-700"
+                    >
+                      {viewerConfig.monthLabel} {index + 1}
+                    </label>
+                    <input
+                      id={`month-${row.id}`}
+                      type="month"
+                      min={isForecast ? getCurrentMonth() : undefined}
+                      max={isConsumption ? getPreviousMonth() : undefined}
+                      value={row.rawMonth || ""}
+                      disabled={isLoading}
+                      onChange={(event) =>
+                        handleMonthChange(row.id, event.target.value)
                       }
-
-                      min="1"
+                      className="h-[46px] w-full rounded-xl border border-gray-300 px-4 text-sm outline-none transition-all focus:border-[#0062a0] focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
 
-                  {/* ROW BUTTONS */}
+                  <div className="min-w-0">
+                    <label
+                      htmlFor={`quantity-${row.id}`}
+                      className="mb-2 block text-sm font-medium text-gray-700"
+                    >
+                      {viewerConfig.quantityLabel} {index + 1}
+                    </label>
+                    <input
+                      id={`quantity-${row.id}`}
+                      type="number"
+                      min="1"
+                      step="1"
+                      inputMode="numeric"
+                      placeholder="Enter quantity"
+                      value={row.quantity}
+                      onChange={(event) =>
+                        handleRowChange(row.id, "quantity", event.target.value)
+                      }
+                      disabled={isLoading}
+                      className="h-[46px] w-full rounded-xl border border-gray-300 bg-white px-4 text-sm outline-none transition-all focus:border-[#0062a0] focus:ring-2 focus:ring-blue-100 disabled:opacity-50"
+                    />
+                  </div>
 
-                  <div className="flex items-center gap-3 pb-1.5 h-full">
-                    {index === forecastRows.length - 1 &&
-                    forecastRows.length < 6 ? (
-                      <button
-                        type="button"
-
-                        onClick={handleAddRow}
-
-                        className="p-3 bg-[#e6f4ff] text-[#0062a0] rounded-xl hover:bg-blue-100 transition-all active:scale-90"
-
-                        title="Add more month"
-                      >
-                        <Plus size={24} strokeWidth={3} />
-                      </button>
-                    ) : (
-                      index === forecastRows.length - 1 && (
-                        <div className="w-[52px]" />
-                      )
-                    )}
-
-                    {forecastRows.length > 1 && (
-                      <button
-                        type="button"
-
-                        onClick={() => handleRemoveRow(row.id)}
-
-                        className="p-3 bg-[#e6f4ff] text-slate-800 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all active:scale-90"
-
-                        title="Remove month"
-                      >
-                        <Trash2 size={24} />
-                      </button>
-                    )}
+                  <div className="flex h-[46px] items-center justify-end md:justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveRow(row.id)}
+                      disabled={forecastRows.length <= 1 || isLoading}
+                      className="flex h-[44px] w-[44px] items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-35"
+                      title="Remove month"
+                      aria-label={`Remove month ${index + 1}`}
+                    >
+                      <Trash2 size={20} />
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -1413,11 +1731,14 @@ const ForCast_Editor = () => {
         </motion.div>
 
         {/* =================================================
+
             FOOTER
+
         ================================================= */}
 
         <motion.div
           variants={itemVariants}
+
           className="flex items-center gap-6 justify-end mt-16 mb-4"
         >
           <Button
@@ -1443,7 +1764,9 @@ const ForCast_Editor = () => {
       </div>
 
       {/* =================================================
+
           CONFIRMATION POPUP
+
       ================================================= */}
 
       <Confirmation_Popup
@@ -1459,7 +1782,9 @@ const ForCast_Editor = () => {
       />
 
       {/* =================================================
+
           SUCCESS POPUP
+
       ================================================= */}
 
       <Success_Popup
@@ -1471,7 +1796,9 @@ const ForCast_Editor = () => {
       />
 
       {/* =================================================
+
           ERROR POPUP
+
       ================================================= */}
 
       <ErrorMessage_Popup

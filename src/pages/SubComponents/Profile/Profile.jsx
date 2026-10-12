@@ -1,12 +1,22 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, Check, Eye, EyeOff, KeyRound, Loader2,
-  Pencil, ShieldCheck, UserRound, X,
+  ArrowLeft,
+  Check,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Loader2,
+  Pencil,
+  ShieldCheck,
+  UserRound,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { loginMeAPI, FirstTime_PasswordChange } from "../../../service/Login/Login";
+import {
+  loginMeAPI,
+  FirstTime_PasswordChange,
+} from "../../../service/Login/Login";
 import { updateMyProfile } from "../../../service/Login/profileService";
 import Confirmation_Popup from "../../../component/Popup_Models/Confirmation_Popup";
 import Success_Popup from "../../../component/Popup_Models/Success_Popup";
@@ -47,7 +57,13 @@ const Detail = ({ label, value }) => (
 );
 
 const PasswordField = ({
-  label, name, value, visible, onToggle, onChange, disabled,
+  label,
+  name,
+  value,
+  visible,
+  onToggle,
+  onChange,
+  disabled,
 }) => (
   <label className="block space-y-2">
     <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -61,7 +77,9 @@ const PasswordField = ({
         onChange={onChange}
         disabled={disabled}
         required
-        autoComplete={name === "currentPassword" ? "current-password" : "new-password"}
+        autoComplete={
+          name === "currentPassword" ? "current-password" : "new-password"
+        }
         placeholder={`Enter ${label.toLowerCase()}`}
         className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm outline-none focus:border-[#0062a0] focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
       />
@@ -103,7 +121,9 @@ const Profile = () => {
     try {
       const res = await loginMeAPI();
       if (res?.data?.success === false || !res?.data?.data) {
-        throw new Error(res?.data?.message || "Unable to load account details.");
+        throw new Error(
+          res?.data?.message || "Unable to load account details.",
+        );
       }
       const details = normalizeProfile(res.data.data);
       setProfile(details);
@@ -158,7 +178,11 @@ const Profile = () => {
       setNotice({ type: "error", message: "Account email is missing." });
       return;
     }
-    if (!password.currentPassword || !password.newPassword || !password.confirmPassword) {
+    if (
+      !password.currentPassword ||
+      !password.newPassword ||
+      !password.confirmPassword
+    ) {
       setNotice({ type: "error", message: "Please fill all password fields." });
       return;
     }
@@ -167,7 +191,10 @@ const Profile = () => {
       return;
     }
     if (password.currentPassword === password.newPassword) {
-      setNotice({ type: "error", message: "New password must differ from the current password." });
+      setNotice({
+        type: "error",
+        message: "New password must differ from the current password.",
+      });
       return;
     }
     setConfirmPopup(true);
@@ -195,7 +222,9 @@ const Profile = () => {
         newPassword: false,
         confirmPassword: false,
       });
-      setPasswordSuccessMessage(res?.data?.message || "Password changed successfully.");
+      setPasswordSuccessMessage(
+        res?.data?.message || "Password changed successfully.",
+      );
       setSuccessPopup(true);
     } catch (error) {
       setNotice({ type: "error", message: getError(error) });
@@ -228,7 +257,9 @@ const Profile = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-            <p className="text-sm text-slate-500">Account details and security</p>
+            <p className="text-sm text-slate-500">
+              Account details and security
+            </p>
           </div>
         </div>
 
@@ -270,7 +301,9 @@ const Profile = () => {
                 <h2 className="truncate text-xl font-semibold text-slate-900">
                   {profile.userName || "Account"}
                 </h2>
-                <p className="truncate text-sm text-slate-500">{profile.loginEmail}</p>
+                <p className="truncate text-sm text-slate-500">
+                  {profile.loginEmail}
+                </p>
                 <p className="mt-1 text-xs font-medium text-[#0062a0]">
                   {profile.userTypeName}
                 </p>
@@ -281,7 +314,9 @@ const Profile = () => {
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <UserRound size={21} className="text-[#0062a0]" />
-                  <h2 className="text-lg font-bold text-slate-800">Personal Details</h2>
+                  <h2 className="text-lg font-bold text-slate-800">
+                    Personal Details
+                  </h2>
                 </div>
                 {/* {!editing && (
                   <button
@@ -311,7 +346,13 @@ const Profile = () => {
                   />
                   <Detail
                     label="Status"
-                    value={profile.status === 1 ? "Active" : profile.status === 0 ? "Inactive" : "—"}
+                    value={
+                      profile.status === 1
+                        ? "Active"
+                        : profile.status === 0
+                          ? "Inactive"
+                          : "—"
+                    }
                   />
                 </div>
               ) : (
@@ -327,7 +368,8 @@ const Profile = () => {
                     />
                   </label>
                   <p className="text-xs text-slate-500">
-                    Email, user ID, role, company, account type and status are managed by the system.
+                    Email, user ID, role, company, account type and status are
+                    managed by the system.
                   </p>
                   <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
                     <button
@@ -346,7 +388,11 @@ const Profile = () => {
                       disabled={saving}
                       className="flex items-center gap-2 rounded-xl bg-[#0062a0] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                     >
-                      {saving ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
+                      {saving ? (
+                        <Loader2 className="animate-spin" size={16} />
+                      ) : (
+                        <Check size={16} />
+                      )}
                       Save Changes
                     </button>
                   </div>
@@ -357,7 +403,9 @@ const Profile = () => {
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
               <div className="mb-2 flex items-center gap-2">
                 <ShieldCheck size={21} className="text-[#0062a0]" />
-                <h2 className="text-lg font-bold text-slate-800">Change Password</h2>
+                <h2 className="text-lg font-bold text-slate-800">
+                  Change Password
+                </h2>
               </div>
               <p className="mb-6 text-sm text-slate-500">
                 Enter your current password and choose a new password.

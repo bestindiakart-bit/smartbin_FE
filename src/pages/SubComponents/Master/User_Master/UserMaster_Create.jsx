@@ -23,14 +23,21 @@ import {
   user_type_post,
 } from "../../../../service/Master_Services/Master_Services";
 // Redux supplies the available modules; assigned values come from the user type/user.
-const normalizeModule = (value) => String(value ?? "").trim().toLowerCase();
+const normalizeModule = (value) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
 const ACTIONS = ["create", "view", "edit", "delete"];
 const mergePermissions = (available = [], assigned = []) => {
   const validAvailable = Array.isArray(available) ? available : [];
   const validAssigned = Array.isArray(assigned) ? assigned : [];
-  const assignedMap = new Map(validAssigned.filter(p => p?.module).map(p => [normalizeModule(p.module), p]));
+  const assignedMap = new Map(
+    validAssigned
+      .filter((p) => p?.module)
+      .map((p) => [normalizeModule(p.module), p]),
+  );
   const modules = new Map();
-  validAvailable.concat(validAssigned).forEach(item => {
+  validAvailable.concat(validAssigned).forEach((item) => {
     if (typeof item?.module === "string" && item.module.trim()) {
       const key = normalizeModule(item.module);
       if (!modules.has(key)) modules.set(key, item.module);
@@ -38,7 +45,12 @@ const mergePermissions = (available = [], assigned = []) => {
   });
   return [...modules].map(([key, module]) => {
     const saved = assignedMap.get(key);
-    return { module, ...Object.fromEntries(ACTIONS.map(action => [action, saved?.[action] === true])) };
+    return {
+      module,
+      ...Object.fromEntries(
+        ACTIONS.map((action) => [action, saved?.[action] === true]),
+      ),
+    };
   });
 };
 const UserMaster_Create = () => {
@@ -46,9 +58,15 @@ const UserMaster_Create = () => {
   const location = useLocation();
   const { mode, rowId } = location.state || {};
   const isEditMode = mode === "edit";
-  const reduxPermissions = useSelector(state => state.permissions?.permissions ?? []);
-  const reduxLoading = useSelector(state => state.permissions?.loading ?? false);
-  const reduxInitialized = useSelector(state => state.permissions?.initialized);
+  const reduxPermissions = useSelector(
+    (state) => state.permissions?.permissions ?? [],
+  );
+  const reduxLoading = useSelector(
+    (state) => state.permissions?.loading ?? false,
+  );
+  const reduxInitialized = useSelector(
+    (state) => state.permissions?.initialized,
+  );
   // --- POPUP STATES ---
   const [successPopup, setSuccessPopup] = useState({
     open: false,
@@ -230,7 +248,9 @@ const UserMaster_Create = () => {
         if (fetched.length === 1) {
           setFormData((prev) => ({ ...prev, userType: fetched[0].value }));
           if (fetched[0].permissions?.length > 0) {
-            setPermissions(mergePermissions(reduxPermissions, fetched[0].permissions));
+            setPermissions(
+              mergePermissions(reduxPermissions, fetched[0].permissions),
+            );
           }
         }
         setSuccessPopup({ open: true, message: msg, shouldNavigate: false });
@@ -249,7 +269,9 @@ const UserMaster_Create = () => {
       const selectedType = userTypes.find((type) => type.value === value);
       if (selectedType && selectedType.permissions?.length > 0) {
         // Deep copy the template so modifications only affect this user
-        setPermissions(mergePermissions(reduxPermissions, selectedType.permissions));
+        setPermissions(
+          mergePermissions(reduxPermissions, selectedType.permissions),
+        );
       } else {
         // Reset to default empty template if no permissions found
         setPermissions(mergePermissions(reduxPermissions));
@@ -293,8 +315,16 @@ const UserMaster_Create = () => {
   };
   // Pre-Submission Validations
   const triggerSubmitConfirm = () => {
-    if (reduxLoading || reduxInitialized === false || !reduxPermissions.length || !permissions.length) {
-      setErrorPopup({ open: true, message: "Permission modules are not ready in Redux." });
+    if (
+      reduxLoading ||
+      reduxInitialized === false ||
+      !reduxPermissions.length ||
+      !permissions.length
+    ) {
+      setErrorPopup({
+        open: true,
+        message: "Permission modules are not ready in Redux.",
+      });
       return;
     }
     if (
@@ -338,7 +368,13 @@ const UserMaster_Create = () => {
   };
   // --- FINAL SUBMISSION ---
   const handleFinalSubmit = async () => {
-    if (loading || reduxLoading || reduxInitialized === false || !permissions.length) return;
+    if (
+      loading ||
+      reduxLoading ||
+      reduxInitialized === false ||
+      !permissions.length
+    )
+      return;
     setConfirmPopup((prev) => ({ ...prev, open: false }));
     try {
       setLoading(true);
@@ -350,10 +386,15 @@ const UserMaster_Create = () => {
         position: formData.position,
         department: formData.department,
         mobile: formData.mobileNumber,
-        permissions: permissions.map(({ module, create, view, edit, delete: canDelete }) => ({
-          module, create: create === true, view: view === true,
-          edit: edit === true, delete: canDelete === true,
-        })),
+        permissions: permissions.map(
+          ({ module, create, view, edit, delete: canDelete }) => ({
+            module,
+            create: create === true,
+            view: view === true,
+            edit: edit === true,
+            delete: canDelete === true,
+          }),
+        ),
       };
       if (formData.password) {
         finalPayload.loginPassword = formData.password;

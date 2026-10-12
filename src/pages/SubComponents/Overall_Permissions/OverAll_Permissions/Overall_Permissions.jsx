@@ -1,18 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  CheckSquare,
-  ShieldCheck,
-  Square,
-} from "lucide-react";
+import { CheckSquare, ShieldCheck, Square } from "lucide-react";
 
-const Overall_Permissions = ({
-  permissions = [],
-  setPermissions,
-}) => {
-  console.log(
-    "Overall_Permissions Rendered:",
-    permissions
-  );
+const Overall_Permissions = ({ permissions = [], setPermissions }) => {
+  console.log("Overall_Permissions Rendered:", permissions);
 
   // --------------------------------------------------
   // Toggle Single Permission
@@ -36,11 +26,7 @@ const Overall_Permissions = ({
   const toggleRow = (index) => {
     const item = permissions[index];
 
-    const allChecked =
-      item.create &&
-      item.view &&
-      item.edit &&
-      item.delete;
+    const allChecked = item.create && item.view && item.edit && item.delete;
 
     const updated = [...permissions];
 
@@ -62,14 +48,9 @@ const Overall_Permissions = ({
   const toggleAllPermissions = () => {
     if (!permissions.length) return;
 
-    const isGloballyChecked =
-      permissions.every(
-        (item) =>
-          item.create &&
-          item.view &&
-          item.edit &&
-          item.delete
-      );
+    const isGloballyChecked = permissions.every(
+      (item) => item.create && item.view && item.edit && item.delete,
+    );
 
     const updated = permissions.map((item) => ({
       ...item,
@@ -91,11 +72,7 @@ const Overall_Permissions = ({
 
     return name
       .split("_")
-      .map(
-        (word) =>
-          word.charAt(0).toUpperCase() +
-          word.slice(1)
-      )
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   };
 
@@ -149,18 +126,12 @@ const Overall_Permissions = ({
   // Master Checkbox
   // --------------------------------------------------
 
-  const isGloballyChecked =
-    permissions.every(
-      (item) =>
-        item.create &&
-        item.view &&
-        item.edit &&
-        item.delete
-    );
+  const isGloballyChecked = permissions.every(
+    (item) => item.create && item.view && item.edit && item.delete,
+  );
 
   return (
     <div className="bg-white rounded-2xl">
-
       {/* HEADER */}
 
       <motion.div
@@ -175,10 +146,7 @@ const Overall_Permissions = ({
         className="flex items-center gap-3 mb-6 p-4 border-b border-slate-50"
       >
         <div className="p-2 bg-blue-50 rounded-xl">
-          <ShieldCheck
-            className="text-[#0062a0]"
-            size={24}
-          />
+          <ShieldCheck className="text-[#0062a0]" size={24} />
         </div>
 
         <div>
@@ -202,34 +170,24 @@ const Overall_Permissions = ({
       >
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
           <table className="w-full text-left border-collapse min-w-[800px]">
-
             {/* TABLE HEADER */}
 
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-200">
-
                 {/* ALL */}
 
                 <th className="p-5 w-24 text-center">
                   <div className="flex flex-col items-center gap-1 justify-center">
                     <button
                       type="button"
-                      onClick={
-                        toggleAllPermissions
-                      }
+                      onClick={toggleAllPermissions}
                       className="text-slate-300 hover:text-[#0062a0] transition-all transform active:scale-90 cursor-pointer"
                       title="Select/Deselect All Permissions"
                     >
                       {isGloballyChecked ? (
-                        <CheckSquare
-                          size={22}
-                          className="text-[#0062a0]"
-                        />
+                        <CheckSquare size={22} className="text-[#0062a0]" />
                       ) : (
-                        <Square
-                          size={22}
-                          className="text-slate-400"
-                        />
+                        <Square size={22} className="text-slate-400" />
                       )}
                     </button>
 
@@ -247,12 +205,7 @@ const Overall_Permissions = ({
 
                 {/* PERMISSIONS */}
 
-                {[
-                  "Create",
-                  "View",
-                  "Edit",
-                  "Delete",
-                ].map((head) => (
+                {["Create", "View", "Edit", "Delete"].map((head) => (
                   <th
                     key={head}
                     className="p-5 text-slate-700 font-bold text-center border-r last:border-r-0 border-slate-100 uppercase text-xs tracking-widest align-bottom pb-6"
@@ -266,140 +219,106 @@ const Overall_Permissions = ({
             {/* TABLE BODY */}
 
             <tbody className="divide-y divide-slate-100">
-
               <AnimatePresence mode="popLayout">
-                {permissions.map(
-                  (item, index) => {
-                    const isAllChecked =
-                      item.create &&
-                      item.view &&
-                      item.edit &&
-                      item.delete;
+                {permissions.map((item, index) => {
+                  const isAllChecked =
+                    item.create && item.view && item.edit && item.delete;
 
-                    return (
-                      <motion.tr
-                        key={
-                          item.module ||
-                          `permission-${index}`
-                        }
-                        variants={rowVariants}
-                        whileHover={{
-                          backgroundColor:
-                            "rgba(248, 250, 252, 0.8)",
-                        }}
-                        className="group transition-colors"
-                      >
+                  return (
+                    <motion.tr
+                      key={item.module || `permission-${index}`}
+                      variants={rowVariants}
+                      whileHover={{
+                        backgroundColor: "rgba(248, 250, 252, 0.8)",
+                      }}
+                      className="group transition-colors"
+                    >
+                      {/* ROW CHECKBOX */}
 
-                        {/* ROW CHECKBOX */}
-
-                        <td className="p-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              toggleRow(index)
-                            }
-                            className="text-slate-200 hover:text-[#0062a0] transition-all transform active:scale-90 cursor-pointer"
-                            title={`Toggle all for ${formatModuleName(
-                              item.module
-                            )}`}
-                          >
-                            {isAllChecked ? (
-                              <CheckSquare
-                                size={22}
-                                className="text-[#0062a0]"
-                              />
-                            ) : (
-                              <Square
-                                size={22}
-                                className="text-slate-300"
-                              />
-                            )}
-                          </button>
-                        </td>
-
-                        {/* MODULE NAME */}
-
-                        <td className="p-4 text-slate-700 font-bold border-r border-slate-100 group-hover:text-[#0062a0] transition-colors">
-                          {formatModuleName(
-                            item.module
+                      <td className="p-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => toggleRow(index)}
+                          className="text-slate-200 hover:text-[#0062a0] transition-all transform active:scale-90 cursor-pointer"
+                          title={`Toggle all for ${formatModuleName(
+                            item.module,
+                          )}`}
+                        >
+                          {isAllChecked ? (
+                            <CheckSquare size={22} className="text-[#0062a0]" />
+                          ) : (
+                            <Square size={22} className="text-slate-300" />
                           )}
-                        </td>
+                        </button>
+                      </td>
 
-                        {/* CREATE / VIEW / EDIT / DELETE */}
+                      {/* MODULE NAME */}
 
-                        {[
-                          "create",
-                          "view",
-                          "edit",
-                          "delete",
-                        ].map((field) => (
-                          <td
-                            key={field}
-                            className="p-4 text-center border-r last:border-r-0 border-slate-100"
+                      <td className="p-4 text-slate-700 font-bold border-r border-slate-100 group-hover:text-[#0062a0] transition-colors">
+                        {formatModuleName(item.module)}
+                      </td>
+
+                      {/* CREATE / VIEW / EDIT / DELETE */}
+
+                      {["create", "view", "edit", "delete"].map((field) => (
+                        <td
+                          key={field}
+                          className="p-4 text-center border-r last:border-r-0 border-slate-100"
+                        >
+                          <motion.button
+                            type="button"
+                            whileTap={{
+                              scale: 0.85,
+                            }}
+                            onClick={() => togglePermission(index, field)}
+                            className="inline-flex items-center justify-center p-2 rounded-xl hover:bg-blue-50 transition-all"
                           >
-                            <motion.button
-                              type="button"
-                              whileTap={{
-                                scale: 0.85,
-                              }}
-                              onClick={() =>
-                                togglePermission(
-                                  index,
-                                  field
-                                )
-                              }
-                              className="inline-flex items-center justify-center p-2 rounded-xl hover:bg-blue-50 transition-all"
-                            >
-                              <AnimatePresence mode="wait">
-
-                                {item[field] ? (
-                                  <motion.div
-                                    key="checked"
-                                    initial={{
-                                      scale: 0.5,
-                                      opacity: 0,
-                                    }}
-                                    animate={{
-                                      scale: 1,
-                                      opacity: 1,
-                                    }}
-                                    exit={{
-                                      scale: 0.5,
-                                      opacity: 0,
-                                    }}
-                                  >
-                                    <CheckSquare
-                                      size={22}
-                                      className="text-[#0062a0]"
-                                    />
-                                  </motion.div>
-                                ) : (
-                                  <motion.div
-                                    key="unchecked"
-                                    initial={{
-                                      opacity: 0,
-                                    }}
-                                    animate={{
-                                      opacity: 1,
-                                    }}
-                                  >
-                                    <Square
-                                      size={22}
-                                      className="text-slate-200"
-                                    />
-                                  </motion.div>
-                                )}
-
-                              </AnimatePresence>
-                            </motion.button>
-                          </td>
-                        ))}
-                      </motion.tr>
-                    );
-                  }
-                )}
+                            <AnimatePresence mode="wait">
+                              {item[field] ? (
+                                <motion.div
+                                  key="checked"
+                                  initial={{
+                                    scale: 0.5,
+                                    opacity: 0,
+                                  }}
+                                  animate={{
+                                    scale: 1,
+                                    opacity: 1,
+                                  }}
+                                  exit={{
+                                    scale: 0.5,
+                                    opacity: 0,
+                                  }}
+                                >
+                                  <CheckSquare
+                                    size={22}
+                                    className="text-[#0062a0]"
+                                  />
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="unchecked"
+                                  initial={{
+                                    opacity: 0,
+                                  }}
+                                  animate={{
+                                    opacity: 1,
+                                  }}
+                                >
+                                  <Square
+                                    size={22}
+                                    className="text-slate-200"
+                                  />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.button>
+                        </td>
+                      ))}
+                    </motion.tr>
+                  );
+                })}
               </AnimatePresence>
-
             </tbody>
           </table>
         </div>

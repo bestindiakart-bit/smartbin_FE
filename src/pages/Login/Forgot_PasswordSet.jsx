@@ -1,9 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Loader2,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -35,8 +31,7 @@ const Forgot_PasswordSet = () => {
    */
   useEffect(() => {
     const savedEmail =
-      localStorage.getItem("email") ||
-      localStorage.getItem("temp_login_email");
+      localStorage.getItem("email") || localStorage.getItem("temp_login_email");
 
     if (savedEmail) {
       setEmail(savedEmail);
@@ -44,8 +39,7 @@ const Forgot_PasswordSet = () => {
       setPopup({
         success: false,
         error: true,
-        message:
-          "Session expired. Please enter your email again.",
+        message: "Session expired. Please enter your email again.",
       });
 
       const timer = setTimeout(() => {
@@ -182,17 +176,11 @@ const Forgot_PasswordSet = () => {
           : "Verify the OTP sent to your email"
       }
     >
-      <motion.form
-        onSubmit={handleSubmit}
-        className="flex flex-col"
-      >
+      <motion.form onSubmit={handleSubmit} className="flex flex-col">
         {/* Icon */}
         <div className="flex justify-center mb-8">
           <div className="p-4 bg-green-50 rounded-2xl text-[#0062a0]">
-            <ShieldCheck
-              size={40}
-              strokeWidth={1.5}
-            />
+            <ShieldCheck size={40} strokeWidth={1.5} />
           </div>
         </div>
 
@@ -213,9 +201,7 @@ const Forgot_PasswordSet = () => {
           value={otp}
           onChange={(e) => {
             // Allow only numbers
-            const value = e.target.value
-              .replace(/\D/g, "")
-              .slice(0, 6);
+            const value = e.target.value.replace(/\D/g, "").slice(0, 6);
 
             setOtp(value);
           }}
@@ -228,9 +214,7 @@ const Forgot_PasswordSet = () => {
           type="password"
           placeholder="••••••••"
           value={newPassword}
-          onChange={(e) =>
-            setNewPassword(e.target.value)
-          }
+          onChange={(e) => setNewPassword(e.target.value)}
           required
         />
 
@@ -240,9 +224,7 @@ const Forgot_PasswordSet = () => {
           type="password"
           placeholder="••••••••"
           value={confirmPassword}
-          onChange={(e) =>
-            setConfirmPassword(e.target.value)
-          }
+          onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
 
@@ -255,10 +237,7 @@ const Forgot_PasswordSet = () => {
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
-              <Loader2
-                className="animate-spin"
-                size={20}
-              />
+              <Loader2 className="animate-spin" size={20} />
 
               <span>Updating...</span>
             </div>
@@ -277,7 +256,6 @@ const Forgot_PasswordSet = () => {
             size={18}
             className="group-hover:-translate-x-1 transition-transform"
           />
-
           Back to Login
         </button>
       </motion.form>

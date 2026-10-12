@@ -106,10 +106,10 @@ export const router = createBrowserRouter([
         Component: OverAll_Report,
       },
 
-  {
-    path: "/profile",
-    Component: Profile
-  },
+      {
+        path: "/profile",
+        Component: Profile,
+      },
     ],
   },
 

@@ -101,17 +101,11 @@ const Forgot_Password = () => {
       title="Reset Password"
       subtitle="No worries! Enter your email and we'll send you a link to reset your password."
     >
-      <motion.form
-        onSubmit={handleSubmit}
-        className="flex flex-col"
-      >
+      <motion.form onSubmit={handleSubmit} className="flex flex-col">
         {/* Icon */}
         <div className="flex justify-center mb-8">
           <div className="p-4 bg-blue-50 rounded-2xl text-[#0062a0]">
-            <KeyRound
-              size={40}
-              strokeWidth={1.5}
-            />
+            <KeyRound size={40} strokeWidth={1.5} />
           </div>
         </div>
 
@@ -145,7 +139,6 @@ const Forgot_Password = () => {
             size={18}
             className="group-hover:-translate-x-1 transition-transform"
           />
-
           Back to Login
         </button>
       </motion.form>

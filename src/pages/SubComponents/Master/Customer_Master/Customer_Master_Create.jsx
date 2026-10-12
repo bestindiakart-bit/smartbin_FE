@@ -191,10 +191,12 @@ const mergeCustomerPermissions = (available, saved = []) => {
     saved.filter((p) => p?.module).map((p) => [p.module, p]),
   );
   // Preserve saved modules missing from Redux so editing cannot silently revoke them.
-  const moduleNames = [...new Set([
-    ...available.map((p) => p.module),
-    ...saved.filter((p) => p?.module).map((p) => p.module),
-  ])];
+  const moduleNames = [
+    ...new Set([
+      ...available.map((p) => p.module),
+      ...saved.filter((p) => p?.module).map((p) => p.module),
+    ]),
+  ];
   return moduleNames.map((module) => {
     const previous = savedMap.get(module);
     return {
@@ -215,9 +217,15 @@ const Customer_Master_Create = () => {
   const { mode, rowId } = location.state || {};
   const isEditMode = mode === "edit";
   // Centralized Redux permissions loaded by the authenticated app.
-  const reduxPermissions = useSelector((state) => state.permissions?.permissions ?? []);
-  const reduxLoading = useSelector((state) => state.permissions?.loading ?? false);
-  const reduxInitialized = useSelector((state) => state.permissions?.initialized);
+  const reduxPermissions = useSelector(
+    (state) => state.permissions?.permissions ?? [],
+  );
+  const reduxLoading = useSelector(
+    (state) => state.permissions?.loading ?? false,
+  );
+  const reduxInitialized = useSelector(
+    (state) => state.permissions?.initialized,
+  );
   // --- POPUP STATES ---
   const [successPopup, setSuccessPopup] = useState({
     open: false,
@@ -274,14 +282,17 @@ const Customer_Master_Create = () => {
           )
         : [];
       if (availablePermissions.length === 0) {
-        const message = "No permission modules found in Redux. Initialize permissions after login.";
+        const message =
+          "No permission modules found in Redux. Initialize permissions after login.";
         setPermissionError(message);
         setErrorPopup({ open: true, message });
         setPermissionLoading(false);
         return;
       }
       setPermissionError("");
-      setPermissions(availablePermissions.map((p) => emptyPermission(p.module)));
+      setPermissions(
+        availablePermissions.map((p) => emptyPermission(p.module)),
+      );
       setPermissionLoading(false);
       if (isEditMode && rowId) {
         try {
@@ -323,11 +334,14 @@ const Customer_Master_Create = () => {
                 data.geoLocation.coordinates[0],
               ]); // Leaflet uses [Lat, Lng]
             }
-              const fetchedPermissions =
-                data.superAdmin?.permissions || data.permissions || [];
-              setPermissions(
-                mergeCustomerPermissions(availablePermissions, fetchedPermissions),
-              );
+            const fetchedPermissions =
+              data.superAdmin?.permissions || data.permissions || [];
+            setPermissions(
+              mergeCustomerPermissions(
+                availablePermissions,
+                fetchedPermissions,
+              ),
+            );
           }
         } catch (err) {
           // In the edit mode data fetch (around line 200)
@@ -518,7 +532,13 @@ const Customer_Master_Create = () => {
   };
   // Validation rules before Submitting
   const triggerSubmitConfirm = () => {
-    if (permissionLoading || reduxLoading || reduxInitialized === false || permissionError || !permissions.length) {
+    if (
+      permissionLoading ||
+      reduxLoading ||
+      reduxInitialized === false ||
+      permissionError ||
+      !permissions.length
+    ) {
       setErrorPopup({
         open: true,
         message: permissionError || "Permission modules are not ready.",
@@ -566,7 +586,15 @@ const Customer_Master_Create = () => {
   // --- 4. FINAL SUBMISSION ---
   // --- 4. FINAL SUBMISSION ---
   const handleFinalSubmit = async () => {
-    if (loading || permissionLoading || reduxLoading || reduxInitialized === false || permissionError || !permissions.length) return;
+    if (
+      loading ||
+      permissionLoading ||
+      reduxLoading ||
+      reduxInitialized === false ||
+      permissionError ||
+      !permissions.length
+    )
+      return;
     setConfirmPopup({ ...confirmPopup, open: false });
     try {
       setLoading(true);
@@ -600,13 +628,15 @@ const Customer_Master_Create = () => {
           type: "Point",
           coordinates: coords.length === 2 ? coords : [80.2707, 13.0827], // Default coordinates if empty
         },
-        permissions: permissions.map(({ module, create, view, edit, delete: canDelete }) => ({
-          module,
-          create: create === true,
-          view: view === true,
-          edit: edit === true,
-          delete: canDelete === true,
-        })),
+        permissions: permissions.map(
+          ({ module, create, view, edit, delete: canDelete }) => ({
+            module,
+            create: create === true,
+            view: view === true,
+            edit: edit === true,
+            delete: canDelete === true,
+          }),
+        ),
       };
       let res;
       if (isEditMode) {
@@ -828,8 +858,12 @@ const Customer_Master_Create = () => {
             </span>
             <div className="h-[1px] flex-1 bg-slate-100"></div>
           </div>
-          {(permissionLoading || reduxLoading || reduxInitialized === false) && (
-            <p className="text-sm text-slate-500">Loading available permissions...</p>
+          {(permissionLoading ||
+            reduxLoading ||
+            reduxInitialized === false) && (
+            <p className="text-sm text-slate-500">
+              Loading available permissions...
+            </p>
           )}
           {permissionError && (
             <p className="text-sm text-red-600">{permissionError}</p>
@@ -845,7 +879,14 @@ const Customer_Master_Create = () => {
             <Button
               variant="primary"
               onClick={triggerSubmitConfirm}
-              disabled={loading || permissionLoading || reduxLoading || reduxInitialized === false || Boolean(permissionError) || !permissions.length}
+              disabled={
+                loading ||
+                permissionLoading ||
+                reduxLoading ||
+                reduxInitialized === false ||
+                Boolean(permissionError) ||
+                !permissions.length
+              }
             >
               {loading ? (
                 <Loader2 size={18} className="animate-spin" />
