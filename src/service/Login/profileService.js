@@ -4,7 +4,7 @@ import api from "./Login";
 // Set VITE_PROFILE_UPDATE_ENDPOINT to the REAL endpoint, e.g. in .env.
 // Do not guess the endpoint: update is unavailable until configured.
 export const updateMyProfile = (payload) => {
-  const endpoint = import.meta.env.VITE_PROFILE_UPDATE_ENDPOINT;
+  const endpoint = import.meta.env.VITE_API_URL;
   if (!endpoint)
     throw new Error(
       "Profile update API is not configured. Set VITE_PROFILE_UPDATE_ENDPOINT to your backend's update endpoint.",
