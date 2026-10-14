@@ -1841,10 +1841,14 @@ import {
   fetchSingleBomApi,
   clearBomData,
   clearProjectData,
-  clearSingleBomData, // Forecast
+  clearSingleBomData,
+
+  // Forecast
   ForcastPost,
   ForcastGet,
-  ForcastUpdate, // Consumption
+  ForcastUpdate,
+
+  // Consumption
   ProjectConsumptionPost,
   ProjectConsumptionGet,
   ProjectConsumptionEntryUpdate,
@@ -1852,7 +1856,7 @@ import {
 
 /* =========================================================
 
-   VIEWER CONFIG
+   VIEWER CONFIG
 
 ========================================================= */
 
@@ -1912,7 +1916,7 @@ const VIEWER_CONFIG = {
 
 /* =========================================================
 
-   GET VIEWER TYPE
+   GET VIEWER TYPE
 
 ========================================================= */
 
@@ -1927,7 +1931,9 @@ const getViewerType = (matches, pathname) => {
 
   if (routeViewerType && VIEWER_CONFIG[routeViewerType]) {
     return routeViewerType;
-  } // Fallback
+  }
+
+  // Fallback
 
   if (
     pathname.startsWith("/consumption-viewer") ||
@@ -1941,7 +1947,7 @@ const getViewerType = (matches, pathname) => {
 
 /* =========================================================
 
-   MONTH NAME HELPERS
+   MONTH NAME HELPERS
 
 ========================================================= */
 
@@ -2024,7 +2030,7 @@ const convertMonthToInputValue = (monthString) => {
 
 /* =========================================================
 
-   COMPONENT
+   COMPONENT
 
 ========================================================= */
 
@@ -2035,12 +2041,13 @@ const ForCast_Editor = () => {
 
   const matches = useMatches();
 
-  const dispatch =
-    useDispatch(); /* =========================================================
+  const dispatch = useDispatch();
 
-     DYNAMIC VIEWER CONFIG
+  /* =========================================================
 
-  ========================================================= */
+     DYNAMIC VIEWER CONFIG
+
+  ========================================================= */
 
   const viewerType = getViewerType(matches, location.pathname);
 
@@ -2048,26 +2055,25 @@ const ForCast_Editor = () => {
 
   const isConsumption = viewerType === "consumption";
 
-  const isForecast =
-    viewerType ===
-    "forecast"; /* =========================================================
+  const isForecast = viewerType === "forecast";
 
-     ROUTE STATE
+  /* =========================================================
 
-  ========================================================= */
+     ROUTE STATE
+
+  ========================================================= */
 
   const { rowId, mode, edit, _id } = location.state || {};
 
   const recordId = rowId || _id;
 
-  const isEdit =
-    mode === "edit" ||
-    edit === true ||
-    !!recordId; /* =========================================================
+  const isEdit = mode === "edit" || edit === true || !!recordId;
 
-     MODAL STATES
+  /* =========================================================
 
-  ========================================================= */
+     MODAL STATES
+
+  ========================================================= */
 
   const [confirm, setConfirm] = useState(false);
 
@@ -2077,12 +2083,13 @@ const ForCast_Editor = () => {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [successMessage, setSuccessMessage] =
-    useState(""); /* =========================================================
+  const [successMessage, setSuccessMessage] = useState("");
 
-     REDUX STATES
+  /* =========================================================
 
-  ========================================================= */
+     REDUX STATES
+
+  ========================================================= */
 
   const {
     forcastEdit,
@@ -2098,13 +2105,13 @@ const ForCast_Editor = () => {
     updateLoading,
 
     forecastGet,
-  } = useSelector(
-    (state) => state.forecast,
-  ); /* =========================================================
+  } = useSelector((state) => state.forecast);
 
-     DATA
+  /* =========================================================
 
-  ========================================================= */
+     DATA
+
+  ========================================================= */
 
   const forcastData = forcastEdit?.data || [];
 
@@ -2116,40 +2123,37 @@ const ForCast_Editor = () => {
       ? bomData.boms
       : [];
 
-  const bomDetails =
-    singleBomData?.data ||
-    singleBomData?.bom ||
-    null; /* =========================================================
+  const bomDetails = singleBomData?.data || singleBomData?.bom || null;
 
-     LOCAL EDIT DATA
+  /* =========================================================
 
-     Consumption is fetched separately because the existing
+     LOCAL EDIT DATA
 
-     forecast Redux state is not guaranteed to contain
+     Consumption is fetched separately because the existing
 
-     consumption records.
+     forecast Redux state is not guaranteed to contain
 
-  ========================================================= */
+     consumption records.
+
+  ========================================================= */
 
   const [consumptionEditData, setConsumptionEditData] = useState(null);
 
-  const [consumptionLoading, setConsumptionLoading] =
-    useState(
-      false,
-    ); /* =========================================================
+  const [consumptionLoading, setConsumptionLoading] = useState(false);
 
-     LOADING
+  /* =========================================================
 
-  ========================================================= */
+     LOADING
 
-  const isLoading =
-    postLoading ||
-    updateLoading ||
-    consumptionLoading; /* =========================================================
+  ========================================================= */
 
-     FORM STATE
+  const isLoading = postLoading || updateLoading || consumptionLoading;
 
-  ========================================================= */
+  /* =========================================================
+
+     FORM STATE
+
+  ========================================================= */
 
   const [formData, setFormData] = useState({
     customerId: "",
@@ -2157,11 +2161,13 @@ const ForCast_Editor = () => {
     projectId: "",
 
     bomId: "",
-  }); /* =========================================================
+  });
 
-     MONTH ROWS
+  /* =========================================================
 
-  ========================================================= */
+     MONTH ROWS
+
+  ========================================================= */
 
   const [forecastRows, setForecastRows] = useState([
     {
@@ -2177,33 +2183,34 @@ const ForCast_Editor = () => {
     },
   ]);
 
-  console.log(
-    forecastRows,
-  ); /* =========================================================
+  console.log(forecastRows);
 
-     INITIAL FETCH
+  /* =========================================================
 
-  ========================================================= */
+     INITIAL FETCH
+
+  ========================================================= */
 
   useEffect(() => {
     dispatch(fetchCustomerId(isConsumption));
-  }, [
-    dispatch,
-    isConsumption,
-  ]); /* =========================================================
+  }, [dispatch, isConsumption]);
 
-     FETCH EDIT DATA
+  /* =========================================================
 
-  ========================================================= */
+     FETCH EDIT DATA
+
+  ========================================================= */
 
   useEffect(() => {
     if (!isEdit || !recordId) {
       return;
-    } /* -------------------------------------------------------
+    }
 
-       FORECAST EDIT
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       FORECAST EDIT
+
+    ------------------------------------------------------- */
 
     if (isForecast) {
       if (!forecastGet?.data) {
@@ -2215,11 +2222,13 @@ const ForCast_Editor = () => {
       }
 
       return;
-    } /* -------------------------------------------------------
+    }
 
-       CONSUMPTION EDIT
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       CONSUMPTION EDIT
+
+    ------------------------------------------------------- */
 
     if (isConsumption) {
       let cancelled = false;
@@ -2280,11 +2289,13 @@ const ForCast_Editor = () => {
     forecastGet,
 
     viewerConfig.apiEndpoint,
-  ]); /* =========================================================
+  ]);
 
-     GET FORECAST EDIT DATA
+  /* =========================================================
 
-  ========================================================= */
+     GET FORECAST EDIT DATA
+
+  ========================================================= */
 
   useEffect(() => {
     if (!isEdit || !recordId || !isForecast || !forecastGet?.data) {
@@ -2295,11 +2306,13 @@ const ForCast_Editor = () => {
 
     if (!editData) {
       return;
-    } /* -------------------------------------------------------
+    }
 
-       FORM DATA
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       FORM DATA
+
+    ------------------------------------------------------- */
 
     setFormData({
       customerId: editData.customerId?._id || editData.customerId || "",
@@ -2307,11 +2320,13 @@ const ForCast_Editor = () => {
       projectId: editData.projectId?._id || editData.projectId || "",
 
       bomId: editData.bomId?._id || editData.bomId || "",
-    }); /* -------------------------------------------------------
+    });
 
-       PROJECT
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       PROJECT
+
+    ------------------------------------------------------- */
 
     const customerId = editData.customerId?._id || editData.customerId;
 
@@ -2321,11 +2336,13 @@ const ForCast_Editor = () => {
 
     if (customerId) {
       dispatch(fetchProjectApi(customerId));
-    } /* -------------------------------------------------------
+    }
 
-       BOM
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       BOM
+
+    ------------------------------------------------------- */
 
     if (customerId && projectId) {
       dispatch(
@@ -2335,19 +2352,23 @@ const ForCast_Editor = () => {
           projectId,
         }),
       );
-    } /* -------------------------------------------------------
+    }
 
-       SINGLE BOM
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       SINGLE BOM
+
+    ------------------------------------------------------- */
 
     if (bomId) {
       dispatch(fetchSingleBomApi(bomId));
-    } /* -------------------------------------------------------
+    }
 
-       FORECAST MONTH DATA
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       FORECAST MONTH DATA
+
+    ------------------------------------------------------- */
 
     if (
       Array.isArray(editData.projectForecast) &&
@@ -2369,29 +2390,26 @@ const ForCast_Editor = () => {
 
       setForecastRows(prefilledRows);
     }
-  }, [
-    isEdit,
-    recordId,
-    isForecast,
-    forecastGet,
-    dispatch,
-  ]); /* =========================================================
+  }, [isEdit, recordId, isForecast, forecastGet, dispatch]);
 
-     GET CONSUMPTION EDIT DATA
+  /* =========================================================
 
-  ========================================================= */
+     GET CONSUMPTION EDIT DATA
+
+  ========================================================= */
 
   useEffect(() => {
     if (!isEdit || !isConsumption || !consumptionEditData) {
       return;
     }
 
-    const editData =
-      consumptionEditData; /* -------------------------------------------------------
+    const editData = consumptionEditData;
 
-       FORM DATA
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       FORM DATA
+
+    ------------------------------------------------------- */
 
     const customerId = editData.customerId?._id || editData.customerId || "";
 
@@ -2405,19 +2423,23 @@ const ForCast_Editor = () => {
       projectId,
 
       bomId,
-    }); /* -------------------------------------------------------
+    });
 
-       PROJECT
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       PROJECT
+
+    ------------------------------------------------------- */
 
     if (customerId) {
       dispatch(fetchProjectApi(customerId));
-    } /* -------------------------------------------------------
+    }
 
-       BOM
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       BOM
+
+    ------------------------------------------------------- */
 
     if (customerId && projectId) {
       dispatch(
@@ -2427,29 +2449,35 @@ const ForCast_Editor = () => {
           projectId,
         }),
       );
-    } /* -------------------------------------------------------
+    }
 
-       SINGLE BOM
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       SINGLE BOM
+
+    ------------------------------------------------------- */
 
     if (bomId) {
       dispatch(fetchSingleBomApi(bomId));
-    } /* -------------------------------------------------------
+    }
 
-       CONSUMPTION MONTH DATA
+    /* -------------------------------------------------------
 
-       Supports:
+       CONSUMPTION MONTH DATA
 
-       projectConsumption
+       Supports:
 
-       consumption
+       projectConsumption
 
-       consumptionEntries
+       consumption
 
-    ------------------------------------------------------- */ /* =========================================================
+       consumptionEntries
 
-   CONSUMPTION MONTH DATA
+    ------------------------------------------------------- */
+
+    /* =========================================================
+
+   CONSUMPTION MONTH DATA
 
 ========================================================= */
 
@@ -2463,23 +2491,27 @@ const ForCast_Editor = () => {
 
     if (Array.isArray(consumptionRows) && consumptionRows.length > 0) {
       const prefilledRows = consumptionRows.map((item, index) => {
-        const month = item?.consumptionMonth || item?.month || ""; /*
+        const month = item?.consumptionMonth || item?.month || "";
 
-         * API already returns YYYY-MM.
+        /*
 
-         * Do NOT call convertMonthToInputValue()
+         * API already returns YYYY-MM.
 
-         * because that function expects "Aug 2026".
+         * Do NOT call convertMonthToInputValue()
 
-         */
+         * because that function expects "Aug 2026".
+
+         */
 
         const rawMonth = /^\d{4}-\d{2}$/.test(month)
           ? month
-          : convertMonthToInputValue(month); /*
+          : convertMonthToInputValue(month);
 
-         * Consumption API uses productionQuantity
+        /*
 
-         */
+         * Consumption API uses productionQuantity
+
+         */
 
         const quantity =
           item?.productionQuantity ??
@@ -2502,16 +2534,13 @@ const ForCast_Editor = () => {
 
       setForecastRows(prefilledRows);
     }
-  }, [
-    isEdit,
-    isConsumption,
-    consumptionEditData,
-    dispatch,
-  ]); /* =========================================================
+  }, [isEdit, isConsumption, consumptionEditData, dispatch]);
 
-     SUCCESS MODAL
+  /* =========================================================
 
-  ========================================================= */
+     SUCCESS MODAL
+
+  ========================================================= */
 
   useEffect(() => {
     if (!successModel) {
@@ -2529,15 +2558,13 @@ const ForCast_Editor = () => {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [
-    successModel,
-    isEdit,
-    navigate,
-  ]); /* =========================================================
+  }, [successModel, isEdit, navigate]);
 
-     RESET FORM
+  /* =========================================================
 
-  ========================================================= */
+     RESET FORM
+
+  ========================================================= */
 
   const resetForm = () => {
     setFormData({
@@ -2569,11 +2596,13 @@ const ForCast_Editor = () => {
     dispatch(clearProjectData());
 
     dispatch(clearSingleBomData());
-  }; /* =========================================================
+  };
 
-     FORM CHANGE
+  /* =========================================================
 
-  ========================================================= */
+     FORM CHANGE
+
+  ========================================================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -2592,11 +2621,13 @@ const ForCast_Editor = () => {
       ...(name === "projectId" && {
         bomId: "",
       }),
-    })); /* -------------------------------------------------------
+    }));
 
-       CUSTOMER
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       CUSTOMER
+
+    ------------------------------------------------------- */
 
     if (name === "customerId" && value) {
       dispatch(fetchProjectApi(value));
@@ -2604,11 +2635,13 @@ const ForCast_Editor = () => {
       dispatch(clearBomData());
 
       dispatch(clearSingleBomData());
-    } /* -------------------------------------------------------
+    }
 
-       PROJECT
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       PROJECT
+
+    ------------------------------------------------------- */
 
     if (name === "projectId" && value && formData.customerId) {
       dispatch(
@@ -2620,20 +2653,24 @@ const ForCast_Editor = () => {
       );
 
       dispatch(clearSingleBomData());
-    } /* -------------------------------------------------------
+    }
 
-       BOM
+    /* -------------------------------------------------------
 
-    ------------------------------------------------------- */
+       BOM
+
+    ------------------------------------------------------- */
 
     if (name === "bomId" && value) {
       dispatch(fetchSingleBomApi(value));
     }
-  }; /* =========================================================
+  };
 
-     MONTH CHANGE
+  /* =========================================================
 
-  ========================================================= */
+     MONTH CHANGE
+
+  ========================================================= */
 
   const handleMonthChange = (id, value) => {
     if (value && !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
@@ -2680,11 +2717,13 @@ const ForCast_Editor = () => {
 
       handleRowChange(id, "rawMonth", "");
     }
-  }; /* =========================================================
+  };
 
-     ADD ROW
+  /* =========================================================
 
-  ========================================================= */
+     ADD ROW
+
+  ========================================================= */
 
   const handleAddRow = () => {
     if (forecastRows.length < 6 && !isLoading) {
@@ -2704,21 +2743,25 @@ const ForCast_Editor = () => {
         },
       ]);
     }
-  }; /* =========================================================
+  };
 
-     REMOVE ROW
+  /* =========================================================
 
-  ========================================================= */
+     REMOVE ROW
+
+  ========================================================= */
 
   const handleRemoveRow = (id) => {
     if (forecastRows.length > 1) {
       setForecastRows(forecastRows.filter((row) => row.id !== id));
     }
-  }; /* =========================================================
+  };
 
-     ROW CHANGE
+  /* =========================================================
 
-  ========================================================= */
+     ROW CHANGE
+
+  ========================================================= */
 
   const handleRowChange = (id, field, value) => {
     setForecastRows((previousRows) =>
@@ -2732,11 +2775,13 @@ const ForCast_Editor = () => {
           : row,
       ),
     );
-  }; /* =========================================================
+  };
 
-     PREPARE FORECAST PAYLOAD
+  /* =========================================================
 
-  ========================================================= */
+     PREPARE FORECAST PAYLOAD
+
+  ========================================================= */
 
   const prepareForecastPayload = () => {
     const projectForecast = forecastRows
@@ -2764,21 +2809,23 @@ const ForCast_Editor = () => {
 
       projectForecast,
     };
-  }; /* =========================================================
+  };
 
-     PREPARE CONSUMPTION PAYLOAD
+  /* =========================================================
 
-     NOTE:
+     PREPARE CONSUMPTION PAYLOAD
 
-     These property names must match the backend API:
+     NOTE:
 
-     projectConsumption
+     These property names must match the backend API:
 
-     consumptionMonth
+     projectConsumption
 
-     consumptionMonth
+     consumptionMonth
 
-  ========================================================= */
+     consumptionMonth
+
+  ========================================================= */
 
   const prepareConsumptionPayload = () => {
     const validRows = forecastRows.filter((row) => row.rawMonth);
@@ -2787,10 +2834,16 @@ const ForCast_Editor = () => {
       consumptionMonth: row.rawMonth,
 
       productionQuantity: Number(row.quantity),
-    })); //    "projectConsumption": [
-    //   { "consumptionMonth": "2026-06", "productionQuantity": 200 },
-    //   { "consumptionMonth": "2026-07", "productionQuantity": 140 },
-    //   { "consumptionMonth": "2026-08", "productionQuantity": 180 }
+    }));
+
+    //    "projectConsumption": [
+
+    //   { "consumptionMonth": "2026-06", "productionQuantity": 200 },
+
+    //   { "consumptionMonth": "2026-07", "productionQuantity": 140 },
+
+    //   { "consumptionMonth": "2026-08", "productionQuantity": 180 }
+
     // ]
 
     return {
@@ -2802,11 +2855,13 @@ const ForCast_Editor = () => {
 
       projectConsumption,
     };
-  }; /* =========================================================
+  };
 
-     PREPARE PAYLOAD
+  /* =========================================================
 
-  ========================================================= */
+     PREPARE PAYLOAD
+
+  ========================================================= */
 
   const preparePayload = () => {
     if (isConsumption) {
@@ -2814,11 +2869,13 @@ const ForCast_Editor = () => {
     }
 
     return prepareForecastPayload();
-  }; /* =========================================================
+  };
 
-     VALIDATE FORM
+  /* =========================================================
 
-  ========================================================= */
+     VALIDATE FORM
+
+  ========================================================= */
 
   const handleSubmitInit = () => {
     if (
@@ -2872,11 +2929,13 @@ const ForCast_Editor = () => {
       setErrorModel(true);
 
       return;
-    } /* =========================================================
+    }
 
-       COMMON VALIDATION
+    /* =========================================================
 
-    ========================================================= */
+       COMMON VALIDATION
+
+    ========================================================= */
 
     if (!formData.projectId) {
       setErrorMessage("Please select a project");
@@ -2892,11 +2951,13 @@ const ForCast_Editor = () => {
       setErrorModel(true);
 
       return;
-    } /* =========================================================
+    }
 
-       CONSUMPTION VALIDATION
+    /* =========================================================
 
-    ========================================================= */
+       CONSUMPTION VALIDATION
+
+    ========================================================= */
 
     if (isConsumption) {
       const enteredRows = forecastRows.filter((row) => row.rawMonth);
@@ -2924,11 +2985,13 @@ const ForCast_Editor = () => {
       setConfirm(true);
 
       return;
-    } /* =========================================================
+    }
 
-       FORECAST VALIDATION
+    /* =========================================================
 
-    ========================================================= */
+       FORECAST VALIDATION
+
+    ========================================================= */
 
     const hasValidRows = forecastRows.some(
       (row) => row.rawMonth && row.quantity && Number(row.quantity) > 0,
@@ -2969,11 +3032,13 @@ const ForCast_Editor = () => {
     }
 
     setConfirm(true);
-  }; /* =========================================================
+  };
 
-     FORECAST CREATE
+  /* =========================================================
 
-  ========================================================= */
+     FORECAST CREATE
+
+  ========================================================= */
 
   const createForecast = async () => {
     const payload = prepareForecastPayload();
@@ -2989,11 +3054,13 @@ const ForCast_Editor = () => {
 
       setErrorModel(true);
     }
-  }; /* =========================================================
+  };
 
-     FORECAST UPDATE
+  /* =========================================================
 
-  ========================================================= */
+     FORECAST UPDATE
+
+  ========================================================= */
 
   const updateForecast = async () => {
     const payload = prepareForecastPayload();
@@ -3015,11 +3082,13 @@ const ForCast_Editor = () => {
 
       setErrorModel(true);
     }
-  }; /* =========================================================
+  };
 
-     CONSUMPTION CREATE
+  /* =========================================================
 
-  ========================================================= */
+     CONSUMPTION CREATE
+
+  ========================================================= */
 
   const createConsumption = async () => {
     const payload = prepareConsumptionPayload();
@@ -3035,17 +3104,19 @@ const ForCast_Editor = () => {
 
       setErrorModel(true);
     }
-  }; /* =========================================================
+  };
 
-     CONSUMPTION UPDATE
+  /* =========================================================
 
-     API:
+     CONSUMPTION UPDATE
 
-     PUT /project-consumption/:id/entry
+     API:
 
-     We send the complete selected entries.
+     PUT /project-consumption/:id/entry
 
-  ========================================================= */
+     We send the complete selected entries.
+
+  ========================================================= */
 
   const updateConsumption = async () => {
     const payload = prepareConsumptionPayload();
@@ -3067,34 +3138,36 @@ const ForCast_Editor = () => {
 
       setErrorModel(true);
     }
-  }; /* =========================================================
+  };
 
-     CONFIRM ACTION
+  /* =========================================================
 
-     IMPORTANT:
+     CONFIRM ACTION
 
-     This is where the old code was hardcoded to Forecast.
+     IMPORTANT:
 
-     Now:
+     This is where the old code was hardcoded to Forecast.
 
-     Forecast Create    -> ForcastPost
+     Now:
 
-     Forecast Update    -> ForcastUpdate
+     Forecast Create    -> ForcastPost
 
-     Consumption Create -> ProjectConsumptionPost
+     Forecast Update    -> ForcastUpdate
 
-     Consumption Update -> ProjectConsumptionEntryUpdate
+     Consumption Create -> ProjectConsumptionPost
 
-  ========================================================= */
+     Consumption Update -> ProjectConsumptionEntryUpdate
+
+  ========================================================= */
 
   const handleConfirmAction = async () => {
-    setConfirm(
-      false,
-    ); /* =======================================================
+    setConfirm(false);
 
-       CONSUMPTION
+    /* =======================================================
 
-    ======================================================= */
+       CONSUMPTION
+
+    ======================================================= */
 
     if (isConsumption) {
       if (isEdit) {
@@ -3104,11 +3177,13 @@ const ForCast_Editor = () => {
       }
 
       return;
-    } /* =======================================================
+    }
 
-       FORECAST
+    /* =======================================================
 
-    ======================================================= */
+       FORECAST
+
+    ======================================================= */
 
     if (isForecast) {
       if (isEdit) {
@@ -3119,11 +3194,13 @@ const ForCast_Editor = () => {
 
       return;
     }
-  }; /* =========================================================
+  };
 
-     FRAMER MOTION
+  /* =========================================================
 
-  ========================================================= */
+     FRAMER MOTION
+
+  ========================================================= */
 
   const containerVariants = {
     hidden: {
@@ -3161,11 +3238,13 @@ const ForCast_Editor = () => {
         damping: 15,
       },
     },
-  }; /* =========================================================
+  };
 
-     UI
+  /* =========================================================
 
-  ========================================================= */
+     UI
+
+  ========================================================= */
 
   return (
     <motion.div
@@ -3177,55 +3256,45 @@ const ForCast_Editor = () => {
 
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
-           {" "}
       <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
-               {" "}
         {/* =================================================
 
-            HEADER
+            HEADER
 
-        ================================================= */}
-               {" "}
+        ================================================= */}
+
         <motion.div
           variants={itemVariants}
 
           className="flex items-center justify-between mb-8"
         >
-                   {" "}
           <div className="flex flex-col">
-                       {" "}
             <div className="flex items-center gap-5">
-                           {" "}
               <button
                 onClick={() => navigate(-1)}
 
                 className="p-3 text-[#0062a0] hover:bg-blue-50 rounded-2xl transition-all cursor-pointer"
               >
-                                <ArrowLeft size={24} />             {" "}
+                <ArrowLeft size={24} />
               </button>
-                           {" "}
+
               <h1 className="text-2xl font-bold text-slate-800">
-                               {" "}
-                {isEdit ? viewerConfig.editTitle : viewerConfig.editorTitle}   
-                         {" "}
+                {isEdit ? viewerConfig.editTitle : viewerConfig.editorTitle}
               </h1>
-                         {" "}
             </div>
-                     {" "}
           </div>
-                 {" "}
         </motion.div>
-               {" "}
+
         {/* =================================================
 
-            MAIN FORM
+            MAIN FORM
 
-        ================================================= */}
-               {" "}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
-                    {/* CUSTOMER */}         {" "}
+        ================================================= */}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-4 items-start [&>div]:min-w-0 [&>div]:w-full [&_select]:w-full [&_input]:w-full">
+          {/* CUSTOMER */}
+
           <motion.div variants={itemVariants}>
-                       {" "}
             <ReUsableInput_Fields
               label="Customer Name"
 
@@ -3257,11 +3326,11 @@ const ForCast_Editor = () => {
 
               disabled={isEdit}
             />
-                     {" "}
           </motion.div>
-                    {/* PROJECT */}         {" "}
+
+          {/* PROJECT */}
+
           <motion.div variants={itemVariants}>
-                       {" "}
             <ReUsableInput_Fields
               label="Project Name"
 
@@ -3289,11 +3358,11 @@ const ForCast_Editor = () => {
 
               disabled={!formData.customerId || isEdit}
             />
-                     {" "}
           </motion.div>
-                    {/* BOM */}         {" "}
+
+          {/* BOM */}
+
           <motion.div variants={itemVariants}>
-                       {" "}
             <ReUsableInput_Fields
               label="BOM ID"
 
@@ -3321,17 +3390,15 @@ const ForCast_Editor = () => {
 
               disabled={!formData.customerId || !formData.projectId || isEdit}
             />
-                     {" "}
           </motion.div>
-                 {" "}
         </div>
-               {" "}
+
         {/* =================================================
 
-            BOM DETAILS
+            BOM DETAILS
 
-        ================================================= */}
-               {" "}
+        ================================================= */}
+
         {bomDetails && bomDetails.items && bomDetails.items.length > 0 && (
           <motion.div
             variants={itemVariants}
@@ -3350,94 +3417,72 @@ const ForCast_Editor = () => {
 
             className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100"
           >
-                       {" "}
             <div className="flex items-center gap-2 mb-4">
-                            <Package className="w-5 h-5 text-[#0062a0]" />     
-                     {" "}
+              <Package className="w-5 h-5 text-[#0062a0]" />
+
               <h3 className="text-lg font-semibold text-[#0062a0]">
-                                BOM Item List              {" "}
+                BOM Item List
               </h3>
-                         {" "}
             </div>
-                       {" "}
+
             <div className="overflow-x-auto">
-                           {" "}
               <table className="min-w-full bg-white rounded-xl overflow-hidden shadow-sm">
-                               {" "}
                 <thead className="bg-gray-50">
-                                   {" "}
                   <tr>
-                                       {" "}
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Item Name                    {" "}
+                      Item Name
                     </th>
-                                       {" "}
+
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Quantity                    {" "}
+                      Quantity
                     </th>
-                                     {" "}
                   </tr>
-                                 {" "}
                 </thead>
-                               {" "}
+
                 <tbody className="divide-y divide-gray-200">
-                                   {" "}
                   {bomDetails.items.map((item, index) => (
                     <tr
                       key={index}
 
                       className="hover:bg-gray-50 transition-colors"
                     >
-                                           {" "}
                       <td className="px-4 py-3 text-sm text-gray-800">
-                                               {" "}
                         {typeof item.itemId === "object"
                           ? item.itemId?.itemName ||
                             item.itemId?.partNumber ||
                             "-"
                           : item.itemId || "-"}
-                                             {" "}
                       </td>
-                                           {" "}
+
                       <td className="px-4 py-3 text-sm text-gray-800">
-                                                {item.quantity}                 
-                           {" "}
+                        {item.quantity}
                       </td>
-                                         {" "}
                     </tr>
                   ))}
-                                 {" "}
                 </tbody>
-                             {" "}
               </table>
-                         {" "}
             </div>
-                     {" "}
           </motion.div>
         )}
-                {/* MONTH SECTION */}       {" "}
-        <motion.div variants={itemVariants} className="mt-12">
-                   {" "}
+
+        {/* MONTH SECTION */}
+
+        <motion.div variants={itemVariants} className="mt-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-                       {" "}
             <div className="flex flex-wrap items-center gap-3">
-                           {" "}
               <h2 className="text-2xl font-bold text-[#0062a0]">
-                                {viewerConfig.title} Month              {" "}
+                {viewerConfig.title} Month
               </h2>
-                           {" "}
+
               <span className="text-sm text-slate-500">
-                               {" "}
                 {
                   forecastRows.filter((row) => row.rawMonth && row.quantity)
                     .length
                 }
-                                /{forecastRows.length} Months filled            
-                 {" "}
+                /{forecastRows.length} Months filled
               </span>
-                         {" "}
             </div>
-                       {" "}
+
             <button
               type="button"
 
@@ -3449,15 +3494,12 @@ const ForCast_Editor = () => {
 
               title="Add another month (maximum 6)"
             >
-                            <Plus size={18} /> Add Month            {" "}
+              <Plus size={18} /> Add Month
             </button>
-                     {" "}
           </div>
-                   {" "}
+
           <div className="space-y-4">
-                       {" "}
             <AnimatePresence mode="popLayout">
-                           {" "}
               {forecastRows.map((row, index) => (
                 <motion.div
                   key={row.id}
@@ -3472,18 +3514,15 @@ const ForCast_Editor = () => {
 
                   className="grid w-full grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_48px] md:items-end"
                 >
-                                   {" "}
                   <div className="min-w-0">
-                                       {" "}
                     <label
                       htmlFor={`month-${row.id}`}
 
                       className="mb-2 block text-sm font-medium text-gray-700"
                     >
-                                            {viewerConfig.monthLabel}{" "}
-                      {index + 1}                   {" "}
+                      {viewerConfig.monthLabel} {index + 1}
                     </label>
-                                       {" "}
+
                     <input
                       id={`month-${row.id}`}
 
@@ -3499,20 +3538,17 @@ const ForCast_Editor = () => {
 
                       className="h-[46px] w-full rounded-xl border border-gray-300 px-4 text-sm outline-none transition-all focus:border-[#0062a0] focus:ring-2 focus:ring-blue-100"
                     />
-                                     {" "}
                   </div>
-                                   {" "}
+
                   <div className="min-w-0">
-                                       {" "}
                     <label
                       htmlFor={`quantity-${row.id}`}
 
                       className="mb-2 block text-sm font-medium text-gray-700"
                     >
-                                            {viewerConfig.quantityLabel}{" "}
-                      {index + 1}                   {" "}
+                      {viewerConfig.quantityLabel} {index + 1}
                     </label>
-                                       {" "}
+
                     <input
                       id={`quantity-${row.id}`}
 
@@ -3536,11 +3572,9 @@ const ForCast_Editor = () => {
 
                       className="h-[46px] w-full rounded-xl border border-gray-300 bg-white px-4 text-sm outline-none transition-all focus:border-[#0062a0] focus:ring-2 focus:ring-blue-100 disabled:opacity-50"
                     />
-                                     {" "}
                   </div>
-                                   {" "}
+
                   <div className="flex h-[46px] items-center justify-end md:justify-center">
-                                       {" "}
                     <button
                       type="button"
 
@@ -3554,33 +3588,26 @@ const ForCast_Editor = () => {
 
                       aria-label={`Remove month ${index + 1}`}
                     >
-                                            <Trash2 size={20} />               
-                         {" "}
+                      <Trash2 size={20} />
                     </button>
-                                     {" "}
                   </div>
-                                 {" "}
                 </motion.div>
               ))}
-                         {" "}
             </AnimatePresence>
-                     {" "}
           </div>
-                 {" "}
         </motion.div>
-               {" "}
+
         {/* =================================================
 
-            FOOTER
+            FOOTER
 
-        ================================================= */}
-               {" "}
+        ================================================= */}
+
         <motion.div
           variants={itemVariants}
 
           className="flex items-center gap-6 justify-end mt-16 mb-4"
         >
-                   {" "}
           <Button
             onClick={handleSubmitInit}
 
@@ -3588,31 +3615,27 @@ const ForCast_Editor = () => {
 
             disabled={!formData.projectId || !formData.bomId || isLoading}
           >
-                       {" "}
             {isLoading ? (
               <div className="flex items-center gap-2">
-                                <Loader className="w-4 h-4 animate-spin" />     
-                          {isEdit ? "Updating..." : "Creating..."}           
-                 {" "}
+                <Loader className="w-4 h-4 animate-spin" />
+
+                {isEdit ? "Updating..." : "Creating..."}
               </div>
             ) : isEdit ? (
               viewerConfig.updateLabel
             ) : (
               viewerConfig.createLabel
             )}
-                     {" "}
           </Button>
-                 {" "}
         </motion.div>
-             {" "}
       </div>
-           {" "}
+
       {/* =================================================
 
-          CONFIRMATION POPUP
+          CONFIRMATION POPUP
 
-      ================================================= */}
-           {" "}
+      ================================================= */}
+
       <Confirmation_Popup
         isOpen={confirm}
 
@@ -3624,13 +3647,13 @@ const ForCast_Editor = () => {
           isEdit ? "Update" : "Create"
         } ${viewerConfig.title}?`}
       />
-           {" "}
+
       {/* =================================================
 
-          SUCCESS POPUP
+          SUCCESS POPUP
 
-      ================================================= */}
-           {" "}
+      ================================================= */}
+
       <Success_Popup
         isOpen={successModel}
 
@@ -3638,13 +3661,13 @@ const ForCast_Editor = () => {
 
         message={successMessage}
       />
-           {" "}
+
       {/* =================================================
 
-          ERROR POPUP
+          ERROR POPUP
 
-      ================================================= */}
-           {" "}
+      ================================================= */}
+
       <ErrorMessage_Popup
         isOpen={errorModel}
 
@@ -3652,7 +3675,6 @@ const ForCast_Editor = () => {
 
         message={errorMessage}
       />
-         {" "}
     </motion.div>
   );
 };
