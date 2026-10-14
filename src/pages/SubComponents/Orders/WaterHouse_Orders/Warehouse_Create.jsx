@@ -528,8 +528,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // Project components
+
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
+
 import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_Popup";
+
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
 
 import ReUsableInput_Fields from "../../../../component/ReUsableInput_Fields/ReUsableInput_Fields";
@@ -548,90 +551,127 @@ import {
 
 const Warehouse_Create = () => {
   const navigate = useNavigate();
+
   const location = useLocation();
 
   const isEdit = location.state?.mode === "edit";
+
   const editId = location.state?.id;
 
   // =========================================================
+
   // POPUPS
+
   // =========================================================
 
   const [confirm, setConfirm] = useState(false);
 
   const [successPopup, setSuccessPopup] = useState({
     open: false,
+
     message: "",
   });
 
   const [errorPopup, setErrorPopup] = useState({
     open: false,
+
     message: "",
   });
 
   const [loading, setLoading] = useState(false);
+
   const [isDataFetching, setIsDataFetching] = useState(false);
 
   // =========================================================
+
   // MASTER DATA
+
   // =========================================================
 
   const [customerOptions, setCustomerOptions] = useState([]);
+
   const [itemOptions, setItemOptions] = useState([]);
+
   const [allItemsData, setAllItemsData] = useState([]);
+
   const [expandedDescMap, setExpandedDescMap] = useState({});
 
   // =========================================================
+
   // FACTOR MODAL
+
   // =========================================================
 
   const [factorialModal, setFactorialModal] = useState({
     open: false,
+
     sectionIndex: null,
+
     field: null,
   });
 
   const [factorialValue, setFactorialValue] = useState("");
+
   const [factorialLoading, setFactorialLoading] = useState(false);
 
   // =========================================================
+
   // FORM
+
   // =========================================================
 
   const [formData, setFormData] = useState({
     customerId: "",
+
     warehouseName: "",
+
     warehouseLocation: "",
+
     remarks: "",
   });
 
   // =========================================================
+
   // ITEM INITIAL STATE
+
   // =========================================================
 
   const initialSectionState = {
     itemMasterId: "",
+
     warehouseMaxLimit: "",
+
     safetyStock: "",
+
     reorderRequired: "",
+
     currentStock: "",
+
     supplierName: "",
+
     warehouseStatus: 1,
 
     // Create default = Manual
+
     // 0 = Manual
+
     // 1 = Auto
+
     warehouseSafety: 0,
 
     // Only used in edit calculation
+
     safetyFactor: "",
+
     maxLimitFactor: "",
   };
 
   const [sections, setSections] = useState([{ ...initialSectionState }]);
 
   // =========================================================
+
   // ERROR HELPER
+
   // =========================================================
 
   const extractErrorMessage = (error, defaultMessage = "An error occurred") => {
@@ -663,7 +703,9 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // NORMAL CREATE / UPDATE SUCCESS REDIRECT
+
   // =========================================================
 
   useEffect(() => {
@@ -672,6 +714,7 @@ const Warehouse_Create = () => {
     const timer = setTimeout(() => {
       setSuccessPopup({
         open: false,
+
         message: "",
       });
 
@@ -682,7 +725,9 @@ const Warehouse_Create = () => {
   }, [successPopup.open, navigate]);
 
   // =========================================================
+
   // LOAD DATA
+
   // =========================================================
 
   const loadInitialData = useCallback(async () => {
@@ -691,21 +736,25 @@ const Warehouse_Create = () => {
 
       const [custRes, itemRes] = await Promise.all([
         customer_Name(),
+
         Item_Name(),
       ]);
 
       // Customers
+
       const customers =
         custRes?.data?.data?.records || custRes?.data?.data || [];
 
       setCustomerOptions(
         customers.map((c) => ({
           label: c.companyName || "",
+
           value: c._id || c.customerId || c.id,
         })),
       );
 
       // Items
+
       const items = itemRes?.data?.data?.items || itemRes?.data?.data || [];
 
       setAllItemsData(items);
@@ -713,12 +762,15 @@ const Warehouse_Create = () => {
       setItemOptions(
         items.map((i) => ({
           label: i.partNumber || i.itemName || "",
+
           value: i._id || i.itemMasterId || i.id,
         })),
       );
 
       // =====================================================
+
       // EDIT MODE
+
       // =====================================================
 
       if (isEdit && editId) {
@@ -739,8 +791,11 @@ const Warehouse_Create = () => {
 
         setFormData({
           customerId: extractedCustomerId || "",
+
           warehouseName: data.warehouseName || "",
+
           warehouseLocation: data.warehouseLocation || "",
+
           remarks: data.remarks || "",
         });
 
@@ -779,7 +834,9 @@ const Warehouse_Create = () => {
                   data.status !== undefined ? Number(data.status) : 1,
 
                 // MANUAL -> 0
+
                 // AUTO -> 1
+
                 warehouseSafety: stockCalculationMode === "AUTO" ? 1 : 0,
 
                 safetyFactor:
@@ -802,6 +859,7 @@ const Warehouse_Create = () => {
 
       setErrorPopup({
         open: true,
+
         message: extractErrorMessage(err, "Failed to load initial data"),
       });
     } finally {
@@ -814,7 +872,9 @@ const Warehouse_Create = () => {
   }, [loadInitialData]);
 
   // =========================================================
+
   // TOP FORM CHANGE
+
   // =========================================================
 
   const handleChange = (e) => {
@@ -822,12 +882,15 @@ const Warehouse_Create = () => {
 
     setFormData((prev) => ({
       ...prev,
+
       [name]: value,
     }));
   };
 
   // =========================================================
+
   // SECTION CHANGE
+
   // =========================================================
 
   const handleSectionChange = (index, e) => {
@@ -845,13 +908,17 @@ const Warehouse_Create = () => {
 
         const updated = {
           ...section,
+
           [name]: finalValue,
         };
 
         // If edit user switches Auto -> Manual
+
         // clear locally stored factors.
+
         if (name === "warehouseSafety" && Number(finalValue) === 0) {
           updated.safetyFactor = "";
+
           updated.maxLimitFactor = "";
         }
 
@@ -866,7 +933,9 @@ const Warehouse_Create = () => {
     ) {
       setFactorialModal({
         open: false,
+
         sectionIndex: null,
+
         field: null,
       });
 
@@ -875,32 +944,41 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // DESCRIPTION
+
   // =========================================================
 
   const toggleDesc = (index) => {
     setExpandedDescMap((prev) => ({
       ...prev,
+
       [index]: !prev[index],
     }));
   };
 
   // =========================================================
+
   // ADD SECTION
+
   // =========================================================
 
   const addSection = () => {
     setSections((prev) => [
       ...prev,
+
       {
         ...initialSectionState,
+
         warehouseSafety: 0,
       },
     ]);
   };
 
   // =========================================================
+
   // REMOVE SECTION
+
   // =========================================================
 
   const removeSection = (index) => {
@@ -910,14 +988,18 @@ const Warehouse_Create = () => {
 
     setExpandedDescMap((prev) => {
       const updated = { ...prev };
+
       delete updated[index];
+
       return updated;
     });
 
     if (factorialModal.open && factorialModal.sectionIndex === index) {
       setFactorialModal({
         open: false,
+
         sectionIndex: null,
+
         field: null,
       });
 
@@ -926,8 +1008,11 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // OPEN FACTOR MODAL
+
   // ONLY EDIT + AUTO
+
   // =========================================================
 
   const openFactorialModal = (index, field) => {
@@ -936,6 +1021,7 @@ const Warehouse_Create = () => {
     const section = sections[index];
 
     // Manual -> no factor action
+
     if (Number(section?.warehouseSafety) !== 1) {
       return;
     }
@@ -943,6 +1029,7 @@ const Warehouse_Create = () => {
     if (!section?.itemMasterId) {
       setErrorPopup({
         open: true,
+
         message: "Please select an Item first.",
       });
 
@@ -963,13 +1050,17 @@ const Warehouse_Create = () => {
 
     setFactorialModal({
       open: true,
+
       sectionIndex: index,
+
       field,
     });
   };
 
   // =========================================================
+
   // CLOSE FACTOR MODAL
+
   // =========================================================
 
   const closeFactorialModal = () => {
@@ -977,7 +1068,9 @@ const Warehouse_Create = () => {
 
     setFactorialModal({
       open: false,
+
       sectionIndex: null,
+
       field: null,
     });
 
@@ -985,7 +1078,9 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // CALCULATION RESPONSE
+
   // =========================================================
 
   const getCalculationData = (response) => {
@@ -993,7 +1088,9 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // FACTOR SUBMIT
+
   // =========================================================
 
   const handleFactorialSubmit = async () => {
@@ -1013,6 +1110,7 @@ const Warehouse_Create = () => {
     if (Number(section?.warehouseSafety) !== 1) {
       setErrorPopup({
         open: true,
+
         message:
           "Factor calculation is available only for Auto Safety Stock Type.",
       });
@@ -1023,6 +1121,7 @@ const Warehouse_Create = () => {
     if (!section?.itemMasterId) {
       setErrorPopup({
         open: true,
+
         message: "Item Master is required.",
       });
 
@@ -1036,6 +1135,7 @@ const Warehouse_Create = () => {
     ) {
       setErrorPopup({
         open: true,
+
         message: "Please enter factor value.",
       });
 
@@ -1047,6 +1147,7 @@ const Warehouse_Create = () => {
     if (Number.isNaN(factor)) {
       setErrorPopup({
         open: true,
+
         message: "Please enter a valid factor value.",
       });
 
@@ -1056,6 +1157,7 @@ const Warehouse_Create = () => {
     if (factor < 0) {
       setErrorPopup({
         open: true,
+
         message: "Factor value cannot be negative.",
       });
 
@@ -1068,19 +1170,25 @@ const Warehouse_Create = () => {
       let payload;
 
       // =====================================================
+
       // SAFETY STOCK
+
       // =====================================================
 
       if (field === "safetyStock") {
         payload = {
           warehouseId: editId,
+
           itemMasterId: section.itemMasterId,
+
           safetyFactor: factor,
         };
       }
 
       // =====================================================
+
       // WAREHOUSE MAX LIMIT
+
       // =====================================================
 
       if (field === "warehouseMaxLimit") {
@@ -1088,8 +1196,11 @@ const Warehouse_Create = () => {
 
         payload = {
           warehouseId: editId,
+
           itemMasterId: section.itemMasterId,
+
           safetyFactor,
+
           maxLimitFactor: factor,
         };
       }
@@ -1105,7 +1216,9 @@ const Warehouse_Create = () => {
       const result = getCalculationData(response);
 
       // =====================================================
+
       // UPDATE UI FIELDS FROM API RESPONSE
+
       // =====================================================
 
       setSections((prev) =>
@@ -1119,6 +1232,7 @@ const Warehouse_Create = () => {
           };
 
           // Save factor locally
+
           if (field === "safetyStock") {
             updated.safetyFactor = factor;
           }
@@ -1128,6 +1242,7 @@ const Warehouse_Create = () => {
           }
 
           // Safety Stock
+
           const calculatedSafetyStock =
             result?.warehouseSafeStock ??
             result?.safetyStock ??
@@ -1141,6 +1256,7 @@ const Warehouse_Create = () => {
           }
 
           // Reorder
+
           const calculatedReorderLevel =
             result?.warehouseReorderLevel ??
             result?.reorderLevel ??
@@ -1155,6 +1271,7 @@ const Warehouse_Create = () => {
           }
 
           // Warehouse Max
+
           const calculatedMaxLimit =
             result?.warehouseLimit ??
             result?.warehouseMaxLimit ??
@@ -1170,17 +1287,26 @@ const Warehouse_Create = () => {
       );
 
       // =====================================================
+
       // IMPORTANT
+
       //
+
       // CLOSE MODAL ONLY.
+
       // NO Success_Popup.
+
       // NO navigate(-1).
+
       // Stay on same edit page.
+
       // =====================================================
 
       setFactorialModal({
         open: false,
+
         sectionIndex: null,
+
         field: null,
       });
 
@@ -1190,6 +1316,7 @@ const Warehouse_Create = () => {
 
       setErrorPopup({
         open: true,
+
         message: extractErrorMessage(err, "Failed to calculate stock levels."),
       });
     } finally {
@@ -1198,13 +1325,16 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // NORMAL CREATE / UPDATE
+
   // =========================================================
 
   const handleFinalSubmit = async () => {
     if (!formData.customerId || !formData.warehouseName) {
       setErrorPopup({
         open: true,
+
         message: "Customer and Warehouse Name are required fields.",
       });
 
@@ -1212,13 +1342,17 @@ const Warehouse_Create = () => {
     }
 
     setConfirm(false);
+
     setLoading(true);
 
     try {
       const payload = {
         customerId: formData.customerId,
+
         warehouseName: formData.warehouseName,
+
         warehouseLocation: formData.warehouseLocation,
+
         remarks: formData.remarks,
 
         status: sections[0]?.warehouseStatus ?? 1,
@@ -1241,6 +1375,7 @@ const Warehouse_Create = () => {
 
           stockCalculationMode:
             Number(sec.warehouseSafety) === 1 ? "AUTO" : "MANUAL",
+
           safetyFactor:
             Number(sec.warehouseSafety) === 1
               ? Number(sec.safetyFactor || 0)
@@ -1271,8 +1406,10 @@ const Warehouse_Create = () => {
           : "Warehouse Details Created Successfully!");
 
       // Normal Create/Update can redirect using global success popup
+
       setSuccessPopup({
         open: true,
+
         message: successMessage,
       });
     } catch (err) {
@@ -1280,8 +1417,10 @@ const Warehouse_Create = () => {
 
       setErrorPopup({
         open: true,
+
         message: extractErrorMessage(
           err,
+
           `Failed to ${isEdit ? "update" : "create"} warehouse`,
         ),
       });
@@ -1291,7 +1430,9 @@ const Warehouse_Create = () => {
   };
 
   // =========================================================
+
   // LOADING
+
   // =========================================================
 
   if (isDataFetching) {
@@ -1303,13 +1444,17 @@ const Warehouse_Create = () => {
   }
 
   // =========================================================
+
   // UI
+
   // =========================================================
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
+
       animate={{ opacity: 1 }}
+
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
       <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
@@ -1318,7 +1463,9 @@ const Warehouse_Create = () => {
         <div className="flex items-center gap-4 mb-8">
           <button
             type="button"
+
             onClick={() => navigate(-1)}
+
             className="p-3 hover:bg-[#f0f9ff] text-[#0062a0] rounded-2xl transition-all cursor-pointer"
           >
             <ArrowLeft size={24} />
@@ -1334,26 +1481,39 @@ const Warehouse_Create = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
           <ReUsableInput_Fields
             label="Customer name"
+
             name="customerId"
+
             type="select"
+
             options={customerOptions}
+
             value={formData.customerId}
+
             onChange={handleChange}
+
             required
           />
 
           <ReUsableInput_Fields
             label="Warehouse Name"
+
             name="warehouseName"
+
             value={formData.warehouseName}
+
             onChange={handleChange}
+
             required
           />
 
           <ReUsableInput_Fields
             label="Warehouse Location"
+
             name="warehouseLocation"
+
             value={formData.warehouseLocation}
+
             onChange={handleChange}
           />
         </div>
@@ -1361,12 +1521,12 @@ const Warehouse_Create = () => {
         {/* ITEMS */}
 
         {sections.map((section, index) => {
-          const selectedItemDesc =
-            allItemsData.find(
-              (item) =>
-                (item._id || item.itemMasterId || item.id) ===
-                section.itemMasterId,
-            )?.itemDescription || "";
+          const selectedItem = allItemsData.find(
+            (item) =>
+              String(item._id || item.itemMasterId || item.id) ===
+              String(section.itemMasterId),
+          );
+          const selectedItemDesc = selectedItem?.itemDescription || "";
 
           const isDescExpanded = !!expandedDescMap[index];
 
@@ -1375,6 +1535,7 @@ const Warehouse_Create = () => {
           return (
             <div
               key={index}
+
               className="relative grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2 items-start border border-slate-200 rounded-lg p-6 mt-6 bg-[#fafcff]"
             >
               {/* REMOVE */}
@@ -1382,7 +1543,9 @@ const Warehouse_Create = () => {
               {sections.length > 1 && (
                 <button
                   type="button"
+
                   onClick={() => removeSection(index)}
+
                   className="absolute top-4 right-4 text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition-colors flex items-center justify-center cursor-pointer z-20"
                 >
                   <Trash2 size={18} />
@@ -1402,10 +1565,15 @@ const Warehouse_Create = () => {
               <div className="flex flex-col w-full min-h-[90px]">
                 <ReUsableInput_Fields
                   label="Item Name"
+
                   name="itemMasterId"
+
                   type="select"
+
                   options={itemOptions}
+
                   value={section.itemMasterId}
+
                   onChange={(e) => handleSectionChange(index, e)}
                 />
 
@@ -1424,7 +1592,9 @@ const Warehouse_Create = () => {
                     {selectedItemDesc.length > 50 && (
                       <button
                         type="button"
+
                         onClick={() => toggleDesc(index)}
+
                         className="ml-2 flex-shrink-0 cursor-pointer text-blue-500 hover:text-blue-700 hover:bg-blue-100 p-0.5 rounded-full transition-colors mt-[1px]"
                       >
                         {isDescExpanded ? (
@@ -1442,21 +1612,74 @@ const Warehouse_Create = () => {
 
               <ReUsableInput_Fields
                 label="Warehouse Status"
+
                 name="warehouseStatus"
+
                 type="select"
+
                 options={[
                   {
                     label: "Active",
+
                     value: 1,
                   },
+
                   {
                     label: "Inactive",
+
                     value: 0,
                   },
                 ]}
+
                 value={section.warehouseStatus}
+
                 onChange={(e) => handleSectionChange(index, e)}
               />
+
+              {/* COMPACT SELECTED ITEM GRID — full-width, aligned */}
+              {selectedItem && (
+                <div className="md:col-span-2 min-w-0 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-2">
+                    {[
+                      ["Item Code", selectedItem.itemId],
+                      ["Part Number", selectedItem.partNumber],
+                      [
+                        "Weight / Unit",
+                        selectedItem.weightPerUnit != null
+                          ? `${selectedItem.weightPerUnit} g`
+                          : null,
+                      ],
+                      [
+                        "Cost / Unit",
+                        selectedItem.costPerUnit != null
+                          ? `₹${Number(selectedItem.costPerUnit).toLocaleString("en-IN")}`
+                          : null,
+                      ],
+                      ["HSN Code", selectedItem.itemHSNCode],
+                      ["SBQ", selectedItem.itemSBQ],
+                      ["Outer Box", selectedItem.outerBoxQuantity],
+                      ["Master Stock", selectedItem.warehouseStock],
+                      ["Master Safety", selectedItem.warehouseSafetyStock],
+                      ["Master ROL", selectedItem.warehouseROL],
+                    ].map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="min-w-0 flex items-baseline gap-1.5 text-xs"
+                      >
+                        <span className="shrink-0 text-slate-500">
+                          {label}:
+                        </span>
+                        <span
+                          className="min-w-0 truncate font-semibold text-slate-800"
+                          title={String(value ?? "—")}
+                        >
+                          {value ?? "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* SAFETY CONFIGURATION */}
 
@@ -1473,20 +1696,29 @@ const Warehouse_Create = () => {
 
                     <ReUsableInput_Fields
                       label="Safety Stock Type"
+
                       name="warehouseSafety"
+
                       type="select"
+
                       options={[
                         {
                           label: "Manual",
+
                           value: 0,
                         },
+
                         {
                           label: "Auto",
+
                           value: 1,
                         },
                       ]}
+
                       value={section.warehouseSafety}
+
                       onChange={(e) => handleSectionChange(index, e)}
+
                       disabled={!isEdit}
                     />
 
@@ -1498,9 +1730,11 @@ const Warehouse_Create = () => {
                       {isEdit && isAutoSafety && (
                         <button
                           type="button"
+
                           onClick={() =>
                             openFactorialModal(index, "safetyStock")
                           }
+
                           className="absolute right-0 top-0 z-10 inline-flex items-center gap-1 px-2 py-[3px] rounded-md bg-[#0062a0] hover:bg-[#004f82] text-white text-[10px] leading-tight font-medium cursor-pointer transition-all shadow-sm"
                         >
                           <Calculator size={11} />
@@ -1510,10 +1744,15 @@ const Warehouse_Create = () => {
 
                       <ReUsableInput_Fields
                         label="Safety Stock"
+
                         name="safetyStock"
+
                         type="number"
+
                         value={section.safetyStock}
+
                         onChange={(e) => handleSectionChange(index, e)}
+
                         disabled={isAutoSafety}
                       />
 
@@ -1533,10 +1772,15 @@ const Warehouse_Create = () => {
 
                     <ReUsableInput_Fields
                       label="Reorder Required"
+
                       name="reorderRequired"
+
                       type="number"
+
                       value={section.reorderRequired}
+
                       onChange={(e) => handleSectionChange(index, e)}
+
                       disabled={isAutoSafety}
                     />
 
@@ -1548,9 +1792,11 @@ const Warehouse_Create = () => {
                       {isEdit && isAutoSafety && (
                         <button
                           type="button"
+
                           onClick={() =>
                             openFactorialModal(index, "warehouseMaxLimit")
                           }
+
                           className="absolute right-0 top-0 z-10 inline-flex items-center gap-1 px-2 py-[3px] rounded-md bg-[#0062a0] hover:bg-[#004f82] text-white text-[10px] leading-tight font-medium cursor-pointer transition-all shadow-sm"
                         >
                           <Calculator size={11} />
@@ -1560,10 +1806,15 @@ const Warehouse_Create = () => {
 
                       <ReUsableInput_Fields
                         label="Warehouse Max Limit"
+
                         name="warehouseMaxLimit"
+
                         type="number"
+
                         value={section.warehouseMaxLimit}
+
                         onChange={(e) => handleSectionChange(index, e)}
+
                         disabled={isAutoSafety}
                       />
 
@@ -1586,9 +1837,13 @@ const Warehouse_Create = () => {
 
               <ReUsableInput_Fields
                 label="Current Stock"
+
                 name="currentStock"
+
                 type="number"
+
                 value={section.currentStock}
+
                 onChange={(e) => handleSectionChange(index, e)}
               />
 
@@ -1596,8 +1851,11 @@ const Warehouse_Create = () => {
 
               <ReUsableInput_Fields
                 label="Supplier Name"
+
                 name="supplierName"
+
                 value={section.supplierName}
+
                 onChange={(e) => handleSectionChange(index, e)}
               />
 
@@ -1619,8 +1877,11 @@ const Warehouse_Create = () => {
         <div className="mt-6">
           <ReUsableInput_Fields
             label="Remarks"
+
             name="remarks"
+
             value={formData.remarks}
+
             onChange={handleChange}
           />
         </div>
@@ -1630,7 +1891,9 @@ const Warehouse_Create = () => {
         <div className="flex items-center gap-6 justify-end mt-12">
           <Button
             onClick={() => setConfirm(true)}
+
             variant="primary"
+
             disabled={
               loading || !formData.customerId || !formData.warehouseName
             }
@@ -1640,7 +1903,9 @@ const Warehouse_Create = () => {
 
           <Button
             onClick={() => navigate(-1)}
+
             variant="secondary"
+
             disabled={loading}
           >
             Cancel
@@ -1649,29 +1914,40 @@ const Warehouse_Create = () => {
       </div>
 
       {/* =====================================================
+
           FACTOR MODAL
+
       ===================================================== */}
 
       {isEdit && factorialModal.open && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-[1px] px-4"
+
           onClick={closeFactorialModal}
         >
           <motion.div
             initial={{
               opacity: 0,
+
               scale: 0.95,
+
               y: 10,
             }}
+
             animate={{
               opacity: 1,
+
               scale: 1,
+
               y: 0,
             }}
+
             transition={{
               duration: 0.18,
             }}
+
             onClick={(e) => e.stopPropagation()}
+
             className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
           >
             {/* HEADER */}
@@ -1693,8 +1969,11 @@ const Warehouse_Create = () => {
 
               <button
                 type="button"
+
                 onClick={closeFactorialModal}
+
                 disabled={factorialLoading}
+
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer disabled:opacity-50"
               >
                 <X size={17} />
@@ -1710,10 +1989,15 @@ const Warehouse_Create = () => {
                     ? "Safety Factor"
                     : "Max Limit Factor"
                 }
+
                 name="factorialValue"
+
                 type="number"
+
                 value={factorialValue}
+
                 onChange={(e) => setFactorialValue(e.target.value)}
+
                 required
               />
 
@@ -1737,8 +2021,11 @@ const Warehouse_Create = () => {
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/70">
               <Button
                 type="button"
+
                 variant="secondary"
+
                 onClick={closeFactorialModal}
+
                 disabled={factorialLoading}
               >
                 Cancel
@@ -1746,8 +2033,11 @@ const Warehouse_Create = () => {
 
               <Button
                 type="button"
+
                 variant="primary"
+
                 onClick={handleFactorialSubmit}
+
                 disabled={factorialLoading}
               >
                 {factorialLoading ? "Calculating..." : "Submit"}
@@ -1761,8 +2051,11 @@ const Warehouse_Create = () => {
 
       <Confirmation_Popup
         isOpen={confirm}
+
         onClose={() => setConfirm(false)}
+
         onConfirm={handleFinalSubmit}
+
         message={`Are you sure you want to ${
           isEdit ? "Update" : "Create"
         } Warehouse Details?`}
@@ -1772,12 +2065,15 @@ const Warehouse_Create = () => {
 
       <Success_Popup
         isOpen={successPopup.open}
+
         onClose={() =>
           setSuccessPopup({
             open: false,
+
             message: "",
           })
         }
+
         message={successPopup.message}
       />
 
@@ -1785,12 +2081,15 @@ const Warehouse_Create = () => {
 
       <ErrorMessage_Popup
         isOpen={errorPopup.open}
+
         onClose={() =>
           setErrorPopup({
             open: false,
+
             message: "",
           })
         }
+
         message={errorPopup.message}
       />
     </motion.div>

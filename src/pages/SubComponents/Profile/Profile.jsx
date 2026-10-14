@@ -478,7 +478,6 @@
 
 // export default Profile;
 
-
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -493,7 +492,10 @@ import {
   LockKeyhole,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { loginMeAPI, FirstTime_PasswordChange } from "../../../service/Login/Login";
+import {
+  loginMeAPI,
+  FirstTime_PasswordChange,
+} from "../../../service/Login/Login";
 import Confirmation_Popup from "../../../component/Popup_Models/Confirmation_Popup";
 import Success_Popup from "../../../component/Popup_Models/Success_Popup";
 
@@ -534,7 +536,9 @@ const normalizeProfile = (data = {}) => ({
 function Detail({ label, value }) {
   return (
     <div className="min-w-0 border-b border-slate-100 py-3 last:border-b-0 sm:[&:nth-last-child(-n+2)]:border-b-0">
-      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
       <p className="break-words text-sm font-medium text-slate-800">
         {value === undefined || value === null || value === "" ? "—" : value}
       </p>
@@ -542,10 +546,20 @@ function Detail({ label, value }) {
   );
 }
 
-function PasswordField({ label, name, value, visible, onToggle, onChange, disabled }) {
+function PasswordField({
+  label,
+  name,
+  value,
+  visible,
+  onToggle,
+  onChange,
+  disabled,
+}) {
   return (
     <label className="block space-y-2">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {label}
+      </span>
       <div className="relative">
         <input
           type={visible ? "text" : "password"}
@@ -554,7 +568,9 @@ function PasswordField({ label, name, value, visible, onToggle, onChange, disabl
           onChange={onChange}
           disabled={disabled}
           required
-          autoComplete={name === "currentPassword" ? "current-password" : "new-password"}
+          autoComplete={
+            name === "currentPassword" ? "current-password" : "new-password"
+          }
           placeholder={`Enter ${label.toLowerCase()}`}
           className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-sm outline-none transition focus:border-[#0062a0] focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
         />
@@ -592,7 +608,9 @@ export default function Profile() {
     try {
       const res = await loginMeAPI();
       if (res?.data?.success === false || !res?.data?.data) {
-        throw new Error(res?.data?.message || "Unable to load account details.");
+        throw new Error(
+          res?.data?.message || "Unable to load account details.",
+        );
       }
       setProfile(normalizeProfile(res.data.data));
     } catch (error) {
@@ -609,7 +627,8 @@ export default function Profile() {
   useEffect(() => {
     if (!passwordModalOpen) return;
     const onKeyDown = (event) => {
-      if (event.key === "Escape" && !changingPassword && !confirmPopup) closePasswordModal();
+      if (event.key === "Escape" && !changingPassword && !confirmPopup)
+        closePasswordModal();
     };
     document.addEventListener("keydown", onKeyDown);
     const previousOverflow = document.body.style.overflow;
@@ -643,7 +662,11 @@ export default function Profile() {
       setPasswordError("Account email is missing.");
       return;
     }
-    if (!password.currentPassword || !password.newPassword || !password.confirmPassword) {
+    if (
+      !password.currentPassword ||
+      !password.newPassword ||
+      !password.confirmPassword
+    ) {
       setPasswordError("Please fill all password fields.");
       return;
     }
@@ -675,7 +698,9 @@ export default function Profile() {
       setVisible({ ...EMPTY_VISIBILITY });
       setPasswordError("");
       setPasswordModalOpen(false);
-      setPasswordSuccessMessage(res?.data?.message || "Password changed successfully.");
+      setPasswordSuccessMessage(
+        res?.data?.message || "Password changed successfully.",
+      );
       setSuccessPopup(true);
     } catch (error) {
       setPasswordError(getError(error));
@@ -694,18 +719,27 @@ export default function Profile() {
     <div className="min-h-screen bg-[#f8fafc] px-4 py-6 sm:px-8 sm:py-8">
       <div className="mx-auto max-w-5xl space-y-5">
         <header className="flex items-center gap-3">
-          <button type="button" onClick={() => navigate(-1)} aria-label="Go back"
-            className="rounded-xl border border-slate-200 bg-white p-3 text-[#0062a0] transition hover:bg-blue-50">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="rounded-xl border border-slate-200 bg-white p-3 text-[#0062a0] transition hover:bg-blue-50"
+          >
             <ArrowLeft size={20} />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-            <p className="text-sm text-slate-500">Your account information and security</p>
+            <p className="text-sm text-slate-500">
+              Your account information and security
+            </p>
           </div>
         </header>
 
         {notice && (
-          <div role="alert" className={`rounded-xl border px-4 py-3 text-sm ${notice.type === "error" ? "border-red-200 bg-red-50 text-red-700" : "border-green-200 bg-green-50 text-green-700"}`}>
+          <div
+            role="alert"
+            className={`rounded-xl border px-4 py-3 text-sm ${notice.type === "error" ? "border-red-200 bg-red-50 text-red-700" : "border-green-200 bg-green-50 text-green-700"}`}
+          >
             {notice.message}
           </div>
         )}
@@ -717,7 +751,13 @@ export default function Profile() {
         ) : !profile ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
             <p className="mb-4 text-slate-600">Unable to load your profile.</p>
-            <button type="button" onClick={loadProfile} className="rounded-lg bg-[#0062a0] px-4 py-2 text-white">Retry</button>
+            <button
+              type="button"
+              onClick={loadProfile}
+              className="rounded-lg bg-[#0062a0] px-4 py-2 text-white"
+            >
+              Retry
+            </button>
           </div>
         ) : (
           /* SINGLE CARD — all profile details and one top-right password action */
@@ -728,19 +768,27 @@ export default function Profile() {
                   {(profile.userName || "U").charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="break-words text-xl font-bold text-slate-900">{profile.userName || "Account"}</h2>
+                  <h2 className="break-words text-xl font-bold text-slate-900">
+                    {profile.userName || "Account"}
+                  </h2>
                   <p className="flex items-center gap-1.5 break-all text-sm text-slate-500">
-                    <Mail size={14} className="shrink-0" /> {profile.loginEmail || "—"}
+                    <Mail size={14} className="shrink-0" />{" "}
+                    {profile.loginEmail || "—"}
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-[#0062a0]">{profile.userTypeName || "User"}</p>
+                  <p className="mt-1 text-xs font-semibold text-[#0062a0]">
+                    {profile.userTypeName || "User"}
+                  </p>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 {/* FUTURE: Enable after edit details API is ready.
                 <button type="button" onClick={openEditDetails} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-[#0062a0]">Edit Details</button>
                 */}
-                <button type="button" onClick={openPasswordModal}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0062a0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#004f82] sm:w-auto">
+                <button
+                  type="button"
+                  onClick={openPasswordModal}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0062a0] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#004f82] sm:w-auto"
+                >
                   <KeyRound size={17} /> Change Password
                 </button>
               </div>
@@ -748,7 +796,9 @@ export default function Profile() {
             <div className="p-5 sm:p-7">
               <div className="mb-3 flex items-center gap-2">
                 <UserRound size={20} className="text-[#0062a0]" />
-                <h3 className="text-base font-bold text-slate-800">Personal Details</h3>
+                <h3 className="text-base font-bold text-slate-800">
+                  Personal Details
+                </h3>
               </div>
               <div className="grid gap-x-8 sm:grid-cols-2">
                 <Detail label="User Name" value={profile.userName} />
@@ -756,8 +806,20 @@ export default function Profile() {
                 <Detail label="User ID" value={profile.userId} />
                 <Detail label="User Type" value={profile.userTypeName} />
                 <Detail label="Company" value={profile.companyName} />
-                <Detail label="Account Type" value={profile.isMainAdmin ? "Main Administrator" : "User"} />
-                <Detail label="Status" value={profile.status === 1 ? "Active" : profile.status === 0 ? "Inactive" : "—"} />
+                <Detail
+                  label="Account Type"
+                  value={profile.isMainAdmin ? "Main Administrator" : "User"}
+                />
+                <Detail
+                  label="Status"
+                  value={
+                    profile.status === 1
+                      ? "Active"
+                      : profile.status === 0
+                        ? "Inactive"
+                        : "—"
+                  }
+                />
               </div>
             </div>
           </section>
@@ -767,63 +829,119 @@ export default function Profile() {
       {/* Portal prevents parent transforms, animations and sidebar stacking contexts
           from hiding or briefly flashing the password dialog. */}
       {/* Hide the higher z-index password modal while confirming so the existing confirmation popup is clickable. */}
-      {passwordModalOpen && !confirmPopup && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5">
-          <div aria-hidden="true" className="absolute inset-0 bg-slate-950/55" onClick={closePasswordModal} />
-          <div role="dialog" aria-modal="true" aria-labelledby="password-dialog-title"
-            className="relative z-10 flex w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
-            style={{ maxHeight: "calc(100dvh - 24px)" }}>
-            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-blue-50 p-2.5 text-[#0062a0]"><LockKeyhole size={21} /></div>
-                <div>
-                  <h2 id="password-dialog-title" className="text-lg font-bold text-slate-900">Change Password</h2>
-                  <p className="text-xs text-slate-500 sm:text-sm">Enter your current password and a new password.</p>
+      {passwordModalOpen &&
+        !confirmPopup &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-slate-950/55"
+              onClick={closePasswordModal}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="password-dialog-title"
+              className="relative z-10 flex w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+              style={{ maxHeight: "calc(100dvh - 24px)" }}
+            >
+              <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-blue-50 p-2.5 text-[#0062a0]">
+                    <LockKeyhole size={21} />
+                  </div>
+                  <div>
+                    <h2
+                      id="password-dialog-title"
+                      className="text-lg font-bold text-slate-900"
+                    >
+                      Change Password
+                    </h2>
+                    <p className="text-xs text-slate-500 sm:text-sm">
+                      Enter your current password and a new password.
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <button type="button" aria-label="Close dialog" disabled={changingPassword || confirmPopup}
-                onClick={closePasswordModal} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50">
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={submitPassword} className="flex min-h-0 flex-col">
-              <div className="space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
-                {passwordError && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">{passwordError}</div>}
-                {[
-                  { name: "currentPassword", label: "Current Password" },
-                  { name: "newPassword", label: "New Password" },
-                  { name: "confirmPassword", label: "Confirm New Password" },
-                ].map(({ name, label }) => (
-                  <PasswordField key={name} name={name} label={label} value={password[name]}
-                    visible={visible[name]} disabled={changingPassword || confirmPopup}
-                    onToggle={() => setVisible((prev) => ({ ...prev, [name]: !prev[name] }))}
-                    onChange={(event) => {
-                      setPassword((prev) => ({ ...prev, [name]: event.target.value }));
-                      if (passwordError) setPasswordError("");
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="flex shrink-0 flex-wrap justify-end gap-3 border-t border-slate-100 px-5 py-4 sm:px-6">
-                <button type="button" disabled={changingPassword || confirmPopup} onClick={closePasswordModal}
-                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">Cancel</button>
-                <button type="submit" disabled={changingPassword || confirmPopup}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0062a0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#004f82] disabled:opacity-50">
-                  {changingPassword ? <Loader2 size={17} className="animate-spin" /> : <KeyRound size={17} />}
-                  Update Password
+                <button
+                  type="button"
+                  aria-label="Close dialog"
+                  disabled={changingPassword || confirmPopup}
+                  onClick={closePasswordModal}
+                  className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+                >
+                  <X size={20} />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>,
-        document.body
-      )}
+              <form onSubmit={submitPassword} className="flex min-h-0 flex-col">
+                <div className="space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
+                  {passwordError && (
+                    <div
+                      role="alert"
+                      className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700"
+                    >
+                      {passwordError}
+                    </div>
+                  )}
+                  {[
+                    { name: "currentPassword", label: "Current Password" },
+                    { name: "newPassword", label: "New Password" },
+                    { name: "confirmPassword", label: "Confirm New Password" },
+                  ].map(({ name, label }) => (
+                    <PasswordField
+                      key={name}
+                      name={name}
+                      label={label}
+                      value={password[name]}
+                      visible={visible[name]}
+                      disabled={changingPassword || confirmPopup}
+                      onToggle={() =>
+                        setVisible((prev) => ({ ...prev, [name]: !prev[name] }))
+                      }
+                      onChange={(event) => {
+                        setPassword((prev) => ({
+                          ...prev,
+                          [name]: event.target.value,
+                        }));
+                        if (passwordError) setPasswordError("");
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="flex shrink-0 flex-wrap justify-end gap-3 border-t border-slate-100 px-5 py-4 sm:px-6">
+                  <button
+                    type="button"
+                    disabled={changingPassword || confirmPopup}
+                    onClick={closePasswordModal}
+                    className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={changingPassword || confirmPopup}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0062a0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#004f82] disabled:opacity-50"
+                  >
+                    {changingPassword ? (
+                      <Loader2 size={17} className="animate-spin" />
+                    ) : (
+                      <KeyRound size={17} />
+                    )}
+                    Update Password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {createPortal(
         <>
           <Confirmation_Popup
             isOpen={confirmPopup}
-            onClose={() => { if (!changingPassword) setConfirmPopup(false); }}
+            onClose={() => {
+              if (!changingPassword) setConfirmPopup(false);
+            }}
             onConfirm={handleConfirmPasswordChange}
             title="Confirm Password Change"
             message="Are you sure you want to change your password? You will be logged out and need to sign in again."
@@ -836,7 +954,7 @@ export default function Profile() {
             message={`${passwordSuccessMessage} Please sign in again using your new password.`}
           />
         </>,
-        document.body
+        document.body,
       )}
     </div>
   );

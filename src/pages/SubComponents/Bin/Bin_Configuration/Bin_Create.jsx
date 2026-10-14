@@ -1,16 +1,25 @@
 import { motion } from "framer-motion";
+
 import { ArrowLeft, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+
 import { useEffect, useState } from "react";
+
 import { useLocation, useNavigate } from "react-router-dom";
 
 // Existing project components
+
 import Confirmation_Popup from "../../../../component/Popup_Models/Confirmation_Popup";
+
 import ErrorMessage_Popup from "../../../../component/Popup_Models/ErrorMessage_Popup";
+
 import Success_Popup from "../../../../component/Popup_Models/Success_Popup";
+
 import ReUsableInput_Fields from "../../../../component/ReUsableInput_Fields/ReUsableInput_Fields";
+
 import Button from "../../../../component/button/Buttons";
 
 // API Services
+
 import {
   bin_dashboard_create,
   bin_dashboard_Edit,
@@ -37,13 +46,16 @@ const SmartbinBadge = ({ value }) => {
 };
 
 /* =========================================================
+
    HELPER
-========================================================= */
+
+\========================================================= */
 
 const parseWeightStr = (weightStr) => {
   if (!weightStr) {
     return {
       value: "",
+
       unit: "kg",
     };
   }
@@ -55,19 +67,23 @@ const parseWeightStr = (weightStr) => {
   if (match) {
     return {
       value: match[1],
+
       unit: match[2].toLowerCase(),
     };
   }
 
   return {
     value: str,
+
     unit: "kg",
   };
 };
 
 /* =========================================================
+
    GET ID HELPERS
-========================================================= */
+
+\========================================================= */
 
 const getCustomerId = (customer) => {
   if (!customer) return "";
@@ -90,15 +106,20 @@ const getProjectId = (project) => {
 };
 
 /* =========================================================
+
    COMPONENT
-========================================================= */
+
+\========================================================= */
 
 const Bin_Create = () => {
   const navigate = useNavigate();
+
   const location = useLocation();
 
   /* =========================================================
+
      MODE
+
   ========================================================= */
 
   const { mode, rowId } = location.state || {};
@@ -106,7 +127,9 @@ const Bin_Create = () => {
   const isEditMode = mode === "edit";
 
   /* =========================================================
+
      UI STATES
+
   ========================================================= */
 
   const [confirm, setConfirm] = useState(false);
@@ -118,7 +141,9 @@ const Bin_Create = () => {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   /* =========================================================
+
      POPUP STATES
+
   ========================================================= */
 
   const [successModel, setSuccessModel] = useState(false);
@@ -130,66 +155,91 @@ const Bin_Create = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   /* =========================================================
+
      CUSTOMER OPTIONS
+
   ========================================================= */
 
   const [customerOptions, setCustomerOptions] = useState([
     {
       label: "Loading...",
+
       value: "",
     },
   ]);
 
   /* =========================================================
+
      PROJECT OPTIONS
+
   ========================================================= */
 
   const [projectOptions, setProjectOptions] = useState([
     {
       label: "Select Project",
+
       value: "",
     },
   ]);
 
   /* =========================================================
+
      WAREHOUSE OPTIONS
+
+
 
      IMPORTANT:
 
+
+
      value = MongoDB warehouse _id
+
+
 
      label = warehouseName
 
+
+
      warehouseCode = ELEV-WH-001
+
      ========================================================= */
 
   const [warehouseOptions, setWarehouseOptions] = useState([
     {
       label: "Select Warehouse",
+
       value: "",
+
       warehouseCode: "",
     },
   ]);
 
   /* =========================================================
+
      ITEM OPTIONS
+
   ========================================================= */
 
   const [itemOptions, setItemOptions] = useState([
     {
       label: "Select Item",
+
       value: "",
     },
   ]);
 
   /* =========================================================
+
      WAREHOUSE ITEM DATA
+
   ========================================================= */
 
   const [allItemsData, setAllItemsData] = useState([]);
 
   /* =========================================================
+
      WEIGHT UNIT STATES
+
   ========================================================= */
 
   const [binWeightUnit, setBinWeightUnit] = useState("kg");
@@ -197,45 +247,71 @@ const Bin_Create = () => {
   const [customerWeightUnit, setCustomerWeightUnit] = useState("kg");
 
   /* =========================================================
+
      FORM DATA
 
+
+
      warehouseId:
+
        MongoDB _id
 
+
+
      warehouseCode:
+
        ELEV-WH-001
+
        used ONLY for items API
+
   ========================================================= */
 
   const [formData, setFormData] = useState({
     customerId: "",
+
     projectId: "",
+
     masterId: "",
+
     binId: "",
+
     supplierItemName: "",
+
     customerItemName: "",
 
     binAllowableWeight: "",
+
     binAllowableLimit: "",
+
     customerAllowableWeight: "",
+
     customerAllowableLimit: "",
 
     safetyStockQuantity: "",
+
     rol: "",
+
     itemPerPrice: "",
 
     weightPerUnit: "",
+
     weightPerPrice: "", // ADD THIS
 
     itemMasterId: "",
+
     warehouseId: "",
+
     warehouseCode: "",
+
     warehouseName: "",
+
     itemStatus: false,
   });
 
   /* =========================================================
+
      1. FETCH CUSTOMER DATA
+
   ========================================================= */
 
   useEffect(() => {
@@ -248,6 +324,7 @@ const Bin_Create = () => {
         setCustomerOptions([
           {
             label: "Select Customer",
+
             value: "",
           },
 
@@ -268,6 +345,7 @@ const Bin_Create = () => {
         setCustomerOptions([
           {
             label: "No Customer Found",
+
             value: "",
           },
         ]);
@@ -278,7 +356,9 @@ const Bin_Create = () => {
   }, []);
 
   /* =========================================================
+
      2. FETCH BIN DATA FOR EDIT MODE
+
   ========================================================= */
 
   useEffect(() => {
@@ -303,7 +383,9 @@ const Bin_Create = () => {
         console.log(data);
 
         /* =================================================
+
            CUSTOMER
+
         ================================================= */
 
         const customerId =
@@ -312,7 +394,9 @@ const Bin_Create = () => {
             : data.customerId || "";
 
         /* =================================================
+
            PROJECT
+
         ================================================= */
 
         const projectId =
@@ -321,26 +405,47 @@ const Bin_Create = () => {
             : data.projectId || "";
 
         /* =================================================
+
            WAREHOUSE
+
+
 
            Backend edit response:
 
+
+
            warehouseId:
+
              "ELEV-WH-001"
 
+
+
            warehouseName:
+
              "Elevators-warehouse"
+
+
 
            But payload requires:
 
+
+
            warehouseId:
+
              "65dfab12cd34567890123999"
 
+
+
            Therefore we initially store
+
            warehouseCode = ELEV-WH-001.
 
+
+
            The warehouse API will later resolve
+
            ELEV-WH-001 -> Mongo _id.
+
         ================================================= */
 
         let warehouseCode = "";
@@ -364,7 +469,9 @@ const Bin_Create = () => {
         }
 
         /* =================================================
+
            ITEM MASTER ID
+
         ================================================= */
 
         const itemMasterId =
@@ -373,7 +480,9 @@ const Bin_Create = () => {
             : data.itemMasterId || "";
 
         /* =================================================
+
            WEIGHTS
+
         ================================================= */
 
         const bWeight = parseWeightStr(data.binAllowableWeight);
@@ -393,7 +502,9 @@ const Bin_Create = () => {
         console.log("EDIT itemMasterId:", itemMasterId);
 
         /* =================================================
+
            SET FORM
+
         ================================================= */
 
         setFormData({
@@ -425,21 +536,33 @@ const Bin_Create = () => {
           itemPerPrice: data.itemPerPrice ?? "",
 
           /*
+
              Don't depend on old weight.
 
+
+
              It will be loaded from:
+
              /warehouse/ELEV-WH-001/items
+
           */
+
           weightPerUnit: "",
 
           itemMasterId,
 
           /*
+
              If backend already returned Mongo ID
+
              use it.
 
+
+
              Otherwise warehouse effect will resolve it.
+
           */
+
           warehouseId: warehouseMongoId,
 
           warehouseCode,
@@ -459,7 +582,9 @@ const Bin_Create = () => {
   }, [isEditMode, rowId]);
 
   /* =========================================================
+
      3. FETCH PROJECTS BY CUSTOMER
+
   ========================================================= */
 
   useEffect(() => {
@@ -468,6 +593,7 @@ const Bin_Create = () => {
         setProjectOptions([
           {
             label: "Select Project",
+
             value: "",
           },
         ]);
@@ -483,6 +609,7 @@ const Bin_Create = () => {
         setProjectOptions([
           {
             label: "Select Project",
+
             value: "",
           },
 
@@ -498,6 +625,7 @@ const Bin_Create = () => {
         setProjectOptions([
           {
             label: "No Project Found",
+
             value: "",
           },
         ]);
@@ -508,20 +636,35 @@ const Bin_Create = () => {
   }, [formData.customerId]);
 
   /* =========================================================
+
      4. FETCH WAREHOUSES BY CUSTOMER
+
+
 
      Warehouse response is expected to contain:
 
+
+
      {
+
        _id: "65dfab12cd34567890123999",
+
        warehouseId: "ELEV-WH-001",
+
        warehouseName: "Elevators-warehouse"
+
      }
+
+
 
      IMPORTANT:
 
+
+
      dropdown value = _id
+
      API code = warehouseId
+
   ========================================================= */
 
   useEffect(() => {
@@ -530,7 +673,9 @@ const Bin_Create = () => {
         setWarehouseOptions([
           {
             label: "Select Warehouse",
+
             value: "",
+
             warehouseCode: "",
           },
         ]);
@@ -542,7 +687,9 @@ const Bin_Create = () => {
         setWarehouseOptions([
           {
             label: "Loading...",
+
             value: "",
+
             warehouseCode: "",
           },
         ]);
@@ -556,7 +703,9 @@ const Bin_Create = () => {
         console.log(warehouses);
 
         /* =================================================
+
            CREATE OPTIONS
+
         ================================================= */
 
         const options = warehouses.map((warehouse) => ({
@@ -567,25 +716,38 @@ const Bin_Create = () => {
             "Unnamed Warehouse",
 
           /*
+
               THIS IS WHAT GETS STORED IN
+
               formData.warehouseId
 
+
+
               Example:
+
               65dfab12cd34567890123999
+
             */
+
           value: warehouse._id || "",
 
           /*
+
               THIS IS USED ONLY FOR:
+
               /warehouse/ELEV-WH-001/items
+
             */
+
           warehouseCode: warehouse.warehouseId || "",
         }));
 
         setWarehouseOptions([
           {
             label: "Select Warehouse",
+
             value: "",
+
             warehouseCode: "",
           },
 
@@ -593,15 +755,25 @@ const Bin_Create = () => {
         ]);
 
         /* =================================================
+
            EDIT MODE
+
+
 
            Existing bin has:
 
+
+
            warehouseCode:
+
            ELEV-WH-001
 
+
+
            Find matching warehouse and set
+
            Mongo _id.
+
         ================================================= */
 
         if (isEditMode && formData.warehouseCode) {
@@ -619,18 +791,27 @@ const Bin_Create = () => {
               ...prev,
 
               /*
+
                 Payload ID
+
               */
+
               warehouseId: matchingWarehouse._id,
 
               /*
+
                 API ID
+
               */
+
               warehouseCode: matchingWarehouse.warehouseId,
 
               /*
+
                 Display name
+
               */
+
               warehouseName:
                 matchingWarehouse.warehouseName || matchingWarehouse.name || "",
             }));
@@ -642,7 +823,9 @@ const Bin_Create = () => {
         setWarehouseOptions([
           {
             label: "No Warehouse Found",
+
             value: "",
+
             warehouseCode: "",
           },
         ]);
@@ -653,27 +836,49 @@ const Bin_Create = () => {
   }, [formData.customerId, formData.warehouseCode, isEditMode]);
 
   /* =========================================================
+
      5. FETCH ITEMS BY WAREHOUSE
+
+
 
      IMPORTANT:
 
+
+
      DO NOT USE:
+
+
 
      formData.warehouseId
 
+
+
      here.
 
+
+
      formData.warehouseId =
+
        Mongo ObjectId
+
+
 
      Instead use:
 
+
+
      formData.warehouseCode =
+
        ELEV-WH-001
+
+
 
      API:
 
+
+
      /warehouse/ELEV-WH-001/items
+
   ========================================================= */
 
   useEffect(() => {
@@ -684,6 +889,7 @@ const Bin_Create = () => {
         setItemOptions([
           {
             label: "Select Item",
+
             value: "",
           },
         ]);
@@ -697,6 +903,7 @@ const Bin_Create = () => {
         setItemOptions([
           {
             label: "Loading...",
+
             value: "",
           },
         ]);
@@ -706,15 +913,25 @@ const Bin_Create = () => {
         console.log("Warehouse Code:", warehouseCode);
 
         /*
+
           IMPORTANT:
+
+
 
           This produces:
 
+
+
           /warehouse/ELEV-WH-001/items
+
+
 
           NOT:
 
+
+
           /warehouse/65df.../items
+
         */
 
         const res = await get_items_byWarehouse(warehouseCode);
@@ -728,6 +945,7 @@ const Bin_Create = () => {
         setItemOptions([
           {
             label: "Select Item",
+
             value: "",
           },
 
@@ -747,6 +965,7 @@ const Bin_Create = () => {
         setItemOptions([
           {
             label: "No Items Found",
+
             value: "",
           },
         ]);
@@ -757,18 +976,31 @@ const Bin_Create = () => {
   }, [formData.warehouseCode]);
 
   /* =========================================================
+
      6. AUTO-FILL ITEM + WEIGHT
+
+
 
      API:
 
+
+
      {
+
        itemMasterId: {
+
          _id: "...",
+
          itemName: "GRIP Sealing Plug",
+
          partNumber: "...",
+
          weightPerUnit: 1.7
+
        }
+
      }
+
   ========================================================= */
 
   useEffect(() => {
@@ -801,19 +1033,27 @@ const Bin_Create = () => {
       ...prev,
 
       /*
+
         Item Name
+
       */
+
       supplierItemName: masterItem?.itemName || prev.supplierItemName,
 
       /*
+
         Weight per Unit
+
       */
+
       weightPerUnit: masterItem?.weightPerUnit ?? prev.weightPerUnit,
     }));
   }, [formData.itemMasterId, allItemsData]);
 
   /* =========================================================
+
      7. AUTOMATIC QUANTITY CALCULATION
+
   ========================================================= */
 
   useEffect(() => {
@@ -848,23 +1088,33 @@ const Bin_Create = () => {
     }));
   }, [
     formData.binAllowableWeight,
+
     formData.customerAllowableWeight,
+
     binWeightUnit,
+
     customerWeightUnit,
+
     formData.weightPerUnit,
+
     formData.itemMasterId,
+
     allItemsData,
   ]);
 
   /* =========================================================
+
      8. HANDLE FORM CHANGE
+
   ========================================================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     /* =======================================================
+
        CUSTOMER CHANGE
+
     ======================================================= */
 
     if (name === "customerId") {
@@ -891,7 +1141,9 @@ const Bin_Create = () => {
       setWarehouseOptions([
         {
           label: "Loading...",
+
           value: "",
+
           warehouseCode: "",
         },
       ]);
@@ -899,6 +1151,7 @@ const Bin_Create = () => {
       setItemOptions([
         {
           label: "Select Item",
+
           value: "",
         },
       ]);
@@ -909,7 +1162,9 @@ const Bin_Create = () => {
     }
 
     /* =======================================================
+
        WAREHOUSE CHANGE
+
     ======================================================= */
 
     if (name === "warehouseId") {
@@ -923,29 +1178,47 @@ const Bin_Create = () => {
         ...prev,
 
         /*
+
           Mongo ID
 
+
+
           Example:
+
           65dfab12cd34567890123999
+
         */
+
         warehouseId: value,
 
         /*
+
           Business ID
 
+
+
           Example:
+
           ELEV-WH-001
+
         */
+
         warehouseCode: selectedWarehouse?.warehouseCode || "",
 
         /*
+
           Display name
+
         */
+
         warehouseName: selectedWarehouse?.label || "",
 
         /*
+
           Reset item
+
         */
+
         itemMasterId: "",
 
         supplierItemName: "",
@@ -956,6 +1229,7 @@ const Bin_Create = () => {
       setItemOptions([
         {
           label: "Loading...",
+
           value: "",
         },
       ]);
@@ -966,7 +1240,9 @@ const Bin_Create = () => {
     }
 
     /* =======================================================
+
        ITEM CHANGE
+
     ======================================================= */
 
     if (name === "itemMasterId") {
@@ -989,17 +1265,22 @@ const Bin_Create = () => {
     }
 
     /* =======================================================
+
        NORMAL FIELD CHANGE
+
     ======================================================= */
 
     setFormData((prev) => ({
       ...prev,
+
       [name]: value,
     }));
   };
 
   /* =========================================================
+
      9. SELECTED ITEM
+
   ========================================================= */
 
   const selectedItem = allItemsData.find(
@@ -1009,7 +1290,9 @@ const Bin_Create = () => {
   const selectedItemDesc = selectedItem?.itemMasterId?.itemDescription || "";
 
   /* =========================================================
+
      10. FINAL SUBMISSION
+
   ========================================================= */
 
   const handleFinalSubmit = async () => {
@@ -1031,42 +1314,62 @@ const Bin_Create = () => {
 
     try {
       /* =====================================================
+
          FINAL PAYLOAD
 
+
+
          warehouseId:
+
            MongoDB ObjectId
 
+
+
          warehouseCode:
+
            ELEV-WH-001
 
+
+
          NOTE:
+
          If backend does not accept warehouseCode,
+
          remove it before sending.
+
       ===================================================== */
 
       const payload = {
         customerId: formData.customerId,
+
         projectId: formData.projectId,
+
         masterId: formData.masterId,
+
         binId: formData.binId,
 
         binAllowableWeight: formData.binAllowableWeight,
+
         binAllowableLimit: Number(formData.binAllowableLimit),
 
         customerAllowableWeight: formData.customerAllowableWeight,
+
         customerAllowableLimit: Number(formData.customerAllowableLimit),
 
         safetyStockQuantity: Number(formData.safetyStockQuantity),
+
         rol: Number(formData.rol),
 
         itemPerPrice: Number(formData.itemPerPrice),
 
         weightPerUnit: Number(formData.weightPerUnit),
+
         weightPerPrice: Number(formData.weightPerPrice), // ADD THIS
 
         itemMasterId: formData.itemMasterId,
 
         // MongoDB warehouse _id for create/edit payload
+
         warehouseId: formData.warehouseId,
 
         warehouseName: formData.warehouseName,
@@ -1137,7 +1440,9 @@ const Bin_Create = () => {
   };
 
   /* =========================================================
+
      LOADING SCREEN
+
   ========================================================= */
 
   if (fetchingData) {
@@ -1153,23 +1458,30 @@ const Bin_Create = () => {
   }
 
   /* =========================================================
+
      UI
+
   ========================================================= */
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
+
       animate={{ opacity: 1 }}
+
       className="min-h-screen bg-[#fcfdfe] p-4 md:p-8"
     >
       <div className="max-w-full mx-auto bg-white rounded-[32px] shadow-sm border border-slate-100 p-6 md:p-10">
         {/* =================================================
+
             HEADER
+
         ================================================= */}
 
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate(-1)}
+
             className="p-3 hover:bg-[#f0f9ff] text-[#0062a0] rounded-2xl transition-all cursor-pointer"
           >
             <ArrowLeft size={24} />
@@ -1181,7 +1493,9 @@ const Bin_Create = () => {
         </div>
 
         {/* =================================================
+
             FORM
+
         ================================================= */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1 items-start">
@@ -1189,10 +1503,15 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Customer"
+
             name="customerId"
+
             type="select"
+
             options={customerOptions}
+
             value={formData.customerId}
+
             onChange={handleChange}
           />
 
@@ -1200,11 +1519,17 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Project Name"
+
             name="projectId"
+
             type="select"
+
             options={projectOptions}
+
             value={formData.projectId}
+
             onChange={handleChange}
+
             disabled={!formData.customerId}
           />
 
@@ -1212,11 +1537,17 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Warehouse Name"
+
             name="warehouseId"
+
             type="select"
+
             options={warehouseOptions}
+
             value={formData.warehouseId}
+
             onChange={handleChange}
+
             disabled={!formData.customerId}
           />
 
@@ -1225,11 +1556,17 @@ const Bin_Create = () => {
           <div className="flex flex-col w-full min-h-[90px]">
             <ReUsableInput_Fields
               label="Item Name"
+
               name="itemMasterId"
+
               type="select"
+
               options={itemOptions}
+
               value={formData.itemMasterId}
+
               onChange={handleChange}
+
               disabled={!formData.warehouseCode}
             />
 
@@ -1248,8 +1585,11 @@ const Bin_Create = () => {
                 {selectedItemDesc.length > 50 && (
                   <button
                     type="button"
+
                     onClick={() => setIsDescExpanded(!isDescExpanded)}
+
                     className="ml-2 flex-shrink-0 cursor-pointer text-blue-500 hover:text-blue-700 hover:bg-blue-100 p-0.5 rounded-full transition-colors mt-[1px]"
+
                     title={isDescExpanded ? "Show less" : "Show more"}
                   >
                     {isDescExpanded ? (
@@ -1263,12 +1603,89 @@ const Bin_Create = () => {
             )}
           </div>
 
+          {/* READ-ONLY WAREHOUSE STOCK SUMMARY */}
+          {selectedItem && (
+            <section className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 md:p-5 my-3">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                  <h2 className="text-base font-semibold text-slate-800">
+                    Warehouse Stock Overview
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {selectedItem.itemMasterId?.itemName || "Selected Item"}
+                    {selectedItem.itemMasterId?.partNumber
+                      ? ` • ${selectedItem.itemMasterId.partNumber}`
+                      : ""}
+                  </p>
+                </div>
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                  {selectedItem.stockCalculationMode || "Not specified"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { label: "Max Limit", value: selectedItem.warehouseLimit },
+                  {
+                    label: "Safety Stock",
+                    value: selectedItem.warehouseSafeStock,
+                  },
+                  {
+                    label: "Reorder Level",
+                    value: selectedItem.warehouseReorderLevel,
+                  },
+                  { label: "Current Stock", value: selectedItem.currentStock },
+                ].map(({ label, value }) => (
+                  <div
+                    key={label}
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-3"
+                  >
+                    <p className="text-xs font-medium text-slate-500">
+                      {label}
+                    </p>
+                    <p className="mt-1 text-lg font-semibold tabular-nums text-slate-800">
+                      {value == null
+                        ? "—"
+                        : Number(value).toLocaleString("en-IN")}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-slate-500">Supplier Name:</span>
+                <span className="font-semibold text-slate-800">
+                  {selectedItem.supplerName || selectedItem.supplierName || "—"}
+                </span>
+              </div>
+
+              {Number.isFinite(Number(selectedItem.currentStock)) &&
+                Number.isFinite(Number(selectedItem.warehouseLimit)) &&
+                selectedItem.currentStock != null &&
+                selectedItem.warehouseLimit != null &&
+                Number(selectedItem.currentStock) >
+                  Number(selectedItem.warehouseLimit) && (
+                  <p className="mt-3 text-xs font-medium text-amber-700">
+                    Current stock exceeds the warehouse maximum by{" "}
+                    {(
+                      Number(selectedItem.currentStock) -
+                      Number(selectedItem.warehouseLimit)
+                    ).toLocaleString("en-IN")}{" "}
+                    units.
+                  </p>
+                )}
+            </section>
+          )}
+
           {/* MASTER ID */}
 
           <ReUsableInput_Fields
             label="Master ID"
+
             name="masterId"
+
             value={formData.masterId}
+
             onChange={handleChange}
           />
 
@@ -1276,8 +1693,11 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="BIN ID"
+
             name="binId"
+
             value={formData.binId}
+
             onChange={handleChange}
           />
 
@@ -1285,10 +1705,15 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Weight per Unit"
+
             name="weightPerUnit"
+
             type="number"
+
             value={formData.weightPerUnit}
+
             onChange={handleChange}
+
             disabled={true}
           />
 
@@ -1296,9 +1721,13 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Item Price"
+
             name="itemPerPrice"
+
             type="number"
+
             value={formData.itemPerPrice}
+
             onChange={handleChange}
           />
 
@@ -1306,8 +1735,11 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Customer Item Name"
+
             name="customerItemName"
+
             value={formData.customerItemName}
+
             onChange={handleChange}
           />
 
@@ -1316,16 +1748,22 @@ const Bin_Create = () => {
           <div className="relative">
             <ReUsableInput_Fields
               label="BIN Allowable Weight"
+
               name="binAllowableWeight"
+
               type="number"
+
               value={formData.binAllowableWeight}
+
               onChange={handleChange}
             />
 
             <div className="absolute right-1 bottom-[8px] z-10">
               <select
                 value={binWeightUnit}
+
                 onChange={(e) => setBinWeightUnit(e.target.value)}
+
                 className="bg-slate-100 text-slate-700 text-sm font-bold rounded-lg px-2 py-1.5 outline-none border border-slate-200 cursor-pointer shadow-sm"
               >
                 <option value="kg">kg</option>
@@ -1339,8 +1777,11 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="BIN Allowable Limit"
+
             name="binAllowableLimit"
+
             value={formData.binAllowableLimit}
+
             disabled={true}
           />
 
@@ -1349,16 +1790,22 @@ const Bin_Create = () => {
           <div className="relative">
             <ReUsableInput_Fields
               label="Customer Allowable Weight"
+
               name="customerAllowableWeight"
+
               type="number"
+
               value={formData.customerAllowableWeight}
+
               onChange={handleChange}
             />
 
             <div className="absolute right-1 bottom-[8px] z-10">
               <select
                 value={customerWeightUnit}
+
                 onChange={(e) => setCustomerWeightUnit(e.target.value)}
+
                 className="bg-slate-100 text-slate-700 text-sm font-bold rounded-lg px-2 py-1.5 outline-none border border-slate-200 cursor-pointer shadow-sm"
               >
                 <option value="kg">kg</option>
@@ -1372,8 +1819,11 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Customer Allowable Limit"
+
             name="customerAllowableLimit"
+
             value={formData.customerAllowableLimit}
+
             disabled={true}
           />
 
@@ -1381,9 +1831,13 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="Safety Stock Quantity"
+
             name="safetyStockQuantity"
+
             type="number"
+
             value={formData.safetyStockQuantity}
+
             onChange={handleChange}
           />
 
@@ -1391,15 +1845,21 @@ const Bin_Create = () => {
 
           <ReUsableInput_Fields
             label="ROL (Re Order Level)"
+
             name="rol"
+
             type="number"
+
             value={formData.rol}
+
             onChange={handleChange}
           />
         </div>
 
         {/* =================================================
+
             BUTTONS
+
         ================================================= */}
 
         <div className="flex items-center gap-6 justify-end mt-12 mb-4">
@@ -1409,7 +1869,9 @@ const Bin_Create = () => {
 
           <Button
             variant="primary"
+
             onClick={() => setConfirm(true)}
+
             disabled={isSubmitting}
           >
             {isSubmitting ? "Processing..." : isEditMode ? "Update" : "Create"}
@@ -1418,35 +1880,48 @@ const Bin_Create = () => {
       </div>
 
       {/* =================================================
+
           CONFIRMATION POPUP
+
       ================================================= */}
 
       <Confirmation_Popup
         isOpen={confirm}
+
         onClose={() => setConfirm(false)}
+
         onConfirm={handleFinalSubmit}
+
         message={`Are you sure you want to ${
           isEditMode ? "Update" : "Create"
         } Bin Configuration?`}
       />
 
       {/* =================================================
+
           SUCCESS POPUP
+
       ================================================= */}
 
       <Success_Popup
         isOpen={successModel}
+
         onClose={() => setSuccessModel(false)}
+
         message={successMessage}
       />
 
       {/* =================================================
+
           ERROR POPUP
+
       ================================================= */}
 
       <ErrorMessage_Popup
         isOpen={errorModel}
+
         onClose={() => setErrorModel(false)}
+
         message={errorMessage}
       />
     </motion.div>
