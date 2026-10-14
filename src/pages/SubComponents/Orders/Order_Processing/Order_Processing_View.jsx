@@ -1170,7 +1170,7 @@ export default function Order_Processing_View() {
 
                         "Part Number",
 
-                        "Quantity",
+                        "Order Quantity",
 
                         "Stock at Trigger",
 

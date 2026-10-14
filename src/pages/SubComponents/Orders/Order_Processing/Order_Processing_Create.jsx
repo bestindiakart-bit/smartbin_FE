@@ -17,7 +17,6 @@ import {
   order_processing_getById,
   order_processing_edit,
 } from "../../../../service/Orders_Services/Oreder_Services";
-
 const emptyOption = (label) => [{ label, value: "" }];
 const idOf = (value) =>
   value == null
@@ -43,13 +42,17 @@ const asList = (payload, keys = []) => {
     if (Array.isArray(payload?.[key])) return payload[key];
   return payload && typeof payload === "object" && payload._id ? [payload] : [];
 };
-const newRow = (key, itemId = "", quantity = "") => ({ key, itemId, quantity });
+const newRow = (key, itemId = "", boxQuantity = "", itemSBQ = "") => ({
+  key,
+  itemId,
+  boxQuantity,
+  itemSBQ,
+});
 const animation = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
 };
 const appear = { hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } };
-
 // Connect this to your application's authenticated role source if it differs.
 const getLoggedInRole = () => {
   for (const key of ["user", "userData", "authUser", "loginUser"]) {
@@ -67,12 +70,11 @@ const getLoggedInRole = () => {
           .toUpperCase()
           .replace(/[\s-]+/g, "_");
     } catch {
-      /* ignore invalid storage */
+      /\\* ignore invalid storage \\*/;
     }
   }
   return "";
 };
-
 export default function Order_Processing_Create() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -87,7 +89,6 @@ export default function Order_Processing_Create() {
     customerId: "",
     warehouseId: "",
     warehouseCode: "",
-    expectedDate: "",
     shippingAddress: "",
     remarks: "",
   });
@@ -100,6 +101,7 @@ export default function Order_Processing_Create() {
   const [singleCustomer, setSingleCustomer] = useState(false);
   const [warehouses, setWarehouses] = useState(emptyOption("Select Warehouse"));
   const [itemOptions, setItemOptions] = useState(emptyOption("Select Item"));
+  const [itemMasters, setItemMasters] = useState({});
   const [fetchingOrder, setFetchingOrder] = useState(isEditMode);
   const [orderLoaded, setOrderLoaded] = useState(!isEditMode);
   const [loadingWarehouses, setLoadingWarehouses] = useState(false);
@@ -114,7 +116,6 @@ export default function Order_Processing_Create() {
     setErrorMessage(message);
     setErrorOpen(true);
   };
-
   useEffect(() => {
     let active = true;
     (async () => {
@@ -181,7 +182,6 @@ export default function Order_Processing_Create() {
       active = false;
     };
   }, [isSuperAdmin, isEditMode]);
-
   useEffect(() => {
     let active = true;
     if (!isEditMode) {
@@ -219,9 +219,6 @@ export default function Order_Processing_Create() {
           customerId,
           warehouseId,
           warehouseCode,
-          expectedDate: data.expectedDate
-            ? String(data.expectedDate).slice(0, 10)
-            : "",
           shippingAddress: data.shippingAddress ?? "",
           remarks: data.remarks ?? "",
         });
@@ -232,7 +229,12 @@ export default function Order_Processing_Create() {
                 newRow(
                   nextKey.current++,
                   idOf(item.itemId ?? item.itemMasterId),
-                  item.quantity ?? "",
+                  item.boxQuantity ??
+                    (Number(item.itemSBQ) > 0 &&
+                    Number(item.quantity) % Number(item.itemSBQ) === 0
+                      ? Number(item.quantity) / Number(item.itemSBQ)
+                      : ""),
+                  item.itemSBQ ?? "",
                 ),
               )
             : [newRow(nextKey.current++)],
@@ -248,7 +250,6 @@ export default function Order_Processing_Create() {
       active = false;
     };
   }, [isEditMode, rowId]);
-
   useEffect(() => {
     let active = true;
     if (!form.customerId || !orderLoaded) {
@@ -301,7 +302,6 @@ export default function Order_Processing_Create() {
       active = false;
     };
   }, [form.customerId, orderLoaded]);
-
   // Warehouse endpoint already includes items. Only fall back to the
   // separate item endpoint when its records don't contain an items array.
   useEffect(() => {
@@ -324,14 +324,21 @@ export default function Order_Processing_Create() {
         }
         if (!active) return;
         const unique = new Map();
+        const masters = {};
         records.forEach((entry) => {
           const master = entry?.itemMasterId ?? entry?.itemId ?? entry;
           if (!master?._id) return;
+          masters[String(master._id)] = {
+            ...master,
+            itemSBQ: master.itemSBQ ?? entry.itemSBQ ?? null,
+            warehouseLimit: entry.warehouseLimit ?? null,
+          };
           unique.set(String(master._id), {
             label: `${master.itemName || "Unnamed Item"} (${master.partNumber || "-"})`,
             value: String(master._id),
           });
         });
+        setItemMasters(masters);
         setItemOptions([
           { label: "Select Item", value: "" },
           ...unique.values(),
@@ -350,7 +357,6 @@ export default function Order_Processing_Create() {
       active = false;
     };
   }, [form.warehouseId, form.warehouseCode, orderLoaded, warehouseRecords]);
-
   const handleField = (event) => {
     const { name, value } = event.target;
     if (name === "customerId") {
@@ -364,6 +370,7 @@ export default function Order_Processing_Create() {
       setWarehouses(emptyOption("Select Warehouse"));
       setWarehouseRecords([]);
       setItemOptions(emptyOption("Select Item"));
+      setItemMasters({});
       setItems([newRow(nextKey.current++)]);
       return;
     }
@@ -378,12 +385,12 @@ export default function Order_Processing_Create() {
         warehouseCode: selected?.warehouseCode || "",
       }));
       setItemOptions(emptyOption("Select Item"));
+      setItemMasters({});
       setItems([newRow(nextKey.current++)]);
       return;
     }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleItem = (key, event) => {
     const { name, value } = event.target;
     if (
@@ -394,8 +401,53 @@ export default function Order_Processing_Create() {
       showError("This item is already selected. Choose a different item.");
       return;
     }
+    if (name === "boxQuantity" && value !== "") {
+      const selectedRow = items.find((row) => row.key === key);
+      const sbq = Number(
+        itemMasters[selectedRow?.itemId]?.itemSBQ ?? selectedRow?.itemSBQ,
+      );
+      const limitValue = itemMasters[selectedRow?.itemId]?.warehouseLimit;
+      const limit = Number(limitValue);
+      const boxes = Number(value);
+
+      if (!Number.isSafeInteger(boxes) || boxes < 1) {
+        showError("Box Quantity must be a positive whole number.");
+        return;
+      }
+      if (!Number.isSafeInteger(sbq) || sbq <= 0) {
+        showError("The selected item has no valid SBQ.");
+        return;
+      }
+      if (
+        limitValue == null ||
+        limitValue === "" ||
+        !Number.isFinite(limit) ||
+        limit <= 0
+      ) {
+        showError("Warehouse maximum limit is unavailable for this item.");
+        return;
+      }
+      if (!Number.isSafeInteger(boxes * sbq) || boxes * sbq > limit) {
+        showError(
+          `Order Quantity cannot exceed Warehouse Max Limit (${limit.toLocaleString()} units). Maximum ${Math.floor(limit / sbq)} full box(es).`,
+        );
+        return;
+      }
+    }
+
     setItems((prev) =>
-      prev.map((row) => (row.key === key ? { ...row, [name]: value } : row)),
+      prev.map((row) => {
+        if (row.key !== key) return row;
+        if (name === "itemId") {
+          return {
+            ...row,
+            itemId: value,
+            itemSBQ: itemMasters[value]?.itemSBQ ?? "",
+            boxQuantity: "",
+          };
+        }
+        return { ...row, [name]: value };
+      }),
     );
   };
   const addRow = () => {
@@ -406,6 +458,12 @@ export default function Order_Processing_Create() {
     setItems((prev) =>
       prev.length > 1 ? prev.filter((row) => row.key !== key) : prev,
     );
+  const getSBQ = (row) => itemMasters[row.itemId]?.itemSBQ ?? row.itemSBQ ?? "";
+  const getOrderQuantity = (row) => {
+    const sbq = Number(getSBQ(row));
+    const boxes = Number(row.boxQuantity);
+    return sbq > 0 && boxes > 0 ? boxes * sbq : "";
+  };
   const itemChoicesFor = (key) => {
     const used = new Set(
       items
@@ -427,7 +485,6 @@ export default function Order_Processing_Create() {
     }),
     [form.customerId, form.warehouseId],
   );
-
   const validate = () => {
     if (isEditMode && !orderLoaded) return "Order details have not loaded.";
     if (!form.customerId) return "Select a customer.";
@@ -439,11 +496,6 @@ export default function Order_Processing_Create() {
       !warehouses.some((w) => w.value === form.warehouseId)
     )
       return "Select a valid warehouse.";
-    if (
-      !/^\d{4}-\d{2}-\d{2}$/.test(form.expectedDate) ||
-      Number.isNaN(Date.parse(`${form.expectedDate}T00:00:00`))
-    )
-      return "Select a valid expected date.";
     if (!form.shippingAddress.trim()) return "Enter a shipping address.";
     if (!items.length) return "Add at least one item.";
     const used = new Set();
@@ -455,22 +507,39 @@ export default function Order_Processing_Create() {
       if (used.has(row.itemId)) return "Duplicate items are not allowed.";
       used.add(row.itemId);
       if (
-        !Number.isSafeInteger(Number(row.quantity)) ||
-        Number(row.quantity) < 1 ||
-        String(row.quantity).trim() === ""
+        !Number.isSafeInteger(Number(getSBQ(row))) ||
+        Number(getSBQ(row)) <= 0
       )
-        return `Enter a valid positive quantity for Item ${i + 1}.`;
+        return `Item ${i + 1} needs a valid item SBQ.`;
+      if (
+        !Number.isSafeInteger(Number(row.boxQuantity)) ||
+        Number(row.boxQuantity) < 1 ||
+        String(row.boxQuantity).trim() === ""
+      )
+        return `Enter a valid positive box quantity for Item ${i + 1}.`;
+
+      const maxLimitValue = itemMasters[row.itemId]?.warehouseLimit;
+      const maxLimit = Number(maxLimitValue);
+      const quantity = getOrderQuantity(row);
+      if (
+        maxLimitValue == null ||
+        maxLimitValue === "" ||
+        !Number.isFinite(maxLimit) ||
+        maxLimit <= 0
+      )
+        return `Warehouse limit is unavailable for Item ${i + 1}.`;
+      if (!Number.isSafeInteger(quantity) || quantity > maxLimit)
+        return `Item ${i + 1}: Order Quantity must not exceed Warehouse Max Limit (${maxLimit.toLocaleString()} units).`;
     }
     return "";
   };
-
   const buildPayload = () => {
     const common = {
       items: items.map((row) => ({
         itemId: row.itemId,
-        quantity: Number(row.quantity),
+        boxQuantity: Number(row.boxQuantity),
+        quantity: getOrderQuantity(row),
       })),
-      expectedDate: form.expectedDate,
       shippingAddress: form.shippingAddress.trim(),
       remarks: form.remarks.trim(),
     };
@@ -487,7 +556,6 @@ export default function Order_Processing_Create() {
       ...(changedIds.warehouse ? { warehouseId: form.warehouseId } : {}),
     };
   };
-
   const askSubmit = () => {
     const issue = validate();
     if (issue) showError(issue);
@@ -540,14 +608,12 @@ export default function Order_Processing_Create() {
       submitLock.current = false;
     }
   };
-
   if (fetchingOrder)
     return (
       <div className="min-h-screen flex items-center justify-center gap-3 text-[#0062a0]">
         <Loader2 className="animate-spin" /> Loading Order Details...
       </div>
     );
-
   return (
     <motion.div
       variants={animation}
@@ -601,15 +667,6 @@ export default function Order_Processing_Create() {
           </motion.div>
           <motion.div variants={appear}>
             <ReUsableInput_Fields
-              label="Expected Due Date"
-              name="expectedDate"
-              type="date"
-              value={form.expectedDate}
-              onChange={handleField}
-            />
-          </motion.div>
-          <motion.div variants={appear}>
-            <ReUsableInput_Fields
               label="Shipping Address"
               name="shippingAddress"
               value={form.shippingAddress}
@@ -654,7 +711,7 @@ export default function Order_Processing_Create() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex flex-col md:flex-row md:items-center gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))_48px] items-end gap-4"
                 >
                   <div className="flex-1 min-w-0">
                     <ReUsableInput_Fields
@@ -667,17 +724,51 @@ export default function Order_Processing_Create() {
                       disabled={!form.warehouseCode || loadingItems || saving}
                     />
                   </div>
+                  <div className="flex-1 min-w-0 relative">
+                    <ReUsableInput_Fields
+                      label="Box Quantity"
+                      name="boxQuantity"
+                      type="number"
+                      value={item.boxQuantity}
+                      onChange={(event) => handleItem(item.key, event)}
+                      disabled={!item.itemId || saving}
+                    />
+
+                    {item.itemId &&
+                      itemMasters[item.itemId]?.warehouseLimit != null && (
+                        <p className="absolute top-full left-0 mt-1 text-[11px] text-slate-500 whitespace-nowrap">
+                          Max:{" "}
+                          {Number(
+                            itemMasters[item.itemId].warehouseLimit,
+                          ).toLocaleString()}{" "}
+                          units ·{" "}
+                          {Math.floor(
+                            Number(itemMasters[item.itemId].warehouseLimit) /
+                              Number(getSBQ(item) || 1),
+                          )}{" "}
+                          boxes
+                        </p>
+                      )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <ReUsableInput_Fields
-                      label="Quantity"
-                      name="quantity"
+                      label="SBQ (Per Box)"
+                      name="itemSBQ"
                       type="number"
-                      value={item.quantity}
-                      onChange={(event) => handleItem(item.key, event)}
-                      disabled={saving}
+                      value={getSBQ(item)}
+                      disabled={true}
                     />
                   </div>
-                  <div className="flex gap-2 md:pt-4">
+                  <div className="flex-1 min-w-0">
+                    <ReUsableInput_Fields
+                      label="Order Quantity"
+                      name="quantity"
+                      type="number"
+                      value={getOrderQuantity(item)}
+                      disabled={true}
+                    />
+                  </div>
+                  <div className="flex gap-2 pb-2">
                     <button
                       type="button"
                       onClick={() => removeRow(item.key)}
