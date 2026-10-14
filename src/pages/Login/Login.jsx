@@ -4,7 +4,6 @@ import ReUsableInput_Fields from "../../component/ReUsableInput_Fields/ReUsableI
 import Button from "../../component/button/Buttons";
 import { loginAPI } from "../../service/Login/Login";
 import AuthLayout from "./AuthLayout";
-// Import Popups
 import ErrorMessage_Popup from "../../component/Popup_Models/ErrorMessage_Popup";
 import Success_Popup from "../../component/Popup_Models/Success_Popup";
 
@@ -15,67 +14,64 @@ const Login = () => {
     loginPassword: "",
   });
   const [loading, setLoading] = useState(false);
-
-  // --- POPUP STATE ---
+  const [rememberMe, setRememberMe] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [redirectPath, setRedirectPath] = useState("");
 
-  // Auto-navigate after showing success confirmation
   useEffect(() => {
-    if (showSuccess && redirectPath) {
-      const timer = setTimeout(() => {
-        setShowSuccess(false);
-        navigate(redirectPath);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
+    if (!showSuccess || !redirectPath) return;
+    const timer = setTimeout(() => {
+      setShowSuccess(false);
+      navigate(redirectPath);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, [showSuccess, redirectPath, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
+    setShowError(false);
+    setRedirectPath("");
+    sessionStorage.removeItem("temp_login_otp");
 
     try {
       const response = await loginAPI(formData);
+      const responseBody = response?.data ?? response;
+      if (responseBody?.success === false) {
+        throw new Error(responseBody?.message || "Login failed");
+      }
 
-      // Save email for OTP verification
+      const apiData = responseBody?.data ?? responseBody;
       localStorage.setItem("temp_login_email", formData.loginEmail);
 
-      const apiData = response?.data?.data || response?.data || response;
-
-      // Extract success message
-      const successMessage =
-        response?.data?.data?.message ||
-        response?.data?.message ||
-        response?.message ||
-        "Login successful!";
-
-      setSuccessMsg(successMessage);
-      setShowSuccess(true);
-
-      if (apiData?.isFirstLogin === true) {
-        setRedirectPath("first-time-login");
-      } else {
-        setRedirectPath("otp");
+      // This is only useful for backends that expose OTPs in development.
+      // In production, the server should deliver OTP via email/SMS instead.
+      const returnedOtp = apiData?.otp;
+      if (returnedOtp != null && /^\d{6}$/.test(String(returnedOtp))) {
+        sessionStorage.setItem("temp_login_otp", String(returnedOtp));
       }
-    } catch (error) {
-      console.error("Login Error Object:", error);
 
-      // --- ROBUST ERROR EXTRACTION ---
-      // Checks for Axios format AND direct Fetch/JSON throw format
-      const errorMessage =
+      const message =
+        apiData?.message || responseBody?.message || "Login successful!";
+      setSuccessMsg(message);
+      setRedirectPath(
+        apiData?.isFirstLogin === true ? "first-time-login" : "otp",
+      );
+      setShowSuccess(true);
+    } catch (error) {
+      const message =
         error?.response?.data?.data?.message ||
         error?.response?.data?.message ||
         error?.data?.data?.message ||
         error?.data?.message ||
         error?.message ||
         "Invalid email or password";
-
-      // Show Error Popup
-      setErrorMsg(errorMessage);
+      setErrorMsg(message);
       setShowError(true);
     } finally {
       setLoading(false);
@@ -91,19 +87,24 @@ const Login = () => {
         <div className="space-y-2">
           <ReUsableInput_Fields
             label="Email Address"
+            name="loginEmail"
             type="email"
             value={formData.loginEmail}
             onChange={(e) =>
-              setFormData({ ...formData, loginEmail: e.target.value })
+              setFormData((prev) => ({ ...prev, loginEmail: e.target.value }))
             }
             required
           />
           <ReUsableInput_Fields
             label="Password"
+            name="loginPassword"
             type="password"
             value={formData.loginPassword}
             onChange={(e) =>
-              setFormData({ ...formData, loginPassword: e.target.value })
+              setFormData((prev) => ({
+                ...prev,
+                loginPassword: e.target.value,
+              }))
             }
             required
           />
@@ -113,6 +114,8 @@ const Login = () => {
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
               className="w-4 h-4 rounded border-slate-300 text-[#0062a0]"
             />
             <span className="text-sm text-slate-600 font-medium">
@@ -138,14 +141,11 @@ const Login = () => {
         </Button>
       </form>
 
-      {/* --- SUCCESS POPUP COMPONENT --- */}
       <Success_Popup
         isOpen={showSuccess}
         onClose={() => setShowSuccess(false)}
         message={successMsg}
       />
-
-      {/* --- ERROR POPUP COMPONENT --- */}
       <ErrorMessage_Popup
         isOpen={showError}
         onClose={() => setShowError(false)}
