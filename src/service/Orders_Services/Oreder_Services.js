@@ -127,8 +127,37 @@ export const order_processing_statuses = () => {
   return api.get("/order/statuses");
 };
 
-export const order_processing_updateStatus = (id, data) =>
-  api.patch(`/order/${encodeURIComponent(id)}/status`, data);
+export const order_processing_updateStatus = (id, data) => {
+  const fileFields = ["invoiceCopy", "lrCopy", "inspectionReport", "grnAttachment"];
+  const hasFiles = fileFields.some((field) =>
+    Array.isArray(data?.[field]) && data[field].some((file) => file instanceof File),
+  );
+
+  if (!hasFiles) return api.patch(`/order/${encodeURIComponent(id)}/status`, data);
+
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    if (value == null || fileFields.includes(key)) return;
+    if (Array.isArray(value) || (typeof value === "object" && !(value instanceof File))) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value);
+    }
+  });
+  fileFields.forEach((field) => {
+    (data[field] || []).forEach((file) => {
+      if (file instanceof File) formData.append(field, file);
+    });
+  });
+
+  return api.patch(`/order/${encodeURIComponent(id)}/status`, formData, {
+    headers: { "Content-Type": null },
+  });
+};
+
+export const order_processing_deleteLot = (id, lotNo, data) => {
+  return api.delete(`/order/${encodeURIComponent(id)}/lots/${encodeURIComponent(lotNo)}`, { data });
+};
 
 ////////////////////////////////////////////////////////////////////Bin of Metarials ///////////////////////////////////////////////////////////////////////////
 
